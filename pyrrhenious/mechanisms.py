@@ -7,8 +7,43 @@ class Mechanism:
     q2 =2*1.602176634e-19
     r = 8.314462
     cm3GPamol_to_ev = 1/96.49
+
+    def set_water_units(self,units):
+        self._water_units = units
+
+    def convert_water(self,cw):
+        assert cw is not None, "Water value must be provided"
+        if self._water_units=='wtpct':
+            return cw*1e-4
+        elif self._water_units=='wtpct10x':
+            return cw*1e-5
+        elif self._water_units=='ppm':
+            return cw
+        else:
+            raise NotImplementedError(f"{self._water_units} conversion not implemented")
+
+    def convert_pressure(self,P):
+        assert P is not None, "Pressure value must be provided"
+        return P*self.cm3GPamol_to_ev
     def get_conductivity(self, T=None, **kwargs):# -> np.ndarray | float if python 3.10>
         pass
+
+    @property
+    def uses_water(self):
+        return False
+
+    @property
+    def uses_iron(self):
+        return False
+
+    @property
+    def uses_pressure(self):
+        return False
+
+    @property
+    def uses_fo2(self):
+        return False
+
 @dataclass
 class StochasticConstant:
     mean : float
@@ -28,9 +63,10 @@ class StochasticConstant:
 
     def __repr__(self):
         return f'{self.type}({self.mean}+-{self.stdev}: islog: {self.log})'
-class SingleValue:
+class SingleValue(Mechanism):
     n_constants = 1
     def __init__(self,value):
+        super().__init__()
         self.value=value
 
     def get_conductivity(self,**kwargs):
@@ -74,6 +110,10 @@ class ArrheniousFugacity(ArrheniousSimple):
         conductivity1 = super(ArrheniousFugacity, self).get_conductivity(**kwargs)
         return conductivity1 * (10**logfo2) ** self.exponent.get_value(**kwargs)
 
+    @property
+    def uses_fo2(self):
+        return True
+
 @dataclass
 class ArrheniousfO2(Mechanism):
     """
@@ -94,10 +134,13 @@ class ArrheniousfO2(Mechanism):
         print(f'{a} {b} {c}')
         return 10**(a - b/T + c*logfo2)
 
+    def uses_fo2(self):
+        return True
+
 @dataclass
 class ArrheniousfO22(Mechanism):
     """
-    sigma = log10(a + b*log10 fO2 + c/T)
+    sigma = log10(a + b/T + c*log10 fO2)
 
     """
     preexp: StochasticConstant
@@ -109,7 +152,11 @@ class ArrheniousfO22(Mechanism):
         a = self.preexp.get_value(**kwargs)
         b = self.enthalpy.get_value(**kwargs)
         c = self.const.get_value(**kwargs)
-        return 10**(a - c / T + b*logfo2)
+        return 10**(a + b / T + c*logfo2)
+
+    def uses_fo2(self):
+        return True
+
 class ArrheniousPreexpParam(ArrheniousSimple):
     """
 
@@ -132,10 +179,13 @@ class ArrheniousPreexpParam(ArrheniousSimple):
         return a0*(1 - b*P)
 
     def get_enthalpy(self, P=None,**kwargs):
-        assert P is not None, "Pressure value must be provided"
         h = self.enthalpy.get_value(**kwargs)
         v = self.volume.get_value(**kwargs)
-        return h + v*P
+        return h + v*self.convert_pressure(P)
+
+    @property
+    def uses_pressure(self):
+        return True
 
 
 class ArrheniousPressure(ArrheniousSimple):
@@ -149,9 +199,12 @@ class ArrheniousPressure(ArrheniousSimple):
         self.volume = volume
 
     def get_enthalpy(self, *args,P=None, **kwargs):
-        assert P is not None, "Pressure value must be provided"
         enthalpy = super(ArrheniousPressure, self).get_enthalpy(**kwargs)
-        return enthalpy + self.volume.get_value(P=P,**kwargs)*P*self.cm3GPamol_to_ev
+        return enthalpy + self.volume.get_value(**kwargs)*self.convert_pressure(P)
+
+    @property
+    def uses_pressure(self):
+        return True
 
 class IronPreexpEnthalpyArrhenious(ArrheniousSimple):
     """
@@ -176,38 +229,52 @@ class IronPreexpEnthalpyArrhenious(ArrheniousSimple):
         return a*X_fe
 
     def get_enthalpy(self, X_fe=None, P=None, **kwargs):
-        assert P is not None, "Pressure value must be provided"
         assert X_fe is not None, "Iron value must be provided"
         h = self.enthalpy.get_value(**kwargs)
         v = self.volume.get_value(**kwargs)
         a = self.const1.get_value(**kwargs)
         b = self.const2.get_value(**kwargs)
-        return h + a*X_fe**(1/3) + P*(v + b*X_fe)*self.cm3GPamol_to_ev
+        return h + a*X_fe**(1/3) + self.convert_pressure(P)*(v + b*X_fe)
+
+    @property
+    def uses_pressure(self):
+        return True
+
+    @property
+    def uses_iron(self):
+        return True
+
 class IronWaterArrhenious1(ArrheniousSimple):
     """
-    sigma = a (c0*Cw)^b exp( -c/kt) exp(X_fe * d/kt)
+    sigma = a (Cw)^b exp( -c/kt) exp(X_fe * d/kt)
 
     """
-    n_constants = 5
+    n_constants = 4
 
-    def __init__(self, preexp: StochasticConstant,w_convert: StochasticConstant, const: StochasticConstant,
+    def __init__(self, preexp: StochasticConstant, const: StochasticConstant,
                  enthalpy1: StochasticConstant, enthalpy2: StochasticConstant):
         super().__init__(None, enthalpy1)
         self.preexp = preexp
-        self.w_convert = w_convert
         self.enthalpy2 = enthalpy2
         self.const = const
 
 
-    def get_preexp(self, X_fe=None,Cw=None,T=None, **kwargs):
+    def get_preexp(self, X_fe=None, Cw=None,T=None, **kwargs):
         assert X_fe is not None, "Iron value must be provided"
-        assert Cw is not None, "Water value must be provided"
         a = self.preexp.get_value(**kwargs)
         b = self.const.get_value(**kwargs)
         c = self.enthalpy2.get_value(**kwargs)
         print(self.enthalpy.get_value())
         upper_enth = X_fe * c/(self.r * T)
-        return a * ((self.w_convert.get_value()*Cw)**b) * np.exp(upper_enth.astype(float))
+        return a * ((self.convert_water(Cw))**b) * np.exp(upper_enth.astype(float))
+
+    @property
+    def uses_iron(self):
+        return True
+
+    @property
+    def uses_water(self):
+        return True
 
 class IronWaterArrhenious2(ArrheniousSimple):
     """
@@ -229,20 +296,26 @@ class IronWaterArrhenious2(ArrheniousSimple):
 
     def get_preexp(self, X_fe=None,Cw=None, **kwargs):
         assert X_fe is not None, "Iron value must be provided"
-        assert Cw is not None, "Water value must be provided"
         a = self.preexp.get_value(**kwargs)
         b = self.const1.get_value(**kwargs)
         c = self.const2.get_value(**kwargs)
-        return a * X_fe**b * Cw**c
+        return a * X_fe**b * self.convert_water(Cw)**c
 
     def get_enthalpy(self, Cw=None, X_fe=None, **kwargs):
         assert X_fe is not None, "Iron value must be provided"
-        assert Cw is not None, "Water value must be provided"
         h = self.enthalpy.get_value(**kwargs)
         a = self.const3.get_value(**kwargs)
         b = self.const4.get_value(**kwargs)
 
-        return h + a * X_fe  + b *Cw**(1/3)
+        return h + a * X_fe  + b * self.convert_water(Cw)**(1/3)
+
+    @property
+    def uses_iron(self):
+        return True
+
+    @property
+    def uses_water(self):
+        return True
 
 class NerstEinstein1(Mechanism):
     """
@@ -256,12 +329,15 @@ class NerstEinstein1(Mechanism):
         self.const1 = const1
         self.enthalpy = enthalpy
     def get_conductivity(self, T=None,Cw=None, **kwargs):
-        assert Cw is not None, "Water value must be provided"
         a = self.const1.get_value(**kwargs)
         h = self.enthalpy.get_value(**kwargs)
         a0 = self.q2/self.k
 
-        return Cw * a * np.exp(h/(self.k*T))*a0/T
+        return self.convert_water(Cw) * a * np.exp(h/(self.k*T))*a0/T
+
+    @property
+    def uses_water(self):
+        return True
 
 
 class NerstEinstein2(Mechanism):
@@ -279,14 +355,18 @@ class NerstEinstein2(Mechanism):
         self.enthalpy = enthalpy
 
     def get_conductivity(self, T=None, Cw=None, **kwargs):
-        assert Cw is not None, "Water value must be provided"
         a = self.const1.get_value(**kwargs)
         c = self.const1.get_value(**kwargs)
         h = self.enthalpy.get_value(**kwargs)
         a0 = self.q2 / self.k
 
         enthalpy_term = h - c/(self.r*np.log(10)*T)
-        return  a * Cw * np.exp(enthalpy_term) * a0 / T
+        return  a * self.convert_water(Cw) * np.exp(enthalpy_term) * a0 / T
+
+
+    @property
+    def uses_water(self):
+        return True
 
 
 class NerstEinstein3(Mechanism):
@@ -304,13 +384,18 @@ class NerstEinstein3(Mechanism):
         self.enthalpy = enthalpy
 
     def get_conductivity(self, T=None, Cw=None, **kwargs):
-        assert Cw is not None, "Water value must be provided"
         a = self.const1.get_value(**kwargs)
         b = self.const1.get_value(**kwargs)
         h = self.enthalpy.get_value(**kwargs)
         a0 = self.q2 / self.k
 
-        return a * Cw **(1+b) * np.exp(h/(self.k*T)) * a0 / T
+        return a * self.convert_water(Cw) **(1+b) * np.exp(h/(self.k*T)) * a0 / T
+
+
+    @property
+    def uses_water(self):
+        return True
+
 @dataclass
 class SEO3(Mechanism):
     """
@@ -365,6 +450,10 @@ class SEO3(Mechanism):
 
         return term1*term2 + term3*term4
 
+    @property
+    def uses_fo2(self):
+        return True
+
 
 class WaterExpArrhenious1(ArrheniousSimple):
     """
@@ -378,11 +467,13 @@ class WaterExpArrhenious1(ArrheniousSimple):
         self.const1 = const1
 
     def get_preexp(self,Cw=None, **kwargs):
-        assert Cw is not None, "water content must be provided"
         a = self.preexp.get_value(**kwargs)
         p = self.const1.get_value(**kwargs)
-        return a * Cw**p
+        return a * self.convert_water(Cw)**p
 
+    @property
+    def uses_water(self):
+        return True
 
 
 class WaterExpArrhenious2(ArrheniousSimple):
@@ -398,17 +489,19 @@ class WaterExpArrhenious2(ArrheniousSimple):
         self.const1 = const1
 
     def get_preexp(self, Cw=None, **kwargs):
-        assert Cw is not None, "water content must be provided"
         a = self.preexp.get_value(**kwargs)
-        return a * Cw
+        return a * self.convert_water(Cw)
 
     def get_enthalpy(self, Cw=None, **kwargs):
-        assert Cw is not None, "water content must be provided"
         a = self.enthalpy.get_value(**kwargs)
         c = self.const1.get_value(**kwargs)
-        return a + c*Cw**(1/3)
+        return a + c*self.convert_water(Cw)**(1/3)
 
-class WaterExpArrheniousPressure(ArrheniousSimple):
+    @property
+    def uses_water(self):
+        return True
+
+class WaterExpArrheniousPressure(ArrheniousPressure):
     """
 
     sigma = a Cw^b exp(-(c + Pd)/kT)
@@ -418,23 +511,23 @@ class WaterExpArrheniousPressure(ArrheniousSimple):
 
     def __init__(self, preexp: StochasticConstant, const1: StochasticConstant, enthalpy: StochasticConstant,
                  volume : StochasticConstant):
-        super().__init__(preexp, enthalpy)
+        super().__init__(preexp, enthalpy, volume)
         self.const1 = const1
-        self.volume = volume
 
     def get_preexp(self, Cw=None, **kwargs):
-        assert Cw is not None, "water content must be provided"
         a = self.preexp.get_value(**kwargs)
         b = self.const1.get_value(**kwargs)
-        return a * Cw**b
+        return a * self.convert_water(Cw)**b
 
-    def get_enthalpy(self, P=None, **kwargs):
-        assert P is not None, "pressure must be provided"
-        a = self.enthalpy.get_value(**kwargs)
-        v = self.volume.get_value(**kwargs)
-        return a + P*v*self.cm3GPamol_to_ev
+    @property
+    def uses_water(self):
+        return True
 
-class WaterExpArrheniousInvT(ArrheniousSimple):
+    @property
+    def uses_pressure(self):
+        return True
+
+class WaterExpArrheniousInvT(WaterExpArrheniousPressure):
     """
 
     sigma = a Cw^b exp(-(c + Pd)/kT)/T
@@ -444,21 +537,19 @@ class WaterExpArrheniousInvT(ArrheniousSimple):
 
     def __init__(self, preexp: StochasticConstant, const1: StochasticConstant, enthalpy: StochasticConstant,
                  volume: StochasticConstant):
-        super().__init__(preexp, enthalpy)
-        self.const1 = const1
-        self.volume = volume
+        super().__init__(preexp,const1, enthalpy,volume)
 
-    def get_preexp(self, Cw=None,T=None, **kwargs):
-        assert Cw is not None, "water content must be provided"
-        a = self.preexp.get_value(**kwargs)
-        b = self.const1.get_value(**kwargs)
-        return a * Cw**b /T
+    def get_conductivity(self, T=None, **kwargs):
+        c = super(WaterExpArrheniousPressure).get_conductivity(T=T, **kwargs)
+        return c/T
 
-    def get_enthalpy(self, P=None, **kwargs):
-        assert P is not None, "pressure must be provided"
-        a = self.enthalpy.get_value(**kwargs)
-        v = self.volume.get_value(**kwargs)
-        return a + P * v*self.cm3GPamol_to_ev
+    @property
+    def uses_water(self):
+        return True
+
+    @property
+    def uses_pressure(self):
+        return True
 
 
 model_dict = {

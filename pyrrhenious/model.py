@@ -64,24 +64,30 @@ class ModelInterface:
     def title(self):
         pass
     @staticmethod
-    def determine_starting_c_type(P=None, T=None, **kwargs):
-        if (isinstance(T,float) and P is None) or (isinstance(P,float) and T is None):
-            c = 0
-        elif isinstance(T,np.ndarray) and (P is None or isinstance(P, float) or isinstance(P,int)):
-            c = np.zeros(T.shape)
-        elif isinstance(P,np.ndarray) and (T is None or isinstance(T, float) or isinstance(T,int)):
-            c = np.zeros(P.shape)
-        elif isinstance(P,np.ndarray) and isinstance(T,np.ndarray) and T.shape==P.shape:
-            c = np.zeros(T.shape)
+    def determine_starting_c_type(P=None, T=None,logfo2=None, **kwargs):
+        ndarrays = list(filter(lambda x: isinstance(x, np.ndarray), [P, T, logfo2]))
+        if len(ndarrays)<1:
+            reference_shape=(1)
+        elif len(ndarrays)==1:
+            reference_shape= ndarrays[0].shape
         else:
-            assert False , "unsure how to construct c since dimensions of T and P don't match"
-        return c
+            reference_shape = ndarrays[0].shape
+            assert all(array.shape == reference_shape for array in ndarrays),  f"unsure how to construct c since dimensions of T, P, and logfo2 don't match:\nP:\t{P}\nT:\t{T}\nlogfo2:\t{logfo2}"
+        return np.zeros(reference_shape)
 class Model(ModelInterface):
     def __init__(self, mechanisms: list, id_rows: pd.Series):
         super().__init__()
         self.metadata = PublicationMetadata.from_kwargs(**id_rows)
         self.id = id_rows['entry_id']
         self.mechanisms = mechanisms
+        for m in mechanisms:
+            if m.uses_water:
+                m.set_water_units(self.metadata.water_units)
+
+    @property
+    def uses_water(self):
+        return any(m.uses_water for m in self.mechanisms)
+
 
     def get_conductivity(self, **kwargs):
         c = self.determine_starting_c_type(**kwargs)
@@ -105,6 +111,10 @@ class CompositeModel(ModelInterface):
         for m in self.models:
             c += m.get_conductivity(**kwargs)
         return c
+
+    @property
+    def uses_water(self):
+        return any(m.uses_water for m in self.models)
 
     @property
     def title(self):
