@@ -64,8 +64,8 @@ class ModelInterface:
     def title(self):
         pass
     @staticmethod
-    def determine_starting_c_type(P=None, T=None,logfo2=None, **kwargs):
-        ndarrays = list(filter(lambda x: isinstance(x, np.ndarray), [P, T, logfo2]))
+    def determine_starting_c_type(starting_value=0, P=None, T=None,logfo2=None,Xfe=None,Cw=None,co2=None, **kwargs):
+        ndarrays = list(filter(lambda x: isinstance(x, np.ndarray), [P, T, logfo2,Xfe,Cw,co2]))
         if len(ndarrays)<1:
             reference_shape=(1)
         elif len(ndarrays)==1:
@@ -73,7 +73,8 @@ class ModelInterface:
         else:
             reference_shape = ndarrays[0].shape
             assert all(array.shape == reference_shape for array in ndarrays),  f"unsure how to construct c since dimensions of T, P, and logfo2 don't match:\nP:\t{P}\nT:\t{T}\nlogfo2:\t{logfo2}"
-        return np.zeros(reference_shape)
+        return np.ones(reference_shape)*starting_value
+
 class Model(ModelInterface):
     def __init__(self, mechanisms: list, id_rows: pd.Series):
         super().__init__()
@@ -92,7 +93,8 @@ class Model(ModelInterface):
     def get_conductivity(self, **kwargs):
         c = self.determine_starting_c_type(**kwargs)
         for m in self.mechanisms:
-            c += m.get_conductivity(**kwargs)
+            new_conductivity = m.get_conductivity(**kwargs)
+            c += new_conductivity
         return c
 
     @property
@@ -109,7 +111,8 @@ class CompositeModel(ModelInterface):
     def get_conductivity(self, crystal_direction=None, **kwargs):
         c = self.determine_starting_c_type(**kwargs)
         for m in self.models:
-            c += m.get_conductivity(**kwargs)
+            new_conductivity = m.get_conductivity(**kwargs)
+            c += new_conductivity
         return c
 
     @property
@@ -134,16 +137,20 @@ class AnisotropicModel(CompositeModel):
             return self._get_xstal_direction(crystal_direction,**kwargs)
         elif isinstance(crystal_direction,float):
             return self._get_anisotropic_factor(**kwargs)
-        else:
+        elif averaging=='geometric':
             return self._get_geometric_mean(**kwargs)
+        else:
+            raise NotImplementedError("current option is not implemented")
 
     def _get_xstal_direction(self, xstal_direction,**kwargs):
         return self.models[xstal_direction].get_conductivity(**kwargs)
 
     def _get_geometric_mean(self,**kwargs):
-        c = self.determine_starting_c_type(**kwargs)
-        for m in self.models:
-            c *= m.get_conductivity(**kwargs)**(1/3)
+        c = self.determine_starting_c_type(starting_value=1,**kwargs)
+        for m in self.models.values():
+            new_conductivity = m.get_conductivity(**kwargs)
+            new_conductivity = new_conductivity**(1/len(self.models))
+            c *= new_conductivity
         return c
 
     def _get_anisotropic_factor(self,factor,**kwargs):
@@ -159,6 +166,6 @@ class AnisotropicModel(CompositeModel):
     @property
     def title(self):
         return 'Anisotropic+\n' +''.join([f'{m.metadata.phase_type}\n'+\
-                f'{m.metadata.publication_id}' for m in self.models])
+                f'{m.metadata.publication_id}' for m in self.models.values()])
 
 

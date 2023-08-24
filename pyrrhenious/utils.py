@@ -13,7 +13,17 @@ def calc_QFM(T,P):
             val = a/T + b + c *(P_bars-1)/T
         else:
             val = aa/T + bb + cc*(P_bars-1)/T
-    elif isinstance(T,np.ndarray):
+    elif isinstance(T,np.ndarray) and isinstance(P,np.ndarray):
+
+        val = np.ones(T.shape)
+        low_t_mask = T < 573
+        high_t_mask = T >=573
+        val_low  = a / T[low_t_mask] + b + c * (P_bars[low_t_mask] - 1) / T[low_t_mask]
+        val_high = aa / T[high_t_mask] + bb + cc * (P_bars[high_t_mask] - 1) / T[high_t_mask]
+        val[low_t_mask]  = val_low
+        val[high_t_mask] = val_high
+
+    elif isinstance(T,np.ndarray) and not isinstance(P,np.ndarray):
 
         val = np.ones(T.shape)
         low_t_mask = T < 573
@@ -22,5 +32,6 @@ def calc_QFM(T,P):
         val_high = aa / T[high_t_mask] + bb + cc * (P_bars - 1) / T[high_t_mask]
         val[low_t_mask]  = val_low
         val[high_t_mask] = val_high
+
 
     return val
