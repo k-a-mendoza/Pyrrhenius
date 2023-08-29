@@ -5,7 +5,7 @@ import pandas as pd
 import os
 import pickle
 import matplotlib.pyplot as plt
-file = 'publication_database.csv'
+file = 'Database/publication_database.csv'
 from pyrrhenious import database
 from pyrrhenious import utils as pyrutils
 

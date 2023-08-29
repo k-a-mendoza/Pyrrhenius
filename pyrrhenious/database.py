@@ -24,27 +24,31 @@ class Database:
 
 
     """
+    isotropic_name = '_isotropic'
 
     def __init__(self, csv):
-        self.database = pd.read_csv(csv, encoding_errors='replace').dropna(how='all')
-        self.database.rename(_id_row_rename, inplace=True, axis=1)
-        self.models = {}
-
-    def load_models(self):
-        self.database['ec_model'] = self.database.apply(lambda row: create_model_from_row(row), axis=1)
-        self.database['pressure_average_gpa'] = self.database.apply(lambda row: calc_average_pressure(row), axis=1)
-        self.create_anisotropic_models()
+        database = pd.read_csv(csv, encoding_errors='replace').dropna(how='all')
+        data_rows = [model.create_model_from_row(x).get_row() for i, x in database.iterrows() ]
+        self.database = pd.DataFrame(data_rows)
 
     def create_anisotropic_models(self):
         subframe = self.database[self.database['crystal_direction'] != 'isotropic']
         subframe['grouping_id'] = subframe['entry_id'].str.slice(stop=-5)
         groups = list(subframe.groupby(['grouping_id'])['ec_model'])
+        new_models = []
         for g in groups:
-            base_row = dict(vars(g[1].values[0].metadata))
-            base_row['entry_id'] = g[0] + '_anisomodel'
-            base_row['ec_model'] = model.AnisotropicModel(g[1].values)
-            appending_series = pd.Series(base_row)
-            self.database = pd.concat([self.database, appending_series.to_frame().T], ignore_index=True, axis=0)
+            series_list = list(g[1])
+            new_model = model.AnisotropicModel(series_list)
+            new_models.append(new_model)
+        self.register_new_model(new_models)
+
+    def register_new_model(self, ecmodel: model.ModelInterface or list):
+        if isinstance(ecmodel, list):
+            self.database = pd.concat([self.database] + [x.get_row().to_frame().T for x in ecmodel],
+                                      ignore_index=True)
+        else:
+            db_row = ecmodel.get_row().to_frame().T
+            self.database = pd.concat([self.database, db_row], ignore_index=True)
 
     def get_model_names(self):
         return self.database['entry_id'].unique()
@@ -55,6 +59,7 @@ class Database:
     def get_model(self, entry_id):
         return self.database[self.database['entry_id'] == entry_id]['ec_model'].values[0]
 
+
     def get_phases(self):
         assert 'ec_model' in self.database.columns, "please load database with .load_data()"
         return list(self.database['phase_type'].unique())
@@ -63,63 +68,3 @@ class Database:
         assert 'ec_model' in self.database.columns, "please load database with .load_data()"
         return list(self.database[self.database['phase_type'] == phase]['entry_id'])
 
-
-def _create_multiple_mechanisms(row):
-    potential_mechanisms = [x.strip() for x in row['eq_id'].split('+')]
-    constants = create_constants_from_row(row)[::-1]
-    mech_list = []
-
-    for pot_mech in potential_mechanisms:
-        n_constants = mechanisms.model_dict[pot_mech].n_args()
-        assert n_constants <= len(constants), f"not enough constants for eqid: {row['entry_id']}\n{row}"
-        specific_constants = [constants.pop() for n in range(n_constants)]
-        mech_list.append(mechanisms.model_dict[pot_mech](*specific_constants))
-    return mech_list
-
-
-def _create_single_mechanism(row):
-    mechanism = row['eq_id'].strip()
-    target_mechanism = mechanisms.model_dict[mechanism]
-    constants = create_constants_from_row(row)
-    assert len(constants) == target_mechanism.n_args(), "Incorrect constant number defined for mechanism. " + \
-                                                        "Should have: " + str(
-        target_mechanism.n_args()) + " but found " + str(len(constants)) + " in file\n" + \
-                                                        "Check database entry " + row['entry_id'] + " against " + \
-                                                        str(target_mechanism)
-    return [target_mechanism(*constants)]
-
-
-def create_mechanism_from_row(row) -> list:
-    mechanism = row['eq_id']
-    if '+' in mechanism:
-        return _create_multiple_mechanisms(row)
-    else:
-        return _create_single_mechanism(row)
-
-
-def get_const_rows(row):
-    letter_rows = list(filter(lambda x: len(x) == 1, row.keys()))
-    valid_letter_rows = sorted(list(filter(lambda x: ~np.isnan(float(row[x])), letter_rows)))
-    return valid_letter_rows
-
-
-def create_constants_from_row(row: pd.Series):
-    letter_columns = get_const_rows(row)
-
-    try:
-        variables = [mechanisms.StochasticConstant(row[f'{x}'],
-                                                   row[f'{x}_uncertainty'],
-                                                   row[f'{x}_description'].split('_')[0],
-                                                   'log' in row[f'{x}_description'])
-                     for x in letter_columns]
-    except Exception as e:
-        print(f'problems initializing ' + row['entry_id'])
-        print(e)
-        variables = None
-    return variables
-
-
-def create_model_from_row(row: pd.Series):
-    mechs = create_mechanism_from_row(row)
-    metadata_row_keys = list(set(row.keys()) - set(get_const_rows(row)))
-    return model.Model(mechs, row[metadata_row_keys])

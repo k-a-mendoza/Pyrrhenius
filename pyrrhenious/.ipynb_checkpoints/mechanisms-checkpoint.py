@@ -482,14 +482,15 @@ class LinkedArrhenious(ArrheniousSimple):
         self.const3 = const3
         self.const4 = const4
         self.const5 = const5
-    def _get_volatile(self,**kwargs):
-        raise NotImplementedError("need to implement this function to use the mechanism")
-    def get_enthalpy(self, **kwargs):
+
+    def _get_enthalpy(self, volatile, **kwargs):
         """
         Calculates enthalpy.
 
         Parameters
         ----------
+        volatile : float
+            The volatile concentration
         kwargs : dict
             Optional keyword arguments.
 
@@ -502,18 +503,14 @@ class LinkedArrhenious(ArrheniousSimple):
         a = self.const1.get_value(**kwargs)
         b = self.const2.get_value(**kwargs)
         c = self.const3.get_value(**kwargs)
-        volatile = self._get_volatile(**kwargs)
         return a * np.exp(b * volatile) + c
 
-    def get_preexp(self,**kwargs):
+    def get_preexp(self, **kwargs):
         """
         calculates the preexponential value
 
         Parameters
         ----------
-        volatile : float or np.ndarray
-            the volatile value needed for computation of the model
-
         kwargs : dict
             Optional keyword arguments.
 
@@ -523,7 +520,7 @@ class LinkedArrhenious(ArrheniousSimple):
             The value of the pre-exponential factor.
 
         """
-        ea = self.get_enthalpy(**kwargs)
+        ea = self._get_enthalpy(**kwargs)
         d = self.const4.get_value(**kwargs)
         e = self.const5.get_value(**kwargs)
         return np.exp(ea * d + e)
@@ -546,7 +543,7 @@ class LinkedArrhenious(ArrheniousSimple):
 
         """
         preexp = self.get_preexp(**kwargs)
-        h = self.get_enthalpy(**kwargs) * 1e-3
+        h = self._get_enthalpy(**kwargs) * 1e-3
         return preexp * np.exp(-h / (self.r * T))
 
     @classmethod
@@ -613,25 +610,25 @@ class LinkedArrheniousWet(LinkedArrhenious):
         """
         return True
 
-    def _get_volatile(self,Cw=None, **kwargs):
+    def get_enthalpy(self, Cw=None, **kwargs):
         """
-
-        Gets and converts the value of the volatile needed for this mechanism
+        Get the value of the enthalpy considering the presence of water.
 
         Parameters
         ----------
-        Cw : float or np.ndarray
-
-        kwargs : dict [optional]
+        Cw : float, optional
+            Concentration of water. Defaults to None.
+        kwargs : dict
+            Optional keyword arguments.
 
         Returns
         -------
+        float
+            The value of the enthalpy.
 
         """
         cw = self.convert_water(Cw)
-        return cw
-
-
+        return self._get_enthalpy(cw)
 
 
 
@@ -675,24 +672,10 @@ class LinkedArrheniousCO2(LinkedArrhenious):
     def uses_co2(self):
         return True
 
-    def _get_volatile(self, co2=None, **kwargs):
-        """
-
-        Gets and converts the value of the volatile needed for this mechanism
-
-        Parameters
-        ----------
-        co2 : float or np.ndarray
-
-        kwargs : dict [optional]
-
-        Returns
-        -------
-
-        """
+    def get_enthalpy(self, co2=None, **kwargs):
         co2 = self.convert_co2(co2)
-        return co2
-
+        return self._get_enthalpy(co2)
+    
 
 class VogelFulcherTammanWet(ArrheniousSimple):
     """
@@ -972,9 +955,6 @@ class ArrheniousPressure(ArrheniousSimple):
     def uses_pressure(self):
         return True
 
-    def __repr__(self):
-        return f'{self.preexp} exp(-({self.enthalpy} + P{self.volume})/kT)'
-
 class IronPreexpEnthalpyArrhenious(ArrheniousSimple):
     """
 
@@ -1021,19 +1001,19 @@ class IronWaterArrhenious1(ArrheniousSimple):
 
     def __init__(self, preexp: StochasticConstant, const: StochasticConstant,
                  enthalpy1: StochasticConstant, enthalpy2: StochasticConstant):
-        super().__init__(preexp, enthalpy1)
+        super().__init__(None, enthalpy1)
+        self.preexp = preexp
         self.enthalpy2 = enthalpy2
         self.const = const
 
 
     def get_preexp(self, X_fe=None, Cw=None,T=None, **kwargs):
         assert X_fe is not None, "Iron value must be provided"
-        preexp = ArrheniousSimple.get_preexp(self,**kwargs)
-        water = self.convert_water(Cw)
+        a = self.preexp.get_value(**kwargs)
         b = self.const.get_value(**kwargs)
         c = self.enthalpy2.get_value(**kwargs)
-        upper_enth = X_fe * c/(self.k * T)
-        return preexp * (water**b) * np.exp(upper_enth)
+        upper_enth = X_fe * c/(self.r * T)
+        return a * ((self.convert_water(Cw))**b) * np.exp(upper_enth)
 
     @property
     def uses_iron(self):
@@ -1143,25 +1123,24 @@ class NerstEinstein2(Mechanism):
 class NerstEinstein3(Mechanism):
     """
 
-    sigma =  a * b Cw^(1+c) exp( d/kT)q^2/kT
+    sigma =  a Cw^(1+b) exp( c/kT)q^2/kT
 
     """
+    n_constants = 3
 
-    def __init__(self, const1: StochasticConstant, const2: StochasticConstant, const3: StochasticConstant, enthalpy: StochasticConstant):
+    def __init__(self, const1: StochasticConstant, const2: StochasticConstant, enthalpy: StochasticConstant):
         super().__init__()
         self.const1 = const1
         self.const2 = const2
-        self.const3 = const3
         self.enthalpy = enthalpy
 
     def get_conductivity(self, T=None, Cw=None, **kwargs):
         a = self.const1.get_value(**kwargs)
-        b = self.const2.get_value(**kwargs)
-        c = self.const3.get_value(**kwargs)
+        b = self.const1.get_value(**kwargs)
         h = self.enthalpy.get_value(**kwargs)
         a0 = self.q2 / self.k
 
-        return a * b *  self.convert_water(Cw) **(1+c) * np.exp(-h/(self.k*T)) * a0/T
+        return a * self.convert_water(Cw) **(1+b) * np.exp(-h/(self.k*T)) * a0 / T
 
 
     @property
@@ -1169,7 +1148,7 @@ class NerstEinstein3(Mechanism):
         return True
 
     def __repr__(self):
-        return f'{self.const1} q^2 {self.const2} Cw^({self.const3}+1) exp(-{self.enthalpy}/kT)/kT'
+        return f'q^2 {self.const1} Cw^({self.const2}+1) exp(-{self.enthalpy}/kT)/kT'
 
 @dataclass
 class SEO3Term(Mechanism):
@@ -1283,6 +1262,7 @@ class WaterExpArrhenious2(ArrheniousSimple):
     sigma = a Cw exp( -(b + c C_w^(d) /kT)
 
     """
+    n_constants = 4
 
     def __init__(self, preexp: StochasticConstant, enthalpy: StochasticConstant,const1: StochasticConstant,
                  const2: StochasticConstant):
@@ -1303,41 +1283,6 @@ class WaterExpArrhenious2(ArrheniousSimple):
     @property
     def uses_water(self):
         return True
-
-class WaterExpArrhenious3(ArrheniousPressure):
-    """
-
-    sigma = a Cw^b exp( -(c + d C_w^(e) + P f) /kT)
-
-    """
-
-    def __init__(self,preexp : StochasticConstant,  waterexp_preepx : StochasticConstant,
-                 enthalpy : StochasticConstant, waterenth_const : StochasticConstant,
-                 waterenth_exp : StochasticConstant, volume : StochasticConstant,):
-        super().__init__(preexp,enthalpy,volume)
-        self.const1 = waterexp_preepx
-        self.const2 = waterenth_const
-        self.const3 = waterenth_exp
-
-    def get_preexp(self, Cw=None, **kwargs):
-        a = ArrheniousPressure.get_preexp(self,**kwargs)
-        r = self.const1.get_value(**kwargs)
-        cw_converted = self.convert_water(Cw)
-        return a * cw_converted**r
-
-    def get_enthalpy(self, Cw=None, **kwargs):
-        h = ArrheniousPressure.get_enthalpy(self, **kwargs)
-        a = self.const2.get_value(**kwargs)
-        r = self.const3.get_value(**kwargs)
-        cw_converted = self.convert_water(Cw)
-        return h + a*cw_converted**r
-
-    @property
-    def uses_water(self):
-        return True
-
-    def __repr__(self):
-        return f'{self.preexp} Cw^{self.const1} exp( -({self.enthalpy} + {self.const2}Cw^{self.const3} + P{self.volume})/kT)'
 
 class WaterExpArrheniousPressure(ArrheniousPressure):
     """
@@ -1365,9 +1310,6 @@ class WaterExpArrheniousPressure(ArrheniousPressure):
     def uses_pressure(self):
         return True
 
-    def __repr__(self):
-        return f'Cw^{self.const1} {ArrheniousPressure.__repr__(self)}'
-
 class WaterExpArrheniousInvT(WaterExpArrheniousPressure):
     """
 
@@ -1376,11 +1318,12 @@ class WaterExpArrheniousInvT(WaterExpArrheniousPressure):
     """
     n_constants = 4
 
-    def __init__(self, preexp: StochasticConstant, const1: StochasticConstant, enthalpy: StochasticConstant, volume: StochasticConstant):
-        super().__init__(preexp,const1, enthalpy, volume)
+    def __init__(self, preexp: StochasticConstant, const1: StochasticConstant, enthalpy: StochasticConstant,
+                 volume: StochasticConstant):
+        super().__init__(preexp,const1, enthalpy,volume)
 
     def get_conductivity(self, T=None, **kwargs):
-        c = WaterExpArrheniousPressure.get_conductivity(self,T=T, **kwargs)
+        c = super(WaterExpArrheniousPressure).get_conductivity(T=T, **kwargs)
         return c/T
 
     @property
@@ -1390,9 +1333,6 @@ class WaterExpArrheniousInvT(WaterExpArrheniousPressure):
     @property
     def uses_pressure(self):
         return True
-
-    def __repr__(self):
-        return f'{WaterExpArrheniousPressure.__repr__(self)}/T'
 
 
 model_dict = {
@@ -1414,64 +1354,7 @@ model_dict = {
 'water_exponent_arrhenious_pressure':WaterExpArrheniousPressure,
 'water_exponent_arrhenious_pressure_invT':WaterExpArrheniousInvT,
 'water_preexp_enthalpy_arrhenious':WaterExpArrhenious2,
-'water_preexp_enthalpy_pressure':WaterExpArrhenious3,
 'vft_wet': VogelFulcherTammanWet,
 'linked_arrhenious_wet':LinkedArrheniousWet,
 'linked_arrhenious_co2':LinkedArrheniousCO2}
-
-
-
-def _create_multiple_mechanisms(row):
-    potential_mechanisms = [x.strip() for x in row['eq_id'].split('+')]
-    constants = create_constants_from_row(row)[::-1]
-    mech_list = []
-
-    for pot_mech in potential_mechanisms:
-        n_constants = model_dict[pot_mech].n_args()
-        assert n_constants <= len(constants), f"not enough constants for eqid: {row['entry_id']}\n{row}"
-        specific_constants = [constants.pop() for n in range(n_constants)]
-        mech_list.append(model_dict[pot_mech](*specific_constants))
-    return mech_list
-
-
-def _create_single_mechanism(row):
-    mechanism = row['eq_id'].strip()
-    target_mechanism = model_dict[mechanism]
-    constants = create_constants_from_row(row)
-    assert len(constants) == target_mechanism.n_args(), "Incorrect constant number defined for mechanism. " + \
-                                                        "Should have: " + str(
-        target_mechanism.n_args()) + " but found " + str(len(constants)) + " in file\n" + \
-                                                        "Check database entry " + row['entry_id'] + " against " + \
-                                                        str(target_mechanism)
-    return [target_mechanism(*constants)]
-
-
-def create_mechanism_from_row(row) -> list:
-    mechanism = row['eq_id']
-    if '+' in mechanism:
-        return _create_multiple_mechanisms(row)
-    else:
-        return _create_single_mechanism(row)
-
-
-def get_const_rows(row):
-    letter_rows = list(filter(lambda x: len(x) == 1, row.keys()))
-    valid_letter_rows = sorted(list(filter(lambda x: ~np.isnan(float(row[x])), letter_rows)))
-    return valid_letter_rows
-
-
-def create_constants_from_row(row):
-    letter_columns = get_const_rows(row)
-
-    try:
-        variables = [StochasticConstant(row[f'{x}'],
-                                                   row[f'{x}_uncertainty'],
-                                                   row[f'{x}_description'].split('_')[0],
-                                                   'log' in row[f'{x}_description'])
-                     for x in letter_columns]
-    except Exception as e:
-        print(f'problems initializing ' + row['entry_id'])
-        print(e)
-        variables = None
-    return variables
 
