@@ -7,6 +7,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
+[![Documentation Status](https://readthedocs.org/projects/pyrrhenius/badge/?version=latest)](https://pyrrhenius.readthedocs.io/en/latest/?badge=latest)
 
 Pyrrhenius is a Python package designed for modeling the electrical conductivity of various geo-materials,  rocks, minerals, and brines, with specific application to the crust and upper mantle. The package provides a curated database of material parameterizations, and a number of useful functionalities, including anisotropy, stochastic sampling, and N-phase mixing laws. 
 
