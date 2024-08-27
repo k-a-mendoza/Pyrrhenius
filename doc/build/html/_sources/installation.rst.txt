@@ -1,0 +1,72 @@
+============
+Installation
+============
+
+Required Dependencies
+---------------------
+- Python (3.8 or later)
+- `numpy <https://numpy.org/doc/stable/>`_ (1.19 or later)
+- `scipy <https://docs.scipy.org/doc/scipy/>`_ (1.6 or later)
+- `pandas <https://pandas.pydata.org/docs/>`_ (1.5 or later)
+
+Optional Dependencies
+---------------------
+
+- `pyfluids <https://github.com/portyanikhin/PyFluids>`_ (2.6 or later) For use in Brine Models
+- `matplotlib <https://matplotlib.org/>`_ - For plotting and visualization
+
+
+Installing via pip
+------------------
+
+Pyrrhenius is designed to be used within a `pip <https://pip.pypa.io/en/stable/>`_ or `Anaconda <https://www.anaconda.com/>`_-managed Python environment.
+
+To install the latest stable release of Pyrrhenius from PyPI, use the following command within bash or zshell after activating your preferred pyrrhenius environment:
+
+
+.. code-block:: bash
+
+   pip install pyrrhenius
+
+Installing via git
+------------------
+
+pip can also be used to install the latest development branch of pyrrhenius, provided git is also installed
+
+.. code-block:: bash
+
+   pip install git+git://github.com/@master
+
+Installing pyfluids
+-------------------
+
+For brine modeling, Pyrrhenius can use the `pyfluids` package. To install this optional dependency, use the following command:
+
+.. code-block:: bash
+
+   pip install pyfluids
+
+Testing
+-------
+
+To run the test suite after installing `pytest <https://docs.pytest.org/en/stable/>`_, follow these steps:
+
+1. Install `pytest` either via `pip` or `conda`:
+
+   .. code-block:: bash
+
+      pip install pytest
+
+   or
+
+   .. code-block:: bash
+
+      conda install pytest
+
+2. Navigate to the root directory of the Pyrrhenius repository.
+
+3. Run `pytest`:
+
+   .. code-block:: bash
+
+      pytest

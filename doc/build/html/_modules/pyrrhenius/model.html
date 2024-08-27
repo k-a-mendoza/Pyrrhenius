@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyrrhenius.model &mdash; Pyrrhenius 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css?v=572af1d6" />
+      <link rel="stylesheet" type="text/css" href="../../_static/thebelab.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
+        <script src="../../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Pyrrhenius
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sections</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fordevelopers.html">test title</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Pyrrhenius</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyrrhenius.model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyrrhenius.model</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">signature</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span>  <span class="n">mechanisms</span> <span class="k">as</span> <span class="n">mech</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
+
+
+<span class="k">def</span> <span class="nf">_id_row_rename</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">col</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+<div class="viewcode-block" id="create_model_from_row">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.create_model_from_row">[docs]</a>
+<span class="k">def</span> <span class="nf">create_model_from_row</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;generates a Model object from a pandas series row</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    row : pd.Seriesorpd.DataFrame</span>
+<span class="sd">        a pandas row representing model parameters</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Model</span>
+<span class="sd">        a Pyrrhenius model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;Make multi model via an add operation. Function only makes single row models&#39;</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">row</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">_id_row_rename</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mechanism</span> <span class="o">=</span> <span class="n">mech</span><span class="o">.</span><span class="n">create_mechanism_from_row</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Model</span><span class="p">(</span><span class="n">mechanism</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="PublicationMetadata">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.PublicationMetadata">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">PublicationMetadata</span><span class="p">:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A Metadata class holding experimental information on a pyrrhenius model</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    title : str</span>
+<span class="sd">        The title of the publication.</span>
+<span class="sd">    author : str</span>
+<span class="sd">        The author(s) of the publication. </span>
+<span class="sd">    year : str</span>
+<span class="sd">        The year the publication was published.</span>
+<span class="sd">    doi : str</span>
+<span class="sd">        The DOI (Digital Object Identifier) of the publication.</span>
+<span class="sd">    phase_type : str</span>
+<span class="sd">        The type of phase the model applies to.</span>
+<span class="sd">    description : str</span>
+<span class="sd">        A description of the publication or model.</span>
+<span class="sd">    sample_type : str</span>
+<span class="sd">        The type of sample used in the experiments.</span>
+<span class="sd">    equation_form : str</span>
+<span class="sd">        The form of the equation used in the model.</span>
+<span class="sd">    publication_id : str</span>
+<span class="sd">        A unique identifier for the publication.</span>
+<span class="sd">    entry_id : str</span>
+<span class="sd">        A unique identifier for the specific model entry.</span>
+<span class="sd">    complete_or_partial_fit : str</span>
+<span class="sd">        Indicates if the model is a complete or partial fit to the data.</span>
+<span class="sd">    composite_or_single : str</span>
+<span class="sd">        Indicates if the model is a composite of multiple models or a single model.</span>
+<span class="sd">    pressure_average : float</span>
+<span class="sd">        The average pressure condition of the experiments. Units unspecified.</span>
+<span class="sd">    pressure_min : float</span>
+<span class="sd">        The minimum pressure condition of the experiments. Units unspecified.</span>
+<span class="sd">    pressure_max : float</span>
+<span class="sd">        The maximum pressure condition of the experiments. Units unspecified.</span>
+<span class="sd">    temp_min : float</span>
+<span class="sd">        The minimum temperature condition of the experiments in Kelvin.</span>
+<span class="sd">    temp_max : float </span>
+<span class="sd">        The maximum temperature condition of the experiments in Kelvin.</span>
+<span class="sd">    nacl_min : float</span>
+<span class="sd">        The minimum NaCl concentration of the experiments. Units unspecified.</span>
+<span class="sd">    nacl_max : float</span>
+<span class="sd">        The maximum NaCl concentration of the experiments. Units unspecified.</span>
+<span class="sd">    nacl_average : float</span>
+<span class="sd">        The average NaCl concentration of the experiments. Units unspecified.</span>
+<span class="sd">    na2o_min : float</span>
+<span class="sd">        The minimum Na2O concentration of the experiments. Units unspecified. </span>
+<span class="sd">    na2o_max : float</span>
+<span class="sd">        The maximum Na2O concentration of the experiments. Units unspecified.</span>
+<span class="sd">    na2o_average : float</span>
+<span class="sd">        The average Na2O concentration of the experiments. Units unspecified.</span>
+<span class="sd">    sio2_min : float</span>
+<span class="sd">        The minimum SiO2 concentration of the experiments. Units unspecified.</span>
+<span class="sd">    sio2_max : float</span>
+<span class="sd">        The maximum SiO2 concentration of the experiments. Units unspecified.</span>
+<span class="sd">    sio2_average : float</span>
+<span class="sd">        The average SiO2 concentration of the experiments. Units unspecified.</span>
+<span class="sd">    co2_min : float</span>
+<span class="sd">        The minimum CO2 concentration of the experiments. Units unspecified.</span>
+<span class="sd">    co2_max : float</span>
+<span class="sd">        The maximum CO2 concentration of the experiments. Units unspecified.</span>
+<span class="sd">    co2_average : float</span>
+<span class="sd">        The average CO2 concentration of the experiments. Units unspecified.</span>
+<span class="sd">    water_min : float</span>
+<span class="sd">        The minimum water concentration of the experiments. Units given by water_units.</span>
+<span class="sd">    water_max : float</span>
+<span class="sd">        The maximum water concentration of the experiments. Units given by water_units.</span>
+<span class="sd">    water_average : float</span>
+<span class="sd">        The average water concentration of the experiments. Units given by water_units.</span>
+<span class="sd">    water_calibration : str</span>
+<span class="sd">        Information on how the water concentration was calibrated or determined.</span>
+<span class="sd">    water_units : str</span>
+<span class="sd">        The units of the water concentration. </span>
+<span class="sd">    iron_min : float</span>
+<span class="sd">        The minimum iron concentration of the experiments. Units given by iron_units.</span>
+<span class="sd">    iron_max : float</span>
+<span class="sd">        The maximum iron concentration of the experiments. Units given by iron_units.</span>
+<span class="sd">    iron_average : float</span>
+<span class="sd">        The average iron concentration of the experiments. Units given by iron_units.</span>
+<span class="sd">    iron_units : str</span>
+<span class="sd">        The units of the iron concentration.</span>
+<span class="sd">    crystal_direction : str</span>
+<span class="sd">        The crystal direction or orientation of the sample.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    single_pressure()</span>
+<span class="sd">        Returns True if pressure_min equals pressure_max, False otherwise.</span>
+<span class="sd">    single_water() </span>
+<span class="sd">        Returns True if water_min equals water_max, False otherwise.</span>
+<span class="sd">    single_nacl()</span>
+<span class="sd">        Returns True if nacl_min equals nacl_max, False otherwise.</span>
+<span class="sd">    single_co2()</span>
+<span class="sd">        Returns True if co2_min equals co2_max, False otherwise.</span>
+<span class="sd">    single_na2o()</span>
+<span class="sd">        Returns True if na2o_min equals na2o_max, False otherwise.</span>
+<span class="sd">    single_sio2()</span>
+<span class="sd">        Returns True if sio2_min equals sio2_max, False otherwise.</span>
+<span class="sd">    single_iron()</span>
+<span class="sd">        Returns True if iron_min equals iron_max, False otherwise.</span>
+<span class="sd">    convert2ppm(water_average, water_units)</span>
+<span class="sd">        Converts the water_average to ppm based on the water_units.</span>
+<span class="sd">    get_water_average_ppm()</span>
+<span class="sd">        Returns the water_average converted to ppm using the water_units.</span>
+<span class="sd">    recalc_average_fields()</span>
+<span class="sd">        Recalculates the average fields from the min and max fields.</span>
+<span class="sd">    from_kwargs(**kwargs)</span>
+<span class="sd">        Creates a PublicationMetadata instance from the provided keyword arguments.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    NotImplementedError</span>
+<span class="sd">        if the water unit conversion suggested is not supported. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">title</span> <span class="p">:</span> <span class="nb">str</span>
+    <span class="n">author</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">year</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">doi</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">phase_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">sample_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">equation_form</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">publication_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">complete_or_partial_fit</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">composite_or_single</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">pressure_average</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">pressure_min</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">pressure_max</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">temp_min</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">temp_max</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">nacl_min</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">nacl_max</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">nacl_average</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">na2o_min</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">na2o_max</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">na2o_average</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">sio2_min</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">sio2_max</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">sio2_average</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">co2_min</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">co2_max</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">co2_average</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">water_min</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">water_max</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">water_average</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">water_calibration</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">water_units</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">iron_min</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">iron_max</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">iron_average</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">iron_units</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">crystal_direction</span> <span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">def</span> <span class="nf">single_pressure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pressure_min</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">pressure_max</span>
+
+    <span class="k">def</span> <span class="nf">single_water</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_min</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">water_max</span>
+
+    <span class="k">def</span> <span class="nf">single_nacl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nacl_min</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">nacl_max</span>
+
+    <span class="k">def</span> <span class="nf">single_co2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">co2_min</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">co2_max</span>
+
+    <span class="k">def</span> <span class="nf">single_na2o</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">na2o_min</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">na2o_max</span>
+
+    <span class="k">def</span> <span class="nf">single_sio2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sio2_min</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">sio2_max</span>
+
+    <span class="k">def</span> <span class="nf">single_iron</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">iron_min</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">iron_max</span>
+
+    <span class="k">def</span> <span class="nf">convert2ppm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">water_average</span><span class="p">,</span><span class="n">water_units</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">water_units</span> <span class="o">==</span> <span class="s1">&#39;wtpct&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">water_average</span> <span class="o">*</span> <span class="mf">1e4</span>
+        <span class="k">elif</span> <span class="n">water_units</span> <span class="o">==</span> <span class="s1">&#39;wtpct10x&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">water_average</span> <span class="o">*</span> <span class="mf">1e5</span>
+        <span class="k">elif</span> <span class="n">water_units</span> <span class="o">==</span> <span class="s1">&#39;ppm&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">water_average</span>
+        <span class="k">elif</span> <span class="n">water_units</span> <span class="o">==</span> <span class="s1">&#39;total_frac&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">water_average</span><span class="o">*</span><span class="mf">1e6</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">water_units</span><span class="si">}</span><span class="s2"> conversion not implemented&quot;</span>
+            <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_water_average_ppm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_units</span> <span class="o">==</span> <span class="s1">&#39;wtpct&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_average</span> <span class="o">*</span> <span class="mf">1e4</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_units</span> <span class="o">==</span> <span class="s1">&#39;wtpct10x&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_average</span> <span class="o">*</span> <span class="mf">1e5</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_units</span> <span class="o">==</span> <span class="s1">&#39;ppm&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_average</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_units</span> <span class="o">==</span> <span class="s1">&#39;total_frac&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_average</span><span class="o">*</span><span class="mf">1e6</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">water_units</span><span class="si">}</span><span class="s2"> conversion not implemented&quot;</span>
+            <span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">recalc_average_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">avg_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;iron_average&#39;</span><span class="p">,</span><span class="s1">&#39;water_average&#39;</span><span class="p">,</span><span class="s1">&#39;pressure_average&#39;</span><span class="p">,</span><span class="s1">&#39;nacl_average&#39;</span><span class="p">,</span><span class="s1">&#39;co2_average&#39;</span><span class="p">,</span><span class="s1">&#39;na2o_average&#39;</span><span class="p">,</span><span class="s1">&#39;sio2_average&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">avg_fields</span><span class="p">:</span>
+            <span class="n">max_field_name</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_max&#39;</span>
+            <span class="n">min_field_name</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_min&#39;</span>
+            <span class="n">max_field</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">max_field_name</span><span class="p">)</span>
+            <span class="n">min_field</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">min_field_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">max_field</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">min_field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">max_field</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_field</span><span class="p">)</span>
+            <span class="n">min_field</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_field</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">max_field</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">min_field</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span>  <span class="nb">float</span><span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">max_field_name</span><span class="p">))</span><span class="o">+</span>
+                                       <span class="nb">float</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_field_name</span><span class="p">)))</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_float_field_prefixes</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;iron&#39;</span><span class="p">,</span><span class="s1">&#39;water&#39;</span><span class="p">,</span><span class="s1">&#39;pressure&#39;</span><span class="p">,</span><span class="s1">&#39;temp&#39;</span><span class="p">,</span><span class="s1">&#39;nacl&#39;</span><span class="p">,</span><span class="s1">&#39;co2&#39;</span><span class="p">,</span><span class="s1">&#39;na2o&#39;</span><span class="p">,</span><span class="s1">&#39;sio2&#39;</span><span class="p">]</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_additive_field_strings</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">,</span><span class="s1">&#39;entry_id&#39;</span><span class="p">,</span><span class="s1">&#39;publication_id&#39;</span><span class="p">,</span><span class="s1">&#39;crystal_direction&#39;</span><span class="p">]</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_units_and_calibrations</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;water_calibration&#39;</span><span class="p">,</span><span class="s1">&#39;water_units&#39;</span><span class="p">,</span><span class="s1">&#39;iron_units&#39;</span><span class="p">]</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_static_field_strings</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;phase_type&#39;</span><span class="p">]</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_kwargs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># fetch the constructor&#39;s signature</span>
+        <span class="n">cls_fields</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">signature</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">}</span>
+
+        <span class="c1"># split the kwargs into native ones and new ones</span>
+        <span class="n">native_args</span><span class="p">,</span> <span class="n">new_args</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">name_translate</span> <span class="o">=</span> <span class="n">_id_row_rename</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name_translate</span> <span class="ow">in</span> <span class="n">cls_fields</span><span class="p">:</span>
+                <span class="n">native_args</span><span class="p">[</span><span class="n">name_translate</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_args</span><span class="p">[</span><span class="n">name_translate</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="c1"># use the native ones to create the class ...</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">native_args</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">recalc_average_fields</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">!=</span><span class="s1">&#39;_&#39;</span> <span class="ow">and</span> <span class="n">x</span><span class="o">!=</span><span class="s1">&#39;entry_id&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">:&#39;</span> <span class="o">+</span><span class="s1">&#39;</span><span class="se">\n\t</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="s1">&#39;:&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">k</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span>  <span class="ow">in</span> <span class="n">properties</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds two PublicationMetadata instances together.</span>
+
+<span class="sd">        Combines the metadata fields based on the following rules:</span>
+<span class="sd">        - Float fields are combined by taking the min of mins, max of maxs, mean of avgs</span>
+<span class="sd">        - Additive string fields are concatenated with &#39;+&#39;</span>
+<span class="sd">        - Static string fields are taken from self </span>
+<span class="sd">        - Differing units/calibrations print a warning and self&#39;s value is used</span>
+<span class="sd">        - crystal_direction is set to &#39;isotropic&#39; if they differ and neither is &#39;isotropic&#39;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : PublicationMetadata</span>
+<span class="sd">            The other PublicationMetadata instance to add.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PublicationMetadata</span>
+<span class="sd">            A new PublicationMetadata instance with the combined fields.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_type</span><span class="o">!=</span><span class="n">other</span><span class="o">.</span><span class="n">phase_type</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Trying to add different phases! You probably shouldn&#39;t combine them.&quot;</span><span class="p">)</span>
+        <span class="n">cls_fields</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">signature</span><span class="p">(</span><span class="n">PublicationMetadata</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">}</span>
+        <span class="n">new_params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">cls_fields</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">ext</span> <span class="ow">in</span> <span class="n">name</span> <span class="ow">and</span> <span class="s1">&#39;calibration&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span> <span class="ow">and</span> <span class="s1">&#39;units&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_float_field_prefixes</span><span class="p">()):</span>
+                <span class="n">value1</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">value2</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">value1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value1</span><span class="p">,</span><span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">value1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value2</span><span class="p">,</span><span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">value2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">value1</span><span class="p">,</span><span class="n">value2</span><span class="p">])</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">value1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">value2</span><span class="p">):</span>
+                    <span class="k">pass</span>
+                <span class="k">elif</span> <span class="s1">&#39;min&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">value1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">value2</span><span class="p">)])</span>
+                <span class="k">elif</span> <span class="s1">&#39;max&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">value1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">value2</span><span class="p">)])</span>
+                <span class="k">elif</span> <span class="s1">&#39;average&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">value1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">value2</span><span class="p">)])</span>
+
+            <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">ext</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_additive_field_strings</span><span class="p">()):</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">)),</span><span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">name</span><span class="p">))])</span>
+
+            <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">ext</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_static_field_strings</span><span class="p">()):</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">ext</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_units_and_calibrations</span><span class="p">()):</span>
+                <span class="k">for</span> <span class="n">unit_cal</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_units_and_calibrations</span><span class="p">():</span>
+                    <span class="n">value1</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">unit_cal</span><span class="p">)</span>
+                    <span class="n">value2</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">unit_cal</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">value1</span><span class="o">!=</span><span class="n">value2</span> <span class="ow">and</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">value1</span><span class="p">):</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;merging models with different </span><span class="si">{</span><span class="n">unit_cal</span><span class="si">}</span><span class="s1">:</span><span class="se">\n\t</span><span class="si">{</span><span class="n">value1</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">value2</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;this is not advised. However, operation will continue using </span><span class="si">{</span><span class="n">value1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">name</span><span class="o">==</span><span class="s1">&#39;crystal_direction&#39;</span><span class="p">:</span>
+                <span class="n">others_xstal</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">this_xstal</span>   <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">others_xstal</span><span class="o">==</span><span class="s1">&#39;isotropic&#39;</span> <span class="ow">and</span> <span class="n">this_xstal</span><span class="o">==</span><span class="s1">&#39;isotropic&#39;</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="s1">&#39;isotropic&#39;</span>
+                <span class="k">elif</span> <span class="n">others_xstal</span><span class="o">!=</span><span class="s1">&#39;isotropic&#39;</span> <span class="ow">and</span> <span class="n">this_xstal</span><span class="o">!=</span><span class="s1">&#39;isotropic&#39;</span> <span class="ow">and</span> <span class="n">others_xstal</span><span class="o">!=</span><span class="n">this_xstal</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="s1">&#39;isotropic&#39;</span>
+                <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">!=</span><span class="s1">&#39;isotropic&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">others_xstal</span><span class="p">,</span><span class="n">this_xstal</span><span class="p">]):</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">others_xstal</span> <span class="k">if</span> <span class="n">others_xstal</span><span class="o">!=</span><span class="s1">&#39;isotropic&#39;</span> <span class="k">else</span> <span class="n">this_xstal</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            <span class="n">new_params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">=</span><span class="n">val</span>
+        <span class="n">new_params</span><span class="p">[</span><span class="s1">&#39;phase_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_type</span>
+        <span class="k">return</span> <span class="n">PublicationMetadata</span><span class="o">.</span><span class="n">from_kwargs</span><span class="p">(</span><span class="o">**</span><span class="n">new_params</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ModelInterface">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.ModelInterface">[docs]</a>
+<span class="k">class</span> <span class="nc">ModelInterface</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A base interface class for all models in the Pyrrhenius framework.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    id_row : pd.Series or PublicationMetadata</span>
+<span class="sd">        Metadata associated with the model. This can either be a pandas Series or a PublicationMetadata object.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    metadata : PublicationMetadata</span>
+<span class="sd">        Metadata associated with the model.</span>
+<span class="sd">    mechanism : mech.Mechanism</span>
+<span class="sd">        The mechanism used in the model.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    get_conductivity(**kwargs)</span>
+<span class="sd">        Calculates the conductivity based on the model&#39;s mechanism and provided parameters.</span>
+<span class="sd">    print_required_parameters()</span>
+<span class="sd">        Calculates the conductivity based on the model&#39;s mechanism and provided parameters.</span>
+<span class="sd">    uses_water</span>
+<span class="sd">        Checks if the model uses water as a parameter.</span>
+<span class="sd">    uses_nacl</span>
+<span class="sd">        Checks if the model uses NaCl as a parameter.</span>
+<span class="sd">    uses_iron</span>
+<span class="sd">        Checks if the model uses iron as a parameter.</span>
+<span class="sd">    uses_na2o</span>
+<span class="sd">        Checks if the model uses Na2O as a parameter.</span>
+<span class="sd">    uses_sio2</span>
+<span class="sd">        Checks if the model uses SiO2 as a parameter.</span>
+<span class="sd">    uses_co2</span>
+<span class="sd">        Checks if the model uses CO2 as a parameter.</span>
+<span class="sd">    uses_pressure</span>
+<span class="sd">        Checks if the model uses pressure as a parameter.</span>
+<span class="sd">    uses_fo2</span>
+<span class="sd">        Checks if the model uses fo2 as a parameter.</span>
+<span class="sd">    determine_starting_c_type(starting_value=0, **kwargs)</span>
+<span class="sd">        generates a ``float`` or ``np.ndarray`` of a shape consistent with the provided keyword arguments</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">id_row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="ow">or</span> <span class="n">PublicationMetadata</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">id_row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">id_row</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">PublicationMetadata</span><span class="o">.</span><span class="n">from_kwargs</span><span class="p">(</span><span class="o">**</span><span class="n">id_row</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">id_row</span>
+
+<div class="viewcode-block" id="ModelInterface.print_required_parameters">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.ModelInterface.print_required_parameters">[docs]</a>
+    <span class="k">def</span> <span class="nf">print_required_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prints the keywords required to use get_conductivity()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Required Keywords&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Intrinsic Arguments&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">test_func</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">uses_pressure</span><span class="p">],[</span><span class="s1">&#39;P&#39;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">test_func</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">+</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Volatile Arguments&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">test_func</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">uses_water</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">uses_co2</span><span class="p">],[</span><span class="s1">&#39;Cw&#39;</span><span class="p">,</span><span class="s1">&#39;co2&#39;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">test_func</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">+</span><span class="n">name</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Electronic Conduction Arguments&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">test_func</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">uses_iron</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">uses_fo2</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="s1">&#39;X_fe&#39;</span><span class="p">,</span><span class="s1">&#39;logfo2&#39;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">test_func</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">+</span><span class="n">name</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Diffusion Conduction Arguments&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">test_func</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">uses_nacl</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">uses_na2o</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="s1">&#39;nacl&#39;</span><span class="p">,</span><span class="s1">&#39;na2o&#39;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">test_func</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">+</span><span class="n">name</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Polymerizing Agent Arguments&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">test_func</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">uses_sio2</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="s1">&#39;sio2&#39;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">test_func</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">+</span><span class="n">name</span><span class="p">)</span></div>
+
+       
+
+<div class="viewcode-block" id="ModelInterface.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.ModelInterface.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the conductivity based on the model&#39;s mechanism and provided parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional parameters for the conductivity calculation. See the documentation on mech.Mechanism for a full list of possible keywords</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or np.ndarray</span>
+<span class="sd">            The calculated conductivity in S/m</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">determine_starting_c_type</span><span class="p">(</span><span class="n">starting_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">start</span><span class="o">*=</span><span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">start</span></div>
+
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;gets the model id</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            the model id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">entry_id</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_water</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the model uses water as a parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the model uses water, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span><span class="o">.</span><span class="n">uses_water</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_nacl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the model uses NaCl as a parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the model uses NaCl, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span><span class="o">.</span><span class="n">uses_nacl</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_iron</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the model uses iron as a parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the model uses iron, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span><span class="o">.</span><span class="n">uses_iron</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_na2o</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the model uses Na2O as a parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the model uses Na2O, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span><span class="o">.</span><span class="n">uses_na2o</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_sio2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the model uses SiO2 as a parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the model uses SiO2, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span><span class="o">.</span><span class="n">uses_sio2</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_co2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the model uses CO2 as a parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the model uses CO2, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span><span class="o">.</span><span class="n">uses_co2</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_pressure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the model uses pressure as a parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the model uses pressure, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span><span class="o">.</span><span class="n">uses_pressure</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_fo2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the model uses fo2 as a parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the model uses fo2, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span><span class="o">.</span><span class="n">uses_fo2</span>
+    
+<div class="viewcode-block" id="ModelInterface.determine_starting_c_type">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.ModelInterface.determine_starting_c_type">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">determine_starting_c_type</span><span class="p">(</span><span class="n">starting_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">logfo2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">Xfe</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">Cw</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">co2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nacl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">na2o</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">sio2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a ``float`` or ``np.ndarray`` of a shape consistent with the provided keyword arguments</span>
+
+<span class="sd">        Currently checks keywords for P, T, logfo2, Xfe, Cw, co2, nacl, na2o, and sio2</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        starting_value : float, optional</span>
+<span class="sd">            The variable value for conductivity casting, defaults to 0.</span>
+
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional parameters used to calculate conductivity</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or np.ndarray</span>
+<span class="sd">            The determined dummy conductivity variable used to cast the ``get_conductivity`` result into the proper shape.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ndarrays</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;logfo2&#39;</span><span class="p">,</span><span class="s1">&#39;Xfe&#39;</span><span class="p">,</span><span class="s1">&#39;Cw&#39;</span><span class="p">,</span><span class="s1">&#39;co2&#39;</span><span class="p">,</span><span class="s1">&#39;nacl&#39;</span><span class="p">,</span><span class="s1">&#39;na2o&#39;</span><span class="p">,</span><span class="s1">&#39;sio2&#39;</span><span class="p">],</span>
+                                                                                          <span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">logfo2</span><span class="p">,</span><span class="n">Xfe</span><span class="p">,</span><span class="n">Cw</span><span class="p">,</span><span class="n">co2</span><span class="p">,</span><span class="n">nacl</span><span class="p">,</span><span class="n">na2o</span><span class="p">,</span><span class="n">sio2</span><span class="p">])))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ndarrays</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">reference_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ndarrays</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">reference_shape</span><span class="o">=</span> <span class="n">ndarrays</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reference_shape</span> <span class="o">=</span> <span class="n">ndarrays</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">reference_shape</span> <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">ndarrays</span><span class="p">):</span>
+                <span class="n">starting_array</span> <span class="o">=</span><span class="kc">None</span>
+                <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">ndarrays</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">starting_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">starting_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">array</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">starting_array</span><span class="o">*=</span><span class="n">array</span>
+                        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;passed arrays will not multiply together</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">ndarrays</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">array</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">reference_shape</span><span class="p">)</span><span class="o">*</span><span class="n">starting_value</span></div>
+
+
+<div class="viewcode-block" id="ModelInterface.get_row">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.ModelInterface.get_row">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; returns a pd.Series representation of the model</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.Series</span>
+<span class="sd">            a pd.Series representation of the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">row_dict</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="n">row_dict</span><span class="p">[</span><span class="s1">&#39;equation&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">row_dict</span><span class="p">[</span><span class="s1">&#39;ec_model&#39;</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span>
+        <span class="n">row_dict</span><span class="p">[</span><span class="s1">&#39;entry_id&#39;</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_id</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">row_dict</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds two ModelInterface instances together.</span>
+<span class="sd">        </span>
+<span class="sd">        metadata is combined following the ``__add__`` methodogy of the PublicationMetadata class</span>
+<span class="sd">        The resulting returned CompositeModel object has the same functionality of ModelInterface, but with the</span>
+<span class="sd">        overall conductivity now representing the linear combination of two model conductivities</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : ModelInterface</span>
+<span class="sd">            The other ModelInterface instance to add.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CompositeModel</span>
+<span class="sd">            A new CompositeModel with combined properties of both objects</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        <span class="n">new_metadata</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">metadata</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span>
+        <span class="k">return</span> <span class="n">CompositeModel</span><span class="p">([</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">],</span><span class="n">new_metadata</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the ModelInterface instance.</span>
+<span class="sd">        The representation includes the entry ID and a dictionary of the model&#39;s mechanisms.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            A string representation of the ModelInterface instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span> <span class="o">+</span> <span class="s1">&#39;:{&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span>
+
+   
+
+<div class="viewcode-block" id="ModelInterface.generate_representative_conditions">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.ModelInterface.generate_representative_conditions">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_representative_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">use_qfm</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;generates a dictionary of conditions relevant to the experiment</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        use_qfm : bool, optional</span>
+<span class="sd">            use the quartz-fayallite-magnetite buffer to calculate fo2 conditions. Currently will not work any other way</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict :</span>
+<span class="sd">            dictionary consisting of keys matching the model inputs and values consisting of either 1. a range of corresponding conditions or 2. a single average condition.</span>
+<span class="sd">            1 is returned if the min and max values are different. 2. otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">callouts</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">temp_min</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">temp_max</span><span class="p">]</span>
+        <span class="c1"># if uses pressure</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_pressure</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">single_pressure</span><span class="p">():</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">pressure_average</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">pressure_min</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">pressure_max</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_water</span><span class="p">:</span>
+            <span class="n">water_units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">water_units</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">single_water</span><span class="p">():</span>
+                <span class="n">water_average</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">water_average</span>
+                <span class="n">ppm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">convert2ppm</span><span class="p">(</span><span class="n">water_average</span><span class="p">,</span><span class="n">water_units</span><span class="p">)</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;Cw&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">ppm</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">water_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">water_min</span>
+                <span class="n">water_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">water_max</span>
+                <span class="n">ppm_min</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">convert2ppm</span><span class="p">(</span><span class="n">water_min</span><span class="p">,</span><span class="n">water_units</span><span class="p">)</span>
+                <span class="n">ppm_max</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">convert2ppm</span><span class="p">(</span><span class="n">water_max</span><span class="p">,</span><span class="n">water_units</span><span class="p">)</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;Cw&#39;</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="n">ppm_min</span><span class="p">,</span><span class="n">ppm_max</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_iron</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">single_iron</span><span class="p">():</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;X_fe&#39;</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">iron_average</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fe_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">iron_min</span>
+                <span class="n">fe_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">iron_max</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;X_fe&#39;</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="n">fe_min</span><span class="p">,</span><span class="n">fe_max</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_fo2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;P&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">callouts</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">fo2_range</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">calc_QFM</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]),</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fo2_range</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">calc_QFM</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]),</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">]))</span>
+            <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;logfo2&#39;</span><span class="p">]</span><span class="o">=</span> <span class="n">fo2_range</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_co2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">single_co2</span><span class="p">():</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;co2&#39;</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">co2_average</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">co2_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">co2_min</span>
+                <span class="n">co2_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">co2_max</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;co2&#39;</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="n">co2_min</span><span class="p">,</span> <span class="n">co2_max</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_nacl</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">single_nacl</span><span class="p">():</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;nacl&#39;</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">nacl_average</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">min_nacl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">nacl_min</span>
+                <span class="n">max_nacl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">nacl_max</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;nacl&#39;</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="n">min_nacl</span><span class="p">,</span><span class="n">max_nacl</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_na2o</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">single_na2o</span><span class="p">():</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;na2o&#39;</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">na2o_average</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">min_nacl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">na2o_min</span>
+                <span class="n">max_nacl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">na2o_max</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;na2o&#39;</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="n">min_nacl</span><span class="p">,</span><span class="n">max_nacl</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses_sio2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">single_sio2</span><span class="p">():</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;sio2&#39;</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">sio2_average</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">min_nacl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">sio2_min</span>
+                <span class="n">max_nacl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">sio2_max</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="s1">&#39;sio2&#39;</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="n">min_nacl</span><span class="p">,</span><span class="n">max_nacl</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">callouts</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">callouts</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="nb">list</span><span class="p">):</span>
+                <span class="n">callouts</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">callouts</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">callouts</span></div>
+</div>
+
+
+
+
+<div class="viewcode-block" id="Model">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.Model">[docs]</a>
+<span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">ModelInterface</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base Model class used to hold both metadata and mechanisms</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mechanism : mech.Mechanism</span>
+<span class="sd">        The mechanism associated with the model.</span>
+<span class="sd">    id_row : pd.Series or PublicationMetadata</span>
+<span class="sd">        The metadata or identifier row for the model.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mechanism : mech.Mechanism</span>
+<span class="sd">        The mechanism associated with the model.</span>
+<span class="sd">    metadata : PublicationMetadata</span>
+<span class="sd">        Metadata associated with the model.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    get_crystal_direction()</span>
+<span class="sd">        Returns the crystal direction from the metadata.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mechanism</span><span class="p">:</span> <span class="n">mech</span><span class="o">.</span><span class="n">Mechanism</span><span class="p">,</span> <span class="n">id_row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="ow">or</span> <span class="n">PublicationMetadata</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">id_row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span> <span class="o">=</span> <span class="n">mechanism</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mechanism</span><span class="o">.</span><span class="n">set_water_units</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">water_units</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="Model.get_crystal_direction">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.Model.get_crystal_direction">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_crystal_direction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns the crystal direction for this model</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            a 4 character representation of the crystal direction ``[xxx]``, ex: [011]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">crystal_direction</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CompositeModel">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.CompositeModel">[docs]</a>
+<span class="k">class</span> <span class="nc">CompositeModel</span><span class="p">(</span><span class="n">ModelInterface</span><span class="p">):</span>
+
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="n">model</span><span class="o">.</span><span class="n">get_id</span> <span class="p">:</span> <span class="n">model</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_water</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_water</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_nacl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_nacl</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_iron</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_iron</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_na2o</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_na2o</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_sio2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_sio2</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_co2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_co2</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_pressure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_pressure</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_fo2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_fo2</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    
+<div class="viewcode-block" id="CompositeModel.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.CompositeModel.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crystal_direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">determine_starting_c_type</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">new_conductivity</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">+=</span> <span class="n">new_conductivity</span>
+        <span class="k">return</span> <span class="n">c</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">get_id</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span> <span class="o">+</span> <span class="s1">&#39;:{&#39;</span> <span class="o">+</span><span class="s1">&#39;+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span></div>
+
+
+<div class="viewcode-block" id="DryModel">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.DryModel">[docs]</a>
+<span class="k">class</span> <span class="nc">DryModel</span><span class="p">(</span><span class="n">ModelInterface</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mechanisms</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">mechanisms</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span> <span class="o">=</span> <span class="n">model</span>
+
+<div class="viewcode-block" id="DryModel.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.DryModel.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">new_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>
+        <span class="n">new_kwargs</span><span class="p">[</span><span class="s1">&#39;Cw&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">new_kwargs</span><span class="p">)</span></div>
+
+
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;:dry{&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span><span class="o">.</span><span class="n">get_id</span><span class="o">+</span><span class="s1">&#39;}&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;dry:{&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">entry_id</span><span class="o">+</span><span class="s1">&#39;}&#39;</span></div>
+
+
+
+<div class="viewcode-block" id="WaterCorrection">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.WaterCorrection">[docs]</a>
+<span class="k">class</span> <span class="nc">WaterCorrection</span><span class="p">(</span><span class="n">ModelInterface</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span><span class="n">correction_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mechanisms</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">mechanisms</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c_factor</span> <span class="o">=</span> <span class="n">correction_factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span> <span class="o">=</span> <span class="n">model</span>
+
+<div class="viewcode-block" id="WaterCorrection.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.WaterCorrection.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">new_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>
+        <span class="n">new_kwargs</span><span class="p">[</span><span class="s1">&#39;Cw&#39;</span><span class="p">]</span><span class="o">*=</span><span class="bp">self</span><span class="o">.</span><span class="n">c_factor</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">new_kwargs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;:Wcorr_x_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">c_factor</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">+</span><span class="s1">&#39;{&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span><span class="o">.</span><span class="n">get_id</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;:Wcorr_x_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">c_factor</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">+</span><span class="s1">&#39;{&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span></div>
+
+
+<div class="viewcode-block" id="CachedModel">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.CachedModel">[docs]</a>
+<span class="k">class</span> <span class="nc">CachedModel</span><span class="p">(</span><span class="n">ModelInterface</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cached_c</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span> <span class="o">=</span> <span class="n">model</span>
+
+    <span class="k">def</span> <span class="nf">reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cached_c</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">set_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cached_c</span> <span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">main_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CachedModel.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.CachedModel.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_c</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_cache</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ignore_cache</span><span class="p">:</span>
+            <span class="n">return_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">return_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_c</span>
+
+        <span class="k">return</span> <span class="n">return_val</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main_model</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="WaterPTCorrection">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.WaterPTCorrection">[docs]</a>
+<span class="k">class</span> <span class="nc">WaterPTCorrection</span><span class="p">(</span><span class="n">ModelInterface</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span><span class="n">correction_factor_call</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c_factor</span> <span class="o">=</span> <span class="n">correction_factor_call</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span> <span class="o">=</span> <span class="n">model</span>
+
+    <span class="k">def</span> <span class="nf">get_facade_model_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span><span class="o">.</span><span class="n">get_id</span>
+
+<div class="viewcode-block" id="WaterPTCorrection.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.WaterPTCorrection.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">new_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>
+        <span class="n">new_kwargs</span><span class="p">[</span><span class="s1">&#39;Cw&#39;</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">c_factor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">new_kwargs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;:Wcorr(P,T)_x_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">c_factor</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">+</span><span class="s1">&#39;{&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span><span class="o">.</span><span class="n">get_id</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;:Wcorr(P,T)_x_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">c_factor</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">+</span><span class="s1">&#39;{&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span></div>
+
+
+
+<div class="viewcode-block" id="IsotropicMixture">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.IsotropicMixture">[docs]</a>
+<span class="k">class</span> <span class="nc">IsotropicMixture</span><span class="p">(</span><span class="n">ModelInterface</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">metadata</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">models</span><span class="p">[</span><span class="mi">1</span><span class="p">:]],</span> <span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">entry_id</span><span class="o">=</span><span class="s1">&#39;isotropic_model:&#39;</span> <span class="o">+</span>  <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">entry_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">crystal_direction</span><span class="o">=</span><span class="s1">&#39;isotropic&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">get_id</span><span class="p">:</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">models</span><span class="p">}</span>
+        <span class="c1"># set up metadata for anisotropic model averages</span>
+
+<div class="viewcode-block" id="IsotropicMixture.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.model.IsotropicMixture.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crystal_direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">averaging</span><span class="o">=</span><span class="s1">&#39;geometric&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate and return the conductivity based on the specified crystal direction or averaging method.</span>
+<span class="sd">    </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        ----------</span>
+<span class="sd">        crystal_direction : str or float, optional</span>
+<span class="sd">        The crystallographic direction to query for specific conductivity.</span>
+<span class="sd">        If a float is provided, it is used to calculate an anisotropic factor between 0 and 1.</span>
+<span class="sd">        </span>
+<span class="sd">        averaging : str, optional</span>
+<span class="sd">            The method to average conductivity. Default is &#39;geometric&#39;. </span>
+<span class="sd">            Options include:</span>
+<span class="sd">            - &#39;geometric&#39;: Geometric mean of the available crystallographic directions.</span>
+<span class="sd">            - &#39;max_aniso&#39;: Maximum anisotropic factor (conductivity in the most conductive direction).</span>
+<span class="sd">            - &#39;min_aniso&#39;: Minimum anisotropic factor (conductivity in the least conductive direction).</span>
+
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional keyword arguments passed to internal methods.</span>
+<span class="sd">    </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or np.ndarray </span>
+<span class="sd">            The computed conductivity based on the specified method or direction.</span>
+<span class="sd">    </span>
+<span class="sd">        Raises:</span>
+<span class="sd">        -------</span>
+<span class="sd">        NotImplementedError:</span>
+<span class="sd">            If an unsupported averaging method is provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span>  <span class="n">crystal_direction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crystal_direction</span><span class="p">,</span><span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crystal_direction</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crystal_direction</span><span class="p">,</span><span class="nb">int</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_anisotropic_factor</span><span class="p">(</span><span class="n">crystal_direction</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">crystal_direction</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">get_crystal_direction</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_xstal_direction</span><span class="p">(</span><span class="n">crystal_direction</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;current crystal direction appears malformed. Check documentation&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">averaging</span><span class="o">==</span><span class="s1">&#39;max_aniso&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_anisotropic_factor</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">averaging</span><span class="o">==</span><span class="s1">&#39;min_aniso&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_anisotropic_factor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">averaging</span><span class="o">==</span><span class="s1">&#39;geometric&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_geometric_mean</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;current option is not implemented. Choose from </span><span class="se">\&#39;</span><span class="s2">geometric</span><span class="se">\&#39;</span><span class="s2">,  </span><span class="se">\&#39;</span><span class="s2">max_aniso</span><span class="se">\&#39;</span><span class="s2">, </span><span class="se">\&#39;</span><span class="s2">min_aniso</span><span class="se">\&#39;</span><span class="s2">, or specify a crystal direction&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_xstal_direction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xstal_direction</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">xstal_direction</span> <span class="o">==</span> <span class="n">model</span><span class="o">.</span><span class="n">get_crystal_direction</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;crystal direction does not exist&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_geometric_mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">determine_starting_c_type</span><span class="p">(</span><span class="n">starting_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">new_conductivity</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">new_conductivity</span> <span class="o">=</span> <span class="n">new_conductivity</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">))</span>
+            <span class="n">c</span> <span class="o">*=</span> <span class="n">new_conductivity</span>
+        <span class="k">return</span> <span class="n">c</span>
+
+    <span class="k">def</span> <span class="nf">_get_anisotropic_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">factor</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">conductivities</span> <span class="o">=</span> <span class="p">[</span> <span class="n">m</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">conductivities</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">min_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">conductivities</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">max_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">conductivities</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">min_array</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">conductivities</span><span class="p">)</span>
+            <span class="n">max_array</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">conductivities</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">min_array</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">factor</span><span class="p">)</span> <span class="o">+</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">max_array</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_water</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_water</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_nacl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_nacl</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_iron</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_iron</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_na2o</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_na2o</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_sio2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_sio2</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_co2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_co2</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_pressure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_pressure</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uses_fo2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">uses_fo2</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;mixture of:&#39;</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">())</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Kevin A. Mendoza.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

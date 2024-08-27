@@ -9,12 +9,11 @@ __pycache__/
 
 # Distribution / packaging
 mineralbehavior.py 
-mixing.py 
 .ipynb_checkpoints
 .pytest_cache 
 .Python
 .log
-build/
+
 develop-eggs/
 dist/
 downloads/

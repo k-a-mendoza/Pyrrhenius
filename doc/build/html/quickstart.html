@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pyrrhenius Quickstart &mdash; Pyrrhenius 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css?v=572af1d6" />
+      <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Database, Models, and Metadata" href="modelsguide.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Pyrrhenius
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sections</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="userguide.html">User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="whypyrrhenius.html">Overview: Why Pyrrhenius?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Pyrrhenius Quickstart</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#accessing-database-options">Accessing Database Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#isotropic-models">Isotropic Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing-models">Mixing Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#metadata-access">Metadata Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plotting-utilities">Plotting Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modelsguide.html">Database, Models, and Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html">Pyrrhenius API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fordevelopers.html">test title</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Pyrrhenius</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="userguide.html">User Guide</a></li>
+      <li class="breadcrumb-item active">Pyrrhenius Quickstart</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/quickstart.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pyrrhenius-quickstart">
+<h1>Pyrrhenius Quickstart<a class="headerlink" href="#pyrrhenius-quickstart" title="Link to this heading"></a></h1>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h2>
+<p>The basic workflow of using pyrrhenius is structured like so:</p>
+<ol class="arabic simple">
+<li><p>Import necessary modules</p></li>
+</ol>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyrrhenius.database</span> <span class="k">as</span> <span class="nn">phsd</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Create a pyrrhenius database object</p></li>
+</ol>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ecdatabase</span> <span class="o">=</span> <span class="n">phsd</span><span class="o">.</span><span class="n">Database</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>3. Create a <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> object corresponding to the desired <code class="docutils literal notranslate"><span class="pre">model_id</span></code>. In this case the
+model id corresponding to the SEO3 model of olivine (insert citation) is loaded</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;SEO3_ol&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Call the <code class="docutils literal notranslate"><span class="pre">get_conductivity(*args,**kwargs)</span></code> method on the model with the relevant parameters.</p></li>
+</ol>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">conductivity</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">logfo2</span><span class="o">=</span><span class="mi">10</span><span class="o">**-</span><span class="mi">11</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Calculated conductivity (S/m) at T=1000 K, P=1 GPa,and fO2=10^-11 bars:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">conductivity</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>********************
+Calculated conductivity (S/m) at T=1000 K, P=1 GPa,and fO2=10^-11 bars:
+[2.73808615e-05]
+</pre></div>
+</div>
+</div>
+</div>
+<p>Keywords can be of type <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>’s. The latter functionality is especially useful for computing conductivities across a vectorized grid.
+In this case, using meshgrid on a dummy variable (<code class="docutils literal notranslate"><span class="pre">zz</span></code>) and a temperature array <cite>T</cite> creates a temperature array of size  (10x10).</p>
+<blockquote>
+<div><div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span><span class="mi">1500</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># dummy variable for demonstration purposes only</span>
+<span class="n">tt</span><span class="p">,</span> <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">z</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tt</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">tt</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>(11, 11)
+</pre></div>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([[ 500.,  600.,  700., ..., 1300., 1400., 1500.],
+       [ 500.,  600.,  700., ..., 1300., 1400., 1500.],
+       [ 500.,  600.,  700., ..., 1300., 1400., 1500.],
+       ...,
+       [ 500.,  600.,  700., ..., 1300., 1400., 1500.],
+       [ 500.,  600.,  700., ..., 1300., 1400., 1500.],
+       [ 500.,  600.,  700., ..., 1300., 1400., 1500.]])
+</pre></div>
+</div>
+</div>
+</div>
+</div></blockquote>
+<p>As long as the input keyword-arguments are directly broadcastable, pyrrhenius can use mixed <code class="docutils literal notranslate"><span class="pre">float</span></code> and <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> objects, vectorizing them as needed.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">tt</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">logfo2</span><span class="o">=</span><span class="mi">10</span><span class="o">**-</span><span class="mi">11</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([[1.06820389e-10, 6.71262242e-09, 1.29536636e-07, ...,
+        5.52272174e-04, 1.26077070e-03, 2.93431687e-03],
+       [1.06820389e-10, 6.71262242e-09, 1.29536636e-07, ...,
+        5.52272174e-04, 1.26077070e-03, 2.93431687e-03],
+       [1.06820389e-10, 6.71262242e-09, 1.29536636e-07, ...,
+        5.52272174e-04, 1.26077070e-03, 2.93431687e-03],
+       ...,
+       [1.06820389e-10, 6.71262242e-09, 1.29536636e-07, ...,
+        5.52272174e-04, 1.26077070e-03, 2.93431687e-03],
+       [1.06820389e-10, 6.71262242e-09, 1.29536636e-07, ...,
+        5.52272174e-04, 1.26077070e-03, 2.93431687e-03],
+       [1.06820389e-10, 6.71262242e-09, 1.29536636e-07, ...,
+        5.52272174e-04, 1.26077070e-03, 2.93431687e-03]])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="accessing-database-options">
+<h2>Accessing Database Options<a class="headerlink" href="#accessing-database-options" title="Link to this heading"></a></h2>
+<p>Pyrrhenius currently ships with a <code class="docutils literal notranslate"><span class="pre">.csv</span></code> database which is loaded by default.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyrrhenius.database</span> <span class="k">as</span> <span class="nn">phsd</span>
+
+<span class="n">ecdatabase</span> <span class="o">=</span> <span class="n">phsd</span><span class="o">.</span><span class="n">Database</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Once the database object has been created, you can use the <code class="docutils literal notranslate"><span class="pre">get_phases()</span></code>, <code class="docutils literal notranslate"><span class="pre">get_model_list_for_phase()</span></code>, and the <code class="docutils literal notranslate"><span class="pre">get_model()</span></code> methods
+to specify which model to load.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_phases</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;basalt&#39;,
+ &#39;basaltic melt&#39;,
+ &#39;brine&#39;,
+ &#39;clinopyroxene&#39;,
+ &#39;gabbro&#39;,
+ &#39;garnet&#39;,
+ &#39;granite&#39;,
+ &#39;granulite&#39;,
+ &#39;olivine&#39;,
+ &#39;omphacite&#39;,
+ &#39;orthopyroxene&#39;,
+ &#39;peridotite&#39;,
+ &#39;pervoskite&#39;,
+ &#39;phlogopite&#39;,
+ &#39;plagioclase&#39;,
+ &#39;schist&#39;,
+ &#39;wadsleyite&#39;,
+ &#39;silicate melt&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model_list_for_phase</span><span class="p">(</span><span class="s1">&#39;granite&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;ks_83_granite&#39;,
+ &#39;han_23_HD_granite&#39;,
+ &#39;han_23_QD_low_granite&#39;,
+ &#39;han_23_QD_high_granite&#39;,
+ &#39;han_23_QP_low_granite&#39;,
+ &#39;han_23_QP_high_granite&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ecmodel</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;han_23_HD_granite&#39;</span><span class="p">)</span>
+<span class="n">ecmodel</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>han_23_HD_granite:{9.906(nan) exp( -1.22(0.063)/kT)}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="isotropic-models">
+<h2>Isotropic Models<a class="headerlink" href="#isotropic-models" title="Link to this heading"></a></h2>
+<p>The default database comes with a number of anisotropic models, visible as <code class="docutils literal notranslate"><span class="pre">model_id</span></code>’s with “[xxx]” strings appended to the end. To get an isotropic model, first tell
+the database to generate isotropic models via <code class="docutils literal notranslate"><span class="pre">create_isotropic_models()</span></code>, then examine the available models</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">before_isotropic_calculation</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model_list_for_phase</span><span class="p">(</span><span class="s1">&#39;plagioclase&#39;</span><span class="p">)</span>
+<span class="n">ecdatabase</span><span class="o">.</span><span class="n">create_isotropic_models</span><span class="p">()</span>
+<span class="n">after_isotropic_calculation</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model_list_for_phase</span><span class="p">(</span><span class="s1">&#39;plagioclase&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Before Isotropic Calculation&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">before_isotropic_calculation</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;After Isotropic Calculation&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">after_isotropic_calculation</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>********************
+</pre></div>
+</div>
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>
+Before Isotropic Calculation
+********************
+yang_11a_plag
+yang_12b_plag[100]
+yang_12b_plag[010]
+yang_12b_plag[001]
+Li_18_dry_plag
+Li_18_wet_plag
+********************
+After Isotropic Calculation
+********************
+yang_11a_plag
+yang_12b_plag[100]
+yang_12b_plag[010]
+yang_12b_plag[001]
+Li_18_dry_plag
+Li_18_wet_plag
+isotropic_model:yang_12b_plag[100]+yang_12b_plag[010]+yang_12b_plag[001]
+</pre></div>
+</div>
+</div>
+</div>
+<p>You should see that calling <code class="docutils literal notranslate"><span class="pre">create_isotropic_models()</span></code> on the database procedurally creates new <code class="docutils literal notranslate"><span class="pre">model_id</span></code>’s where multiple crystal directions are present for the same base id. These procedurally generated new models are identified by a prepended <code class="docutils literal notranslate"><span class="pre">isotropic:</span></code> string. They can now be accessed in the same way as default models</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ecmodel</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;isotropic_model:yang_12b_plag[100]+yang_12b_plag[010]+yang_12b_plag[001]&#39;</span><span class="p">)</span>
+<span class="n">conductivity</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">conductivity</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([0.00061567])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="mixing-models">
+<h2>Mixing Models<a class="headerlink" href="#mixing-models" title="Link to this heading"></a></h2>
+<p>Pyrrhenius provides several N phase mixing models which are accessed via the <code class="docutils literal notranslate"><span class="pre">mixing</span></code> module. Since the interfaces for these mixing models
+can be different, consult the documentation prior to using them.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyrrhenius.mixing</span> <span class="k">as</span> <span class="nn">pyhmix</span>
+
+<span class="n">brine_id</span> <span class="o">=</span> <span class="s1">&#39;Li_18_1%plg_brine&#39;</span>
+<span class="n">plag_id</span> <span class="o">=</span> <span class="s1">&#39;isotropic_model:yang_12b_plag[100]+yang_12b_plag[010]+yang_12b_plag[001]&#39;</span>
+
+<span class="n">brine_model</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">brine_id</span><span class="p">)</span>
+<span class="n">plag_model</span>  <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">plag_id</span><span class="p">)</span>
+
+<span class="c1"># The HashinStrikman mixing model needs to be initialized with a matrix and inclusion ecmodel</span>
+<span class="n">hashinshtrikman_matrix</span> <span class="o">=</span> <span class="n">pyhmix</span><span class="o">.</span><span class="n">HashinShtrikmanUpper</span><span class="p">(</span><span class="n">plag_model</span><span class="p">,</span><span class="n">brine_model</span><span class="p">)</span>
+<span class="c1"># The Geometric Average model requires intitialization with a phase and phase fraction list.</span>
+<span class="n">geometric_mixed_matrix</span> <span class="o">=</span> <span class="n">pyhmix</span><span class="o">.</span><span class="n">GeomAverage</span><span class="p">(</span><span class="n">phases</span><span class="o">=</span><span class="p">[</span><span class="n">brine_model</span><span class="p">,</span><span class="n">plag_model</span><span class="p">],</span>
+                                            <span class="n">phase_fractions</span><span class="o">=</span><span class="p">[</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.95</span><span class="p">])</span>
+
+<span class="c1"># Only the HS model in this example requires a provided phase fraction (0.05), positional argument.</span>
+<span class="n">hs_conductivity</span> <span class="o">=</span> <span class="n">hashinshtrikman_matrix</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">gm_conductivity</span> <span class="o">=</span> <span class="n">geometric_mixed_matrix</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="c1"># Also calculate endmember phase conductivities for comparison</span>
+<span class="n">plagioclase_conductivity</span> <span class="o">=</span> <span class="n">plag_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">brine_conductivity</span>        <span class="o">=</span> <span class="n">brine_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;HS: </span><span class="si">{</span><span class="n">hs_conductivity</span><span class="si">}</span><span class="s1"> GM:</span><span class="si">{</span><span class="n">gm_conductivity</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plag: </span><span class="si">{</span><span class="n">plagioclase_conductivity</span><span class="si">}</span><span class="s1"> Brine:</span><span class="si">{</span><span class="n">brine_conductivity</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>HS: [0.01280826] GM:[0.00084664]
+Plag: [0.00061567] Brine:[0.36]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="metadata-access">
+<h2>Metadata Access<a class="headerlink" href="#metadata-access" title="Link to this heading"></a></h2>
+<p>Most pyrrhenius objects come equipped with a <code class="docutils literal notranslate"><span class="pre">metadata</span></code> object which describes the source publication, experimental conditions, and calibration settings used to create the model</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plag_model</span><span class="o">.</span><span class="n">metadata</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>isotropic_model:yang_12b_plag[100]+yang_12b_plag[010]+yang_12b_plag[001]
+:title:None
+	author:Xiaozhi Yang+Xiaozhi Yang+Xiaozhi Yang
+	year:None
+	doi:None
+	phase_type:plagioclase
+	description:None
+	sample_type:None
+	equation_form:None
+	publication_id:Yang2012+Yang2012+Yang2012
+	complete_or_partial_fit:None
+	composite_or_single:None
+	pressure_average:0.1
+	pressure_min:None
+	pressure_max:None
+	temp_min:473.15
+	temp_max:1073.15
+	nacl_min:None
+	nacl_max:None
+	nacl_average:None
+	na2o_min:None
+	na2o_max:None
+	na2o_average:None
+	sio2_min:None
+	sio2_max:None
+	sio2_average:None
+	co2_min:None
+	co2_max:None
+	co2_average:None
+	water_min:95.0
+	water_max:110.0
+	water_average:102.5
+	water_calibration:Johnson and Rossman (2003)
+	water_units:ppm
+	iron_min:None
+	iron_max:None
+	iron_average:None
+	iron_units:nan
+	crystal_direction:isotropic
+	equation:mixture of:yang_12b_plag[100]*yang_12b_plag[010]*yang_12b_plag[001]
+	ec_model:mixture of:yang_12b_plag[100]*yang_12b_plag[010]*yang_12b_plag[001]
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">metadata</span></code> objects can be used by the parent model to produce input data representative of the experimental conditions</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plag_model</span><span class="o">.</span><span class="n">generate_representative_conditions</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;T&#39;: array([ 473.15, 1073.15])}
+</pre></div>
+</div>
+</div>
+</div>
+<p>you can use the output from <code class="docutils literal notranslate"><span class="pre">generate_representative_conditions()</span></code> to construct your own input arrays, or directly evaluate the condition dictionary within the model itself</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">condition_dict</span> <span class="o">=</span> <span class="n">plag_model</span><span class="o">.</span><span class="n">generate_representative_conditions</span><span class="p">()</span>
+<span class="n">plag_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">condition_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([4.40250906e-11, 1.68569100e-03])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="plotting-utilities">
+<h2>Plotting Utilities<a class="headerlink" href="#plotting-utilities" title="Link to this heading"></a></h2>
+<p>Since most experimental petrologists conduct their parameter fitting in <span class="math notranslate nohighlight">\(\log_{10}(\sigma), \frac{1}{T}\)</span> space, pyrrhenius provides a convenience plotting method to format a <cite>matplotlib.Axis</cite> for a similar plotting space</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyrrhenius.mixing</span> <span class="k">as</span> <span class="nn">pyhmix</span>
+<span class="kn">import</span> <span class="nn">pyrrhenius.database</span> <span class="k">as</span> <span class="nn">phsd</span>
+<span class="kn">import</span> <span class="nn">pyrrhenius.utils</span> <span class="k">as</span> <span class="nn">pyhutils</span>
+
+<span class="n">ecdatabase</span> <span class="o">=</span> <span class="n">phsd</span><span class="o">.</span><span class="n">Database</span><span class="p">()</span>
+
+<span class="c1"># endmember models</span>
+<span class="n">brine_id</span> <span class="o">=</span> <span class="s1">&#39;Li_18_1%plg_brine&#39;</span>
+<span class="n">plag_id</span> <span class="o">=</span> <span class="s1">&#39;Li_18_wet_plag&#39;</span>
+
+<span class="n">brine_model</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">brine_id</span><span class="p">)</span>
+<span class="n">plag_model</span>  <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">plag_id</span><span class="p">)</span>
+
+<span class="c1"># The HashinStrikman mixing model needs to be initialized with a matrix and inclusion ecmodel</span>
+<span class="n">hashinshtrikman_matrix</span> <span class="o">=</span> <span class="n">pyhmix</span><span class="o">.</span><span class="n">HashinShtrikmanUpper</span><span class="p">(</span><span class="n">plag_model</span><span class="p">,</span><span class="n">brine_model</span><span class="p">)</span>
+
+<span class="c1"># provide a range of temperature conditions at which to evaluate the models</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span><span class="mi">1200</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
+
+<span class="c1"># Only the HS model in this example requires a provided phase fraction (0.05), positional argument.</span>
+<span class="n">hs_5pct</span> <span class="o">=</span> <span class="n">hashinshtrikman_matrix</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
+<span class="n">hs_1pct</span> <span class="o">=</span> <span class="n">hashinshtrikman_matrix</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
+
+<span class="c1"># Also calculate endmember phase conductivities for comparison</span>
+<span class="n">plagioclase_conductivity</span> <span class="o">=</span> <span class="n">plag_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
+<span class="n">brine_conductivity</span>        <span class="o">=</span> <span class="n">brine_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
+
+<span class="c1"># set up matplotlib plotting</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">linear_major_ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">2000</span><span class="p">,</span><span class="mi">1400</span><span class="p">,</span><span class="mi">1100</span><span class="p">,</span><span class="mi">900</span><span class="p">,</span><span class="mi">800</span><span class="p">,</span><span class="mi">700</span><span class="p">,</span><span class="mi">600</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">400</span><span class="p">])</span>
+<span class="n">pyhutils</span><span class="o">.</span><span class="n">format_ax_arrhenian_space</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span><span class="n">linear_major_ticks</span><span class="o">=</span><span class="n">linear_major_ticks</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">1e4</span><span class="o">/</span><span class="n">T</span><span class="p">,</span><span class="n">plagioclase_conductivity</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;purple&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Li et al., (2018) Plagioclase&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">1e4</span><span class="o">/</span><span class="n">T</span><span class="p">,</span><span class="n">brine_conductivity</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Li et al., (2018) 1% NaCl Plagioclase-Equilibrated Brine&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">1e4</span><span class="o">/</span><span class="n">T</span><span class="p">,</span><span class="n">hs_1pct</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Li et al., (2018) 1% NaCl, 1% Vol Plagioclase-Equilibrated Brine&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">1e4</span><span class="o">/</span><span class="n">T</span><span class="p">,</span><span class="n">hs_5pct</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Li et al., (2018) 1% NaCl, 5% Vol Plagioclase-Equilibrated Brine&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;A Plagioclase, Brine, and two HS mixed Plag-Brine Models&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/quickstart_17_1.png" src="_images/quickstart_17_1.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="modelsguide.html" class="btn btn-neutral float-right" title="Database, Models, and Metadata" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Kevin A. Mendoza.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

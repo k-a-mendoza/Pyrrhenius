@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Database, Models, and Metadata &mdash; Pyrrhenius 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css?v=572af1d6" />
+      <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Pyrrhenius API" href="api.html" />
+    <link rel="prev" title="Pyrrhenius Quickstart" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Pyrrhenius
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sections</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="userguide.html">User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="whypyrrhenius.html">Overview: Why Pyrrhenius?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Pyrrhenius Quickstart</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Database, Models, and Metadata</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#models">Models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#calculating-conductivity">Calculating Conductivity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#basic-anisotropic-models">Basic Anisotropic Models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#derived-isotropic-models-and-advanced-anisotropy">Derived Isotropic Models and Advanced Anisotropy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#special-models">Special Models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#water-corrections">Water Corrections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cached-models">Cached Models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#n-phase-assemblages">N-Phase Assemblages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#advanced-usage">Advanced Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#metadata">Metadata</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#publication-metadata">Publication Metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#experimental-metadata">Experimental Metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyrrhenius-identifiers">Pyrrhenius Identifiers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api.html">Pyrrhenius API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fordevelopers.html">test title</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Pyrrhenius</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="userguide.html">User Guide</a></li>
+      <li class="breadcrumb-item active">Database, Models, and Metadata</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modelsguide.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="database-models-and-metadata">
+<h1>Database, Models, and Metadata<a class="headerlink" href="#database-models-and-metadata" title="Link to this heading"></a></h1>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+</div>
+</div>
+<section id="models">
+<h2>Models<a class="headerlink" href="#models" title="Link to this heading"></a></h2>
+<p>The core functionality of pyrrhenius is used via <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> objects. While you can certainty instantiate your own, <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a>’s are more easily obtained through interaction with a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.database.Database</span></code> object as described in the quickstart and database sections.</p>
+<p><a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> objects have a number of useful methods and attributes. One of these is the <code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model.metadata</span></code> attribute, which is integrated into the model to allow automatic error-checking when using the model to calculate electric conductivity.</p>
+<p><a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> objects can also be combined with the <cite>+</cite> operator, resulting in a linear combination of the two models. This is useful when integtrating say, a proton diffusion model with an electronic conduction model:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nv17HD</span>  <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;nv_17_ol[010]&#39;</span><span class="p">)</span> <span class="c1"># Novella et al. 2017&#39;s hydrogen diffusion equation</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nv17HD</span><span class="p">)</span>
+
+<span class="n">seo3dry</span> <span class="o">=</span>  <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;SEO3_ol&#39;</span><span class="p">)</span> <span class="c1"># Constable et al. 2006&#39;s dry olivine equation</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seo3dry</span><span class="p">)</span>
+
+<span class="n">combined</span> <span class="o">=</span> <span class="n">nv17HD</span><span class="o">+</span><span class="n">seo3dry</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>nv_17_ol[010]:{NerstEinstein2 1.8e+42(nan) 10^-5.0(0.9) 1.782654381(0.196921123) }
+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}
+nv_17_ol[010]+SEO3_ol:{nv_17_ol[010]:{NerstEinstein2 1.8e+42(nan) 10^-5.0(0.9) 1.782654381(0.196921123) }+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>As may be apparent, calling the <cite>__repr__</cite> method by casting the models to strings reveals both the underlying <cite>model_id</cite> and a string representation of the arrhenian form. More details are provided on what this string forms represents below and in the API section.</p>
+<section id="calculating-conductivity">
+<h3>Calculating Conductivity<a class="headerlink" href="#calculating-conductivity" title="Link to this heading"></a></h3>
+<p>The function you will use the most on your model objects is <cite>get_conductivity()</cite>, which tells the underlying model to calculate electric conductivity. Models implicitly vectorize computations to match the largest dimension size of the provided keyword-arguments.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;SEO3_ol&#39;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">logfo2</span><span class="o">=</span><span class="mi">10</span><span class="o">**-</span><span class="mi">11</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([2.73808615e-05])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="mi">700</span> <span class="c1"># in degrees K</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">logfo2</span><span class="o">=</span><span class="mi">10</span><span class="o">**-</span><span class="mi">11</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>(4,)
+</pre></div>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.29536636e-07, 1.29536636e-07, 1.29536636e-07, 1.29536636e-07])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span><span class="o">*</span><span class="mi">700</span> <span class="c1"># in degrees K</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">logfo2</span><span class="o">=</span><span class="mi">10</span><span class="o">**-</span><span class="mi">11</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>(4, 4)
+</pre></div>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([[1.29536636e-07, 1.29536636e-07, 1.29536636e-07, 1.29536636e-07],
+       [1.29536636e-07, 1.29536636e-07, 1.29536636e-07, 1.29536636e-07],
+       [1.29536636e-07, 1.29536636e-07, 1.29536636e-07, 1.29536636e-07],
+       [1.29536636e-07, 1.29536636e-07, 1.29536636e-07, 1.29536636e-07]])
+</pre></div>
+</div>
+</div>
+</div>
+<p>keywords provided as <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>’s can either be all the same shape, a mixture of one shape and floats, or a mixture of one shape, floats, and arrays of shape <cite>(1,)</cite></p>
+<p>In the prior example, the keywords <cite>T</cite> for temperature, <cite>P</cite> for pressure, and <cite>logfo2</cite> were provided to the <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> instance corresponding to the SEO3 model of olivine. This model notably requires pressure and oxygen fugacity to calculate electrical conductivity.
+If we tried to run the SEO3 model without these keywords pyrrhenius will inform you that they need to be provided</p>
+<blockquote>
+<div><div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Did not provide an oxygen fugacity value!
+</pre></div>
+</div>
+</div>
+</div>
+</div></blockquote>
+<p>code in both the underlying <code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.mechanism.Mechanism</span></code> and <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> classes is designed to raise an error if required keywords are not provided.</p>
+<p>if you are unsure what keywords need to be provided to a model object, the <cite>print_required_parameters()</cite> method will tell you</p>
+<blockquote>
+<div><div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">print_required_parameters</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>********************
+Required Keywords
+********************
+
+Intrinsic Arguments
+--------------------
+
+Volatile Arguments
+--------------------
+
+Electronic Conduction Arguments
+--------------------
+*logfo2
+
+Diffusion Conduction Arguments
+--------------------
+
+Polymerizing Agent Arguments
+--------------------
+</pre></div>
+</div>
+</div>
+</div>
+</div></blockquote>
+<p>Note that currently temperature is a required keyword-argument for all models, even static valued ones.</p>
+<p>The following table lists the keyword-arguments currently accepted by pyrrhenius along with the required unit conventions.</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Keyword Arguments</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Keyword-argument</p></th>
+<th class="head"><p>Units</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Temperature</p></td>
+<td><p>T</p></td>
+<td><p>Kelvin</p></td>
+</tr>
+<tr class="row-odd"><td><p>Pressure</p></td>
+<td><p>P</p></td>
+<td><p>GPa</p></td>
+</tr>
+<tr class="row-even"><td><p>Oxygen fugacity</p></td>
+<td><p>logfo2</p></td>
+<td><p><span class="math notranslate nohighlight">\(\log_{10}(bars)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Water concentration</p></td>
+<td><p>Cw</p></td>
+<td><p>ppm wt%</p></td>
+</tr>
+<tr class="row-even"><td><p>Carbon dioxide</p></td>
+<td><p>co2</p></td>
+<td><p>wt%</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sodium Chloride</p></td>
+<td><p>nacl</p></td>
+<td><p>wt%</p></td>
+</tr>
+<tr class="row-even"><td><p>Silicon Dioxide</p></td>
+<td><p>sio2</p></td>
+<td><p>wt%</p></td>
+</tr>
+<tr class="row-odd"><td><p>Iron Fraction</p></td>
+<td><p>X_fe</p></td>
+<td><p>normalized fraction (typically Fe/(Mg+Fe))</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="basic-anisotropic-models">
+<h3>Basic Anisotropic Models<a class="headerlink" href="#basic-anisotropic-models" title="Link to this heading"></a></h3>
+<p>Some laboratory experiments have documented conductivities which depend on crystallographic orientation. This is especially true of olivine, which has seen considerable research interest over the last 40 years due to its abundance in the Earth’s upper mantle.</p>
+<p>Lets see what Pyrrhenius identifiers exist for olivine:</p>
+<blockquote>
+<div><div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyrrhenius.database</span> <span class="k">as</span> <span class="nn">phsd</span>
+
+<span class="n">ecdatabase</span> <span class="o">=</span> <span class="n">phsd</span><span class="o">.</span><span class="n">Database</span><span class="p">()</span>
+
+<span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model_list_for_phase</span><span class="p">(</span><span class="s1">&#39;olivine&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;SEO2_ol&#39;,
+ &#39;xu_2000_ol[001]&#39;,
+ &#39;xu_2000_ol[010]&#39;,
+ &#39;xu_2000_ol[100]&#39;,
+ &#39;xu_2000_poly_ol&#39;,
+ &#39;dF_05_ol[100]&#39;,
+ &#39;dF_05_ol[010]&#39;,
+ &#39;dF_05_ol[001]&#39;,
+ &#39;SEO3_ol&#39;,
+ &#39;wang_06_ol&#39;,
+ &#39;dk_2009_ol&#39;,
+ &#39;ty_09_dry_ol&#39;,
+ &#39;ty_09_ol&#39;,
+ &#39;ty_12_ol&#39;,
+ &#39;yang_12b_ol[100]&#39;,
+ &#39;yang_12b_ol[010]&#39;,
+ &#39;yang_12b_ol[001]&#39;,
+ &#39;gar_14_bell_ol[100]&#39;,
+ &#39;gar_14_bell_ol[010]&#39;,
+ &#39;gar_14_bell_ol[001]&#39;,
+ &#39;gar_14_withers_ol[100]&#39;,
+ &#39;gar_14_withers_ol[010]&#39;,
+ &#39;gar_14_withers_ol[001]&#39;,
+ &#39;y_16_ol[100]&#39;,
+ &#39;y_16_ol[010]&#39;,
+ &#39;y_16_ol[001]&#39;,
+ &#39;nv_17_ol[100]&#39;,
+ &#39;nv_17_ol[010]&#39;,
+ &#39;nv_17_ol[001]&#39;,
+ &#39;sun_19ol[100]&#39;,
+ &#39;sun_19ol[001]&#39;,
+ &#39;fei_20_ol[100]&#39;,
+ &#39;fei_20_ol[010]&#39;,
+ &#39;fei_20_ol[001]&#39;,
+ &#39;fei_20_ol_ionic[100]&#39;,
+ &#39;fei_20_ol_ionic[010]&#39;,
+ &#39;fei_20_ol_ionic[001]&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+</div></blockquote>
+<p>Scrolling through the list, you should see some models which have the string <code class="docutils literal notranslate"><span class="pre">[xxx]</span></code> appended to the end. Each represents a parameterization for a separate crystallographic direction. For example, the <code class="docutils literal notranslate"><span class="pre">fei_20_ol</span></code> model actually has three possible models associated with it,  <code class="docutils literal notranslate"><span class="pre">fei_20_ol[100]</span></code>, <code class="docutils literal notranslate"><span class="pre">fei_20_ol[010]</span></code>, and <code class="docutils literal notranslate"><span class="pre">fei_20_ol[001]</span></code>.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyrrhenius.database</span> <span class="k">as</span> <span class="nn">phsd</span>
+<span class="kn">import</span> <span class="nn">pyrrhenius.utils</span> <span class="k">as</span> <span class="nn">pyhutils</span>
+
+<span class="n">ecdatabase</span> <span class="o">=</span> <span class="n">phsd</span><span class="o">.</span><span class="n">Database</span><span class="p">()</span>
+
+<span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fei_20_ol[100]&#39;</span><span class="p">,</span><span class="s1">&#39;fei_20_ol[010]&#39;</span><span class="p">,</span> <span class="s1">&#39;fei_20_ol[001]&#39;</span><span class="p">]</span>
+
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span><span class="mi">1800</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span> <span class="c1"># temperature in kelvin</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">linear_major_ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">2000</span><span class="p">,</span><span class="mi">1400</span><span class="p">,</span><span class="mi">1100</span><span class="p">,</span><span class="mi">900</span><span class="p">,</span><span class="mi">800</span><span class="p">,</span><span class="mi">700</span><span class="p">,</span><span class="mi">600</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">400</span><span class="p">])</span>
+<span class="n">pyhutils</span><span class="o">.</span><span class="n">format_ax_arrhenian_space</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span><span class="n">linear_major_ticks</span><span class="o">=</span><span class="n">linear_major_ticks</span><span class="p">,</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
+<span class="n">Cw</span> <span class="o">=</span> <span class="mi">100</span> <span class="c1"># 100 ppm water</span>
+<span class="n">P</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># 3 GPa</span>
+<span class="k">for</span> <span class="n">model_id</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+    <span class="n">ecmodel</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span><span class="n">Cw</span><span class="o">=</span><span class="n">Cw</span><span class="p">,</span><span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">1e4</span><span class="o">/</span><span class="n">T</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="n">model_id</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mf">1e-4</span><span class="p">,</span><span class="mf">1e-1</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/modelsguide_8_1.png" src="_images/modelsguide_8_1.png" />
+</div>
+</div>
+<p>Be careful though! Many of the isotropic models contained in the default database are specific to high-temperature mechanisms, relying on other published works to provide the low-temperature mechanisms. There are easy ways to deal with model mixing and matching, which is elaborated upon in the <strong>Special Model</strong> Section.</p>
+</section>
+<section id="derived-isotropic-models-and-advanced-anisotropy">
+<h3>Derived Isotropic Models and Advanced Anisotropy<a class="headerlink" href="#derived-isotropic-models-and-advanced-anisotropy" title="Link to this heading"></a></h3>
+<p>In some cases, publications may not have provided an isotropic parameterization, or perhaps you, the user, wants to estimate the isotropic conductivity based on your own models. Pyrrhenius provides a functionality for automatically creating isotropic variants of existing anisotropic models. Simply call <code class="docutils literal notranslate"><span class="pre">database.create_isotropic_models()</span></code> and
+the pyrrhenius database object will internally create its own isotropic representation of every anisotropic model within the database. Printing out the list of available isotropic models shows that new models have been added which have a prefix of <code class="docutils literal notranslate"><span class="pre">isotropic_model:...</span></code></p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ecdatabase</span> <span class="o">=</span> <span class="n">phsd</span><span class="o">.</span><span class="n">Database</span><span class="p">()</span>
+<span class="n">ecdatabase</span><span class="o">.</span><span class="n">create_isotropic_models</span><span class="p">()</span>
+<span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model_list_for_phase</span><span class="p">(</span><span class="s1">&#39;olivine&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">12</span><span class="p">:]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;fei_20_ol_ionic[010]&#39;,
+ &#39;fei_20_ol_ionic[001]&#39;,
+ &#39;isotropic_model:dF_05_ol[100]+dF_05_ol[010]+dF_05_ol[001]&#39;,
+ &#39;isotropic_model:fei_20_ol[100]+fei_20_ol[010]+fei_20_ol[001]&#39;,
+ &#39;isotropic_model:fei_20_ol_ionic[100]+fei_20_ol_ionic[010]+fei_20_ol_ionic[001]&#39;,
+ &#39;isotropic_model:gar_14_bell_ol[100]+gar_14_bell_ol[010]+gar_14_bell_ol[001]&#39;,
+ &#39;isotropic_model:gar_14_withers_ol[100]+gar_14_withers_ol[010]+gar_14_withers_ol[001]&#39;,
+ &#39;isotropic_model:nv_17_ol[100]+nv_17_ol[010]+nv_17_ol[001]&#39;,
+ &#39;isotropic_model:sun_19ol[100]+sun_19ol[001]&#39;,
+ &#39;isotropic_model:xu_2000_ol[001]+xu_2000_ol[010]+xu_2000_ol[100]&#39;,
+ &#39;isotropic_model:y_16_ol[100]+y_16_ol[010]+y_16_ol[001]&#39;,
+ &#39;isotropic_model:yang_12b_ol[100]+yang_12b_ol[010]+yang_12b_ol[001]&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<p>Use of these is similar to previous models</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">linear_major_ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">2000</span><span class="p">,</span><span class="mi">1400</span><span class="p">,</span><span class="mi">1100</span><span class="p">,</span><span class="mi">900</span><span class="p">,</span><span class="mi">800</span><span class="p">,</span><span class="mi">700</span><span class="p">,</span><span class="mi">600</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">400</span><span class="p">])</span>
+<span class="n">pyhutils</span><span class="o">.</span><span class="n">format_ax_arrhenian_space</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span><span class="n">linear_major_ticks</span><span class="o">=</span><span class="n">linear_major_ticks</span><span class="p">,</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
+<span class="n">Cw</span> <span class="o">=</span> <span class="mi">100</span> <span class="c1"># 100 ppm water</span>
+<span class="n">P</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># 3 GPa</span>
+<span class="k">for</span> <span class="n">model_id</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+    <span class="n">ecmodel</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span><span class="n">Cw</span><span class="o">=</span><span class="n">Cw</span><span class="p">,</span><span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">1e4</span><span class="o">/</span><span class="n">T</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="n">model_id</span><span class="p">)</span>
+
+<span class="n">isotropic_model_id</span> <span class="o">=</span> <span class="s1">&#39;isotropic_model:fei_20_ol[100]+fei_20_ol[010]+fei_20_ol[001]&#39;</span>
+<span class="n">ecmodel</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">isotropic_model_id</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span><span class="n">Cw</span><span class="o">=</span><span class="n">Cw</span><span class="p">,</span><span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">1e4</span><span class="o">/</span><span class="n">T</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mf">1e-4</span><span class="p">,</span><span class="mf">1e-1</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/modelsguide_10_1.png" src="_images/modelsguide_10_1.png" />
+</div>
+</div>
+<p>These derived models utilize a geometric mean to calculate the isotropic conductivity by assuming each crystal direction makes up <span class="math notranslate nohighlight">\(1/N\)</span> of the total substance, where <strong>N</strong> represents the number of crystallographic orientations available per id.</p>
+<p>Derived isotropic models allow for dynamic querying of isotropic parameters through a number of options specified by the <code class="docutils literal notranslate"><span class="pre">averaging</span></code> keyword argument in the method <code class="docutils literal notranslate"><span class="pre">get_conductivity</span></code>. The available options for averaging include:</p>
+<ol class="arabic simple">
+<li><p><strong>Geometric Mean</strong> (default):
+Example usage:</p></li>
+</ol>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Cw</span> <span class="o">=</span> <span class="mi">100</span> <span class="c1"># 100 ppm water</span>
+<span class="n">P</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># 3 GPa</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span><span class="mi">1500</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">physiokwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Cw&#39;</span><span class="p">:</span><span class="n">Cw</span><span class="p">,</span><span class="s1">&#39;P&#39;</span><span class="p">:</span><span class="n">P</span><span class="p">,</span><span class="s1">&#39;T&#39;</span><span class="p">:</span><span class="n">T</span><span class="p">}</span>
+<span class="n">conductivity</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">physiokwargs</span><span class="p">)</span>
+<span class="n">conductivity</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([9.54130942e-06, 2.32192032e-05, 5.17207779e-05, ...,
+       1.21434671e-03, 2.18061386e-03, 4.07700586e-03])
+</pre></div>
+</div>
+</div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><strong>Max Anisotropic Conductivity</strong>:
+By setting <code class="docutils literal notranslate"><span class="pre">averaging</span></code> to <code class="docutils literal notranslate"><span class="pre">'max_aniso'</span></code>, the method returns the conductivity in the most conductive direction</p></li>
+</ol>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">conductivity</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">averaging</span><span class="o">=</span><span class="s1">&#39;max_aniso&#39;</span><span class="p">,</span><span class="o">**</span><span class="n">physiokwargs</span><span class="p">)</span>
+<span class="n">conductivity</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([2.40550006e-05, 5.85446664e-05, 1.30385472e-04, ...,
+       2.92689115e-03, 5.07131923e-03, 9.06023794e-03])
+</pre></div>
+</div>
+</div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p><strong>Min Anisotropic Conductivity</strong>:
+When <code class="docutils literal notranslate"><span class="pre">averaging</span></code> is set to <code class="docutils literal notranslate"><span class="pre">'min_aniso'</span></code>, the method returns the conductivity in the least conductive direction</p></li>
+</ol>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">conductivity</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">averaging</span><span class="o">=</span><span class="s1">&#39;min_aniso&#39;</span><span class="p">,</span><span class="o">**</span><span class="n">physiokwargs</span><span class="p">)</span>
+<span class="n">conductivity</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.85038640e-06, 5.17376148e-06, 1.30593266e-05, ...,
+       5.02547031e-04, 9.90019245e-04, 2.03825870e-03])
+</pre></div>
+</div>
+</div>
+</div>
+<p>In addition to these averaging methods, the method supports querying for a specific <strong>crystal direction</strong> by passing the <code class="docutils literal notranslate"><span class="pre">crystal_direction</span></code> argument. If a crystal direction is specified and found within the available crystallographic directions, the method will return the conductivity for that specific direction.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">conductivity</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">crystal_direction</span><span class="o">=</span><span class="s1">&#39;[100]&#39;</span><span class="p">,</span><span class="o">**</span><span class="n">physiokwargs</span><span class="p">)</span>
+<span class="n">conductivity</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.95144420e-05, 4.13283627e-05, 8.12540766e-05, ...,
+       1.21743230e-03, 2.06524565e-03, 3.66965383e-03])
+</pre></div>
+</div>
+</div>
+</div>
+<p>Alternatively, you can provide a float value between 0 and 1. In this case, the method will return an anisotropic factor corresponding to the given ratio between the minimum and maximum conductivities. This ratio represents the interpolation between the most and least conductive directions, calculated by the following equation</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{\text{anisotropic}} = \sigma_{\text{min}} \cdot (1-f) +f\cdot \sigma_{\text{max}}\]</div>
+<p>Where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\sigma_{\text{anisotropic}}\)</span> is the resulting conductivity based on the factor.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\sigma_{\text{min}}\)</span> is the conductivity in the least conductive direction.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\sigma_{\text{max}}\)</span> is the conductivity in the most conductive direction.</p></li>
+<li><p><strong>f</strong> is the float value between 0 and 1 representing the desired anisotropic ratio.</p></li>
+</ul>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">conductivity</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">crystal_direction</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="o">**</span><span class="n">physiokwargs</span><span class="p">)</span>
+<span class="n">conductivity</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.29526935e-05, 3.18592139e-05, 7.17223991e-05, ...,
+       1.71471909e-03, 3.03066924e-03, 5.54924832e-03])
+</pre></div>
+</div>
+</div>
+</div>
+<p>The anisotropic factor can also be provided as a <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>, as long as it has the same dimensions as other physiochemical variables. This allows for querying anisotropic conductivity across multiple values simultaneously.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Provide an array of anisotropic factors for batch querying</span>
+<span class="n">factors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">T</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Anisotropic Factors: </span><span class="si">{</span><span class="n">factors</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">conductivity</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">crystal_direction</span><span class="o">=</span><span class="n">factors</span><span class="p">,</span><span class="o">**</span><span class="n">physiokwargs</span><span class="p">)</span>
+<span class="n">conductivity</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Anisotropic Factors: [0.62761196 0.06032951 0.4801983  ... 0.13951965 0.96086743 0.23703155]
+</pre></div>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.57862678e-05, 8.39360216e-06, 6.93991416e-05, ...,
+       8.40790685e-04, 4.91160747e-03, 3.70268933e-03])
+</pre></div>
+</div>
+</div>
+</div>
+<p>By combining these lessons we can see these shortcuts allow us to interrogate anisotropic behavior of a derived model with less code and less knowledge of the pyrrhenius id’s.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">linear_major_ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">2000</span><span class="p">,</span><span class="mi">1400</span><span class="p">,</span><span class="mi">1100</span><span class="p">,</span><span class="mi">900</span><span class="p">,</span><span class="mi">800</span><span class="p">,</span><span class="mi">700</span><span class="p">,</span><span class="mi">600</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">400</span><span class="p">])</span>
+<span class="n">pyhutils</span><span class="o">.</span><span class="n">format_ax_arrhenian_space</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span><span class="n">linear_major_ticks</span><span class="o">=</span><span class="n">linear_major_ticks</span><span class="p">,</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
+
+<span class="c1"># Physiochemical states</span>
+<span class="n">Cw</span> <span class="o">=</span> <span class="mi">100</span> <span class="c1">#(100 ppm water)</span>
+<span class="n">P</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># 3 GPa</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span><span class="mi">1500</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">physiokwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Cw&#39;</span><span class="p">:</span><span class="n">Cw</span><span class="p">,</span><span class="s1">&#39;P&#39;</span><span class="p">:</span><span class="n">P</span><span class="p">,</span><span class="s1">&#39;T&#39;</span><span class="p">:</span><span class="n">T</span><span class="p">}</span>
+
+
+<span class="n">isotropic_model_id</span> <span class="o">=</span> <span class="s1">&#39;isotropic_model:fei_20_ol[100]+fei_20_ol[010]+fei_20_ol[001]&#39;</span>
+<span class="n">ecmodel</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">isotropic_model_id</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">averaging</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;min_aniso&#39;</span><span class="p">,</span><span class="s1">&#39;max_aniso&#39;</span><span class="p">,</span><span class="s1">&#39;geometric&#39;</span><span class="p">]:</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">averaging</span><span class="o">=</span><span class="n">averaging</span><span class="p">,</span><span class="o">**</span><span class="n">physiokwargs</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="mf">1e4</span><span class="o">/</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">1e4</span><span class="o">/</span><span class="n">T</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="n">averaging</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">factor</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.6</span><span class="p">,</span><span class="mf">1.0</span><span class="p">]:</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">crystal_direction</span><span class="o">=</span><span class="n">factor</span><span class="p">,</span><span class="o">**</span><span class="n">physiokwargs</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">1e4</span><span class="o">/</span><span class="n">T</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;f=</span><span class="si">{</span><span class="n">factor</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">marker</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mf">1e-4</span><span class="p">,</span><span class="mf">1e-1</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[1.85038640e-06 5.17376148e-06 1.30593266e-05 ... 5.02547031e-04
+ 9.90019245e-04 2.03825870e-03]
+[10.          9.47368421  9.         ...  7.2         6.92307692
+  6.66666667]
+[2.40550006e-05 5.85446664e-05 1.30385472e-04 ... 2.92689115e-03
+ 5.07131923e-03 9.06023794e-03]
+[10.          9.47368421  9.         ...  7.2         6.92307692
+  6.66666667]
+[9.54130942e-06 2.32192032e-05 5.17207779e-05 ... 1.21434671e-03
+ 2.18061386e-03 4.07700586e-03]
+[10.          9.47368421  9.         ...  7.2         6.92307692
+  6.66666667]
+</pre></div>
+</div>
+<img alt="_images/modelsguide_17_2.png" src="_images/modelsguide_17_2.png" />
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As seen on the graph, an anisotropic factor of f=0.5 is not equal to the geometric mean.</p>
+</div>
+</section>
+<section id="special-models">
+<h3>Special Models<a class="headerlink" href="#special-models" title="Link to this heading"></a></h3>
+<p>The Pyrrhenius models used so far are relatively basic, but there are easy ways to combine them to achieve specific functionalities. At the time of this writing, three types of models are available,</p>
+<ul class="simple">
+<li><p>Composite Models: Used to combine multiple arrhenian mechanisms or multiple publications together</p></li>
+<li><p>Water Correction Models: Used to modify the water value either to the whole model or to only certain mechanisms of a composite model.</p></li>
+<li><p>Cached Models: Used when calculating the electric conductivity of a substance is time-consuming and likely to result in the same value over repeated calls.</p></li>
+</ul>
+<section id="composite-models">
+<h4>Composite Models<a class="headerlink" href="#composite-models" title="Link to this heading"></a></h4>
+<p>Composite models are used to combine multiple physical mechanisms or correction factors into a single model. These are useful in cases where a single mechanism or single experimental result isn’t sufficient to replicate electric conductivity.</p>
+<p>Consider the <code class="docutils literal notranslate"><span class="pre">fei_20_ol_ionic[xxx]</span></code> models and the <code class="docutils literal notranslate"><span class="pre">nv_17_ol[xxx]</span></code> models. Both of these experiments report mechanism parameterizations which are meant to be added to lower temperature or dry olivine experiments. Lets assume that the SEO3 model of olivine from Constable, (2006) will be the dry/low temperature model of choice.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrrhenius.database</span> <span class="kn">import</span> <span class="n">Database</span>
+
+<span class="n">ecdatabase</span> <span class="o">=</span> <span class="n">Database</span><span class="p">()</span>
+
+<span class="n">dry_model</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;SEO3_ol&#39;</span><span class="p">)</span>
+<span class="n">novella_models</span> <span class="o">=</span><span class="p">[</span><span class="s1">&#39;nv_17_ol[100]&#39;</span><span class="p">,</span><span class="s1">&#39;nv_17_ol[010]&#39;</span><span class="p">,</span><span class="s1">&#39;nv_17_ol[001]&#39;</span><span class="p">]</span>
+<span class="n">fei_models</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fei_20_ol_ionic[100]&#39;</span><span class="p">,</span><span class="s1">&#39;fei_20_ol_ionic[010]&#39;</span><span class="p">,</span> <span class="s1">&#39;fei_20_ol_ionic[001]&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>To create the composite model, I’ll loop over each model, add via the <code class="docutils literal notranslate"><span class="pre">+</span></code> operator the dry model to a novella or fei model, then register the new object by calling <code class="docutils literal notranslate"><span class="pre">.register_new_model()</span></code> the database</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrrhenius.utils</span> <span class="kn">import</span> <span class="n">calc_QFM</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span><span class="mi">2300</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># in K</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># in GPa</span>
+<span class="n">qfm</span> <span class="o">=</span> <span class="n">calc_QFM</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">P</span><span class="p">)</span>
+<span class="n">Cw</span> <span class="o">=</span> <span class="mi">300</span> <span class="c1"># (in ppm)</span>
+<span class="n">physiochem</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;T&#39;</span><span class="p">:</span><span class="n">T</span><span class="p">,</span><span class="s1">&#39;P&#39;</span><span class="p">:</span><span class="n">P</span><span class="p">,</span><span class="s1">&#39;Cw&#39;</span><span class="p">:</span><span class="n">Cw</span><span class="p">,</span><span class="s1">&#39;logfo2&#39;</span><span class="p">:</span><span class="n">qfm</span><span class="p">}</span>
+<span class="n">models_to_composite</span> <span class="o">=</span> <span class="n">novella_models</span><span class="o">+</span><span class="n">fei_models</span>
+
+<span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">models_to_composite</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+    <span class="n">ecmodel</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">physiochem</span><span class="p">))</span>
+    <span class="n">new_ecmodel</span> <span class="o">=</span> <span class="n">ecmodel</span> <span class="o">+</span> <span class="n">dry_model</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">new_ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">physiochem</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;old ec model representation:</span><span class="si">{</span><span class="n">ecmodel</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;new ec model representation:</span><span class="si">{</span><span class="n">new_ecmodel</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">ecdatabase</span><span class="o">.</span><span class="n">register_new_model</span><span class="p">(</span><span class="n">new_ecmodel</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>********************
+nv_17_ol[100]
+[3.50705561e-05 9.90949892e-04 1.30542766e-02 ... 1.80010942e+01
+ 4.20468450e+01 8.79148178e+01]
+[3.62561002e-05 1.00357394e-03 1.31427481e-02 ... 1.83972519e+01
+ 4.37197216e+01 9.39204356e+01]
+old ec model representation:nv_17_ol[100]:{NerstEinstein2 1.8e+42(nan) 10^-0.7(0.9) 2.373417751(0.186556854) }
+new ec model representation:nv_17_ol[100]+SEO3_ol:{nv_17_ol[100]:{NerstEinstein2 1.8e+42(nan) 10^-0.7(0.9) 2.373417751(0.186556854) }+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+********************
+nv_17_ol[010]
+[1.66824179e-06 1.98422195e-05 1.33579444e-04 ... 2.72729707e-02
+ 5.06947104e-02 8.68055409e-02]
+[2.85378588e-06 3.24662662e-05 2.22050934e-04 ... 4.23430669e-01
+ 1.72357131e+00 6.09242335e+00]
+old ec model representation:nv_17_ol[010]:{NerstEinstein2 1.8e+42(nan) 10^-5.0(0.9) 1.782654381(0.196921123) }
+new ec model representation:nv_17_ol[010]+SEO3_ol:{nv_17_ol[010]:{NerstEinstein2 1.8e+42(nan) 10^-5.0(0.9) 1.782654381(0.196921123) }+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+********************
+nv_17_ol[001]
+[7.70053816e-06 1.16770681e-04 9.49122523e-04 ... 3.31262408e-01
+ 6.56521841e-01 1.18900351e+00]
+[8.88608225e-06 1.29394728e-04 1.03759401e-03 ... 7.27420107e-01
+ 2.32939844e+00 7.19462132e+00]
+old ec model representation:nv_17_ol[001]:{NerstEinstein2 1.8e+42(nan) 10^-3.5(0.4) 1.948482695(0.082914157) }
+new ec model representation:nv_17_ol[001]+SEO3_ol:{nv_17_ol[001]:{NerstEinstein2 1.8e+42(nan) 10^-3.5(0.4) 1.948482695(0.082914157) }+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+********************
+fei_20_ol_ionic[100]
+[7.23462253e-09 9.04692076e-07 3.77911472e-05 ... 1.38985283e+00
+ 4.80772024e+00 1.41704536e+01]
+[1.19277871e-06 1.35287388e-05 1.26262638e-04 ... 1.78601053e+00
+ 6.48059684e+00 2.01760715e+01]
+old ec model representation:fei_20_ol_ionic[100]:{Cw^1.3(0.2) 10^9.9(5.00E-01) exp(-(3.492758874(0.155464045) + P4.2(0.4))/kT)/T}
+new ec model representation:fei_20_ol_ionic[100]+SEO3_ol:{fei_20_ol_ionic[100]:{Cw^1.3(0.2) 10^9.9(5.00E-01) exp(-(3.492758874(0.155464045) + P4.2(0.4))/kT)/T}+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+********************
+fei_20_ol_ionic[010]
+[4.30849474e-10 1.36802329e-07 1.17750018e-05 ... 3.38768572e+00
+ 1.49867925e+01 5.47733817e+01]
+[1.18597493e-06 1.27608490e-05 1.00246492e-04 ... 3.78384342e+00
+ 1.66596691e+01 6.07789995e+01]
+old ec model representation:fei_20_ol_ionic[010]:{Cw^1.3(0.2) 10^11.6(4.00E-01) exp(-(4.104250784(0.259106741) + P3.2(0.2))/kT)/T}
+new ec model representation:fei_20_ol_ionic[010]+SEO3_ol:{fei_20_ol_ionic[010]:{Cw^1.3(0.2) 10^11.6(4.00E-01) exp(-(4.104250784(0.259106741) + P3.2(0.2))/kT)/T}+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+********************
+fei_20_ol_ionic[001]
+[1.76958503e-09 4.60227755e-07 3.39311832e-05 ... 6.28375471e+00
+ 2.63721218e+01 9.20449533e+01]
+[1.18731367e-06 1.30842745e-05 1.22402674e-04 ... 6.67991241e+00
+ 2.80449984e+01 9.80505711e+01]
+old ec model representation:fei_20_ol_ionic[001]:{Cw^1.3(0.2) 10^11.78(4.00E-01) exp(-(3.990243818(0.155464045) + P4.1(0.4))/kT)/T}
+new ec model representation:fei_20_ol_ionic[001]+SEO3_ol:{fei_20_ol_ionic[001]:{Cw^1.3(0.2) 10^11.78(4.00E-01) exp(-(3.990243818(0.155464045) + P4.1(0.4))/kT)/T}+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>While right now the representations are a bit wordy, it should be evident the new ec model was created by examining the new <code class="docutils literal notranslate"><span class="pre">SEO3..</span></code> string added to the representation.</p>
+<p>Similar to before, creation of a new derived isotropic model can be done by calling <code class="docutils literal notranslate"><span class="pre">.create_isotropic_models()</span></code> on the existing database object</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ecdatabase</span><span class="o">.</span><span class="n">create_isotropic_models</span><span class="p">()</span>
+<span class="n">model_list</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model_list_for_phase</span><span class="p">(</span><span class="s1">&#39;olivine&#39;</span><span class="p">)</span>
+<span class="n">model_list</span><span class="p">[</span><span class="o">-</span><span class="mi">20</span><span class="p">:]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;fei_20_ol_ionic[010]&#39;,
+ &#39;fei_20_ol_ionic[001]&#39;,
+ &#39;nv_17_ol[100]+SEO3_ol&#39;,
+ &#39;nv_17_ol[010]+SEO3_ol&#39;,
+ &#39;nv_17_ol[001]+SEO3_ol&#39;,
+ &#39;fei_20_ol_ionic[100]+SEO3_ol&#39;,
+ &#39;fei_20_ol_ionic[010]+SEO3_ol&#39;,
+ &#39;fei_20_ol_ionic[001]+SEO3_ol&#39;,
+ &#39;isotropic_model:dF_05_ol[100]+dF_05_ol[010]+dF_05_ol[001]&#39;,
+ &#39;isotropic_model:fei_20_ol[100]+fei_20_ol[010]+fei_20_ol[001]&#39;,
+ &#39;isotropic_model:fei_20_ol_ionic[100]+fei_20_ol_ionic[010]+fei_20_ol_ionic[001]&#39;,
+ &#39;isotropic_model:fei_20_ol_ionic[100]+SEO3_ol+fei_20_ol_ionic[010]+SEO3_ol+fei_20_ol_ionic[001]+SEO3_ol&#39;,
+ &#39;isotropic_model:gar_14_bell_ol[100]+gar_14_bell_ol[010]+gar_14_bell_ol[001]&#39;,
+ &#39;isotropic_model:gar_14_withers_ol[100]+gar_14_withers_ol[010]+gar_14_withers_ol[001]&#39;,
+ &#39;isotropic_model:nv_17_ol[100]+nv_17_ol[010]+nv_17_ol[001]&#39;,
+ &#39;isotropic_model:nv_17_ol[100]+SEO3_ol+nv_17_ol[010]+SEO3_ol+nv_17_ol[001]+SEO3_ol&#39;,
+ &#39;isotropic_model:sun_19ol[100]+sun_19ol[001]&#39;,
+ &#39;isotropic_model:xu_2000_ol[001]+xu_2000_ol[010]+xu_2000_ol[100]&#39;,
+ &#39;isotropic_model:y_16_ol[100]+y_16_ol[010]+y_16_ol[001]&#39;,
+ &#39;isotropic_model:yang_12b_ol[100]+yang_12b_ol[010]+yang_12b_ol[001]&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to create compound isotropic models, do your compounding before calling <code class="docutils literal notranslate"><span class="pre">.create_isotropic_models()</span></code> on your database.</p>
+</div>
+<p>Printing out the new olivine model list shows that a number of <code class="docutils literal notranslate"><span class="pre">isotropic_model:</span></code> models have been added to the database. In addition to the conventional ones, new ones containing the <code class="docutils literal notranslate"><span class="pre">SEO3_ol</span></code> model can be seen, incuding:</p>
+<p>‘isotropic_model:nv_17_ol[100]+SEO3_ol+nv_17_ol[010]+SEO3_ol+nv_17_ol[001]+SEO3_ol’</p>
+<p>and</p>
+<p>‘isotropic_model:fei_20_ol_ionic[100]+SEO3_ol+fei_20_ol_ionic[010]+SEO3_ol+fei_20_ol_ionic[001]+SEO3_ol’</p>
+<p>Before we can use these, lets first define our physiochemcial states. The SEO3 model requires an oxygen fugacity value, which we’ll create by assuming a QFM buffer across a temperature-pressure range representative of somewhere in the upper mantle</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrrhenius.utils</span> <span class="kn">import</span> <span class="n">calc_QFM</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span><span class="mi">3000</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># in K</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># in GPa</span>
+<span class="n">qfm</span> <span class="o">=</span> <span class="n">calc_QFM</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">P</span><span class="p">)</span>
+<span class="n">Cw</span> <span class="o">=</span> <span class="mi">300</span><span class="c1"># (in ppm)</span>
+<span class="n">physiochem</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;T&#39;</span><span class="p">:</span><span class="n">T</span><span class="p">,</span><span class="s1">&#39;P&#39;</span><span class="p">:</span><span class="n">P</span><span class="p">,</span><span class="s1">&#39;Cw&#39;</span><span class="p">:</span><span class="n">Cw</span><span class="p">,</span><span class="s1">&#39;logfo2&#39;</span><span class="p">:</span><span class="n">qfm</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Using these models is now as easy as getting them from the database, sending in the conditions, and plotting the results:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">linear_major_ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">2000</span><span class="p">,</span><span class="mi">1400</span><span class="p">,</span><span class="mi">1100</span><span class="p">,</span><span class="mi">900</span><span class="p">,</span><span class="mi">800</span><span class="p">,</span><span class="mi">700</span><span class="p">,</span><span class="mi">600</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">400</span><span class="p">])</span>
+<span class="n">pyhutils</span><span class="o">.</span><span class="n">format_ax_arrhenian_space</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span><span class="n">linear_major_ticks</span><span class="o">=</span><span class="n">linear_major_ticks</span><span class="p">,</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
+
+
+<span class="n">fei_ionic_isotropic</span>  <span class="o">=</span> <span class="s1">&#39;isotropic_model:fei_20_ol_ionic[100]+fei_20_ol_ionic[010]+fei_20_ol_ionic[001]&#39;</span>
+<span class="n">novella_isotropic</span>    <span class="o">=</span> <span class="s1">&#39;isotropic_model:nv_17_ol[100]+nv_17_ol[010]+nv_17_ol[001]&#39;</span>
+<span class="n">fei_ionic_compound</span>   <span class="o">=</span> <span class="s1">&#39;isotropic_model:fei_20_ol_ionic[100]+SEO3_ol+fei_20_ol_ionic[010]+SEO3_ol+fei_20_ol_ionic[001]+SEO3_ol&#39;</span>
+<span class="n">novella_wet_compound</span> <span class="o">=</span> <span class="s1">&#39;isotropic_model:nv_17_ol[100]+SEO3_ol+nv_17_ol[010]+SEO3_ol+nv_17_ol[001]+SEO3_ol&#39;</span>
+<span class="n">ecmodel</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;SEO3_ol&#39;</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">physiochem</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">1e4</span><span class="o">/</span><span class="n">T</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;SEO3 Olivine&#39;</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">model_id</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;isotropic fei&#39;</span><span class="p">,</span><span class="s1">&#39;isotropic novella&#39;</span><span class="p">,</span><span class="s1">&#39;iso fei w SEO3&#39;</span><span class="p">,</span> <span class="s1">&#39;iso Novella w SEO3&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">fei_ionic_isotropic</span><span class="p">,</span><span class="n">novella_isotropic</span><span class="p">,</span><span class="n">fei_ionic_compound</span><span class="p">,</span><span class="n">novella_wet_compound</span> <span class="p">]):</span>
+    <span class="n">ecmodel</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">physiochem</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mf">1e4</span><span class="o">/</span><span class="n">T</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mf">1e-4</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/modelsguide_22_1.png" src="_images/modelsguide_22_1.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="water-corrections">
+<h3>Water Corrections<a class="headerlink" href="#water-corrections" title="Link to this heading"></a></h3>
+<p>Water corrections adjust the conductivity model to account for the presence of water in the system. This is especially important in geophysical contexts where water can dramatically alter the behavior of mineral conductivities. Pyrrhenius provides several water correction models that adjust the conductivity based on the water content in a given system.</p>
+<p>### Available Models</p>
+<ul class="simple">
+<li><p><strong>Dry Model</strong>: The base model without water correction, representing conductivity in dry conditions.</p></li>
+<li><p><strong>WaterCorrection</strong>: A model that adds water dependence to the conductivity.</p></li>
+<li><p><strong>WaterPTCorrection</strong>: A model that adjusts the water correction further based on pressure and temperature dependencies.</p></li>
+</ul>
+<p>Each of these models can be used to dynamically adjust conductivity based on the amount of water present, as well as environmental factors like temperature and pressure.</p>
+<p>### Example Usage for Water-Corrected Models</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrrhenius.models</span> <span class="kn">import</span> <span class="n">WaterCorrection</span>
+<span class="kn">from</span> <span class="nn">pyrrhenius.database</span> <span class="kn">import</span> <span class="n">Database</span>
+
+<span class="c1"># Initialize database and water-corrected model</span>
+<span class="n">ecdatabase</span> <span class="o">=</span> <span class="n">Database</span><span class="p">()</span>
+<span class="n">base_model</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;SEO3_ol&#39;</span><span class="p">)</span>
+<span class="n">water_corrected_model</span> <span class="o">=</span> <span class="n">WaterCorrection</span><span class="p">(</span><span class="n">base_model</span><span class="p">)</span>
+
+<span class="c1"># Define parameters</span>
+<span class="n">T</span> <span class="o">=</span> <span class="mi">1200</span>  <span class="c1"># Temperature in K</span>
+<span class="n">P</span> <span class="o">=</span> <span class="mf">1.5</span>   <span class="c1"># Pressure in GPa</span>
+<span class="n">Cw</span> <span class="o">=</span> <span class="mi">150</span>   <span class="c1"># Water concentration in ppm</span>
+
+<span class="c1"># Calculate conductivity with water correction</span>
+<span class="n">conductivity</span> <span class="o">=</span> <span class="n">water_corrected_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span> <span class="n">Cw</span><span class="o">=</span><span class="n">Cw</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Water-Corrected Conductivity: </span><span class="si">{</span><span class="n">conductivity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This example demonstrates how to apply the <strong>WaterCorrection</strong> model to a base conductivity model, adjusting the output based on the water concentration and environmental conditions.</p>
+</section>
+<section id="cached-models">
+<h3>Cached Models<a class="headerlink" href="#cached-models" title="Link to this heading"></a></h3>
+<p><strong>Cached Models</strong> are designed for performance optimization. When performing multiple conductivity calculations over the same parameter space (such as during large simulations or parameter sweeps), cached models store previous results to avoid redundant calculations. This dramatically improves performance when recalculating conductivity for the same inputs.</p>
+<p>Cached models are especially useful in long-running simulations or cases where many conductivity calculations are required over the same parameter range.</p>
+<p>### Example Usage for Cached Models</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrrhenius.models</span> <span class="kn">import</span> <span class="n">CachedModel</span>
+<span class="kn">from</span> <span class="nn">pyrrhenius.database</span> <span class="kn">import</span> <span class="n">Database</span>
+
+<span class="c1"># Initialize database and cached model</span>
+<span class="n">ecdatabase</span> <span class="o">=</span> <span class="n">Database</span><span class="p">()</span>
+<span class="n">base_model</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;SEO3_ol&#39;</span><span class="p">)</span>
+<span class="n">cached_model</span> <span class="o">=</span> <span class="n">CachedModel</span><span class="p">(</span><span class="n">base_model</span><span class="p">)</span>
+
+<span class="c1"># Define parameters for simulation</span>
+<span class="n">T</span> <span class="o">=</span> <span class="mi">1300</span>  <span class="c1"># Temperature in K</span>
+<span class="n">P</span> <span class="o">=</span> <span class="mf">2.0</span>   <span class="c1"># Pressure in GPa</span>
+<span class="n">Cw</span> <span class="o">=</span> <span class="mi">50</span> <span class="o">*</span> <span class="mf">1e-6</span>  <span class="c1"># Water concentration in ppm</span>
+
+<span class="c1"># First calculation (will be cached)</span>
+<span class="n">conductivity</span> <span class="o">=</span> <span class="n">cached_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span> <span class="n">Cw</span><span class="o">=</span><span class="n">Cw</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cached Model Conductivity (First Calculation): </span><span class="si">{</span><span class="n">conductivity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Second calculation (cached result will be used)</span>
+<span class="n">conductivity_cached</span> <span class="o">=</span> <span class="n">cached_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span> <span class="n">Cw</span><span class="o">=</span><span class="n">Cw</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cached Model Conductivity (From Cache): </span><span class="si">{</span><span class="n">conductivity_cached</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, the <cite>CachedModel</cite> stores the result of the first conductivity calculation. When the same parameters are provided again, it retrieves the result from the cache, saving computational time.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Cached models are most effective in simulations with repeated parameter sweeps or when the same conditions are evaluated multiple times.</p>
+</div>
+<p>—</p>
+<p>These <strong>Special Models</strong> provide greater flexibility for dealing with complex real-world scenarios, such as handling water corrections, combining multiple physical mechanisms, or optimizing performance through caching.</p>
+</section>
+<section id="n-phase-assemblages">
+<h3>N-Phase Assemblages<a class="headerlink" href="#n-phase-assemblages" title="Link to this heading"></a></h3>
+</section>
+<section id="advanced-usage">
+<h3>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="metadata">
+<h2>Metadata<a class="headerlink" href="#metadata" title="Link to this heading"></a></h2>
+<section id="publication-metadata">
+<h3>Publication Metadata<a class="headerlink" href="#publication-metadata" title="Link to this heading"></a></h3>
+</section>
+<section id="experimental-metadata">
+<h3>Experimental Metadata<a class="headerlink" href="#experimental-metadata" title="Link to this heading"></a></h3>
+</section>
+<section id="pyrrhenius-identifiers">
+<h3>Pyrrhenius Identifiers<a class="headerlink" href="#pyrrhenius-identifiers" title="Link to this heading"></a></h3>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Pyrrhenius Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="Pyrrhenius API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Kevin A. Mendoza.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

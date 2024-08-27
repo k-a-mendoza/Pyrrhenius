@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pyrrhenius API &mdash; Pyrrhenius 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css?v=572af1d6" />
+      <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="test title" href="fordevelopers.html" />
+    <link rel="prev" title="Database, Models, and Metadata" href="modelsguide.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Pyrrhenius
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sections</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="userguide.html">User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="whypyrrhenius.html">Overview: Why Pyrrhenius?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Pyrrhenius Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modelsguide.html">Database, Models, and Metadata</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Pyrrhenius API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-pyrrhenius.model">Pyrrhenius.Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyrrhenius.model.CachedModel"><code class="docutils literal notranslate"><span class="pre">CachedModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyrrhenius.model.CompositeModel"><code class="docutils literal notranslate"><span class="pre">CompositeModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyrrhenius.model.DryModel"><code class="docutils literal notranslate"><span class="pre">DryModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyrrhenius.model.IsotropicMixture"><code class="docutils literal notranslate"><span class="pre">IsotropicMixture</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyrrhenius.model.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyrrhenius.model.ModelInterface"><code class="docutils literal notranslate"><span class="pre">ModelInterface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyrrhenius.model.PublicationMetadata"><code class="docutils literal notranslate"><span class="pre">PublicationMetadata</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyrrhenius.model.WaterCorrection"><code class="docutils literal notranslate"><span class="pre">WaterCorrection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyrrhenius.model.WaterPTCorrection"><code class="docutils literal notranslate"><span class="pre">WaterPTCorrection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyrrhenius.model.create_model_from_row"><code class="docutils literal notranslate"><span class="pre">create_model_from_row()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fordevelopers.html">test title</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Pyrrhenius</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="userguide.html">User Guide</a></li>
+      <li class="breadcrumb-item active">Pyrrhenius API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pyrrhenius-api">
+<h1>Pyrrhenius API<a class="headerlink" href="#pyrrhenius-api" title="Link to this heading"></a></h1>
+<section id="module-pyrrhenius.model">
+<span id="pyrrhenius-model"></span><h2>Pyrrhenius.Model<a class="headerlink" href="#module-pyrrhenius.model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyrrhenius.model.CachedModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.model.</span></span><span class="sig-name descname"><span class="pre">CachedModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#CachedModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.CachedModel" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#pyrrhenius.model.CachedModel.get_id" title="pyrrhenius.model.CachedModel.get_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_id</span></code></a></dt><dd><p>gets the model id</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_co2</span></code></dt><dd><p>Checks if the model uses CO2 as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_fo2</span></code></dt><dd><p>Checks if the model uses fo2 as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_iron</span></code></dt><dd><p>Checks if the model uses iron as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_na2o</span></code></dt><dd><p>Checks if the model uses Na2O as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_nacl</span></code></dt><dd><p>Checks if the model uses NaCl as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_pressure</span></code></dt><dd><p>Checks if the model uses pressure as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_sio2</span></code></dt><dd><p>Checks if the model uses SiO2 as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_water</span></code></dt><dd><p>Checks if the model uses water as a parameter.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">determine_starting_c_type</span></code>([starting_value, ...])</p></td>
+<td><p>Generates a <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> of a shape consistent with the provided keyword arguments</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_representative_conditions</span></code>([use_qfm])</p></td>
+<td><p>generates a dictionary of conditions relevant to the experiment</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyrrhenius.model.CachedModel.get_conductivity" title="pyrrhenius.model.CachedModel.get_conductivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_conductivity</span></code></a>([ignore_cache])</p></td>
+<td><p>Calculates the conductivity based on the model's mechanism and provided parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_row</span></code>()</p></td>
+<td><p>returns a pd.Series representation of the model</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_required_parameters</span></code>()</p></td>
+<td><p>Prints the keywords required to use get_conductivity()</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>reset_cache</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>set_cache</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyrrhenius.model.CachedModel.get_conductivity">
+<span class="sig-name descname"><span class="pre">get_conductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ignore_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#CachedModel.get_conductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.CachedModel.get_conductivity" title="Link to this definition"></a></dt>
+<dd><p>Calculates the conductivity based on the model’s mechanism and provided parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>Additional parameters for the conductivity calculation. See the documentation on mech.Mechanism for a full list of possible keywords</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float or np.ndarray</dt><dd><p>The calculated conductivity in S/m</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.CachedModel.get_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_id</span></span><a class="headerlink" href="#pyrrhenius.model.CachedModel.get_id" title="Link to this definition"></a></dt>
+<dd><p>gets the model id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>str</dt><dd><p>the model id</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyrrhenius.model.CompositeModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.model.</span></span><span class="sig-name descname"><span class="pre">CompositeModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#CompositeModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.CompositeModel" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#pyrrhenius.model.CompositeModel.get_id" title="pyrrhenius.model.CompositeModel.get_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_id</span></code></a></dt><dd><p>gets the model id</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.CompositeModel.uses_co2" title="pyrrhenius.model.CompositeModel.uses_co2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_co2</span></code></a></dt><dd><p>Checks if the model uses CO2 as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.CompositeModel.uses_fo2" title="pyrrhenius.model.CompositeModel.uses_fo2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_fo2</span></code></a></dt><dd><p>Checks if the model uses fo2 as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.CompositeModel.uses_iron" title="pyrrhenius.model.CompositeModel.uses_iron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_iron</span></code></a></dt><dd><p>Checks if the model uses iron as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.CompositeModel.uses_na2o" title="pyrrhenius.model.CompositeModel.uses_na2o"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_na2o</span></code></a></dt><dd><p>Checks if the model uses Na2O as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.CompositeModel.uses_nacl" title="pyrrhenius.model.CompositeModel.uses_nacl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_nacl</span></code></a></dt><dd><p>Checks if the model uses NaCl as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.CompositeModel.uses_pressure" title="pyrrhenius.model.CompositeModel.uses_pressure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_pressure</span></code></a></dt><dd><p>Checks if the model uses pressure as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.CompositeModel.uses_sio2" title="pyrrhenius.model.CompositeModel.uses_sio2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_sio2</span></code></a></dt><dd><p>Checks if the model uses SiO2 as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.CompositeModel.uses_water" title="pyrrhenius.model.CompositeModel.uses_water"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_water</span></code></a></dt><dd><p>Checks if the model uses water as a parameter.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">determine_starting_c_type</span></code>([starting_value, ...])</p></td>
+<td><p>Generates a <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> of a shape consistent with the provided keyword arguments</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_representative_conditions</span></code>([use_qfm])</p></td>
+<td><p>generates a dictionary of conditions relevant to the experiment</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyrrhenius.model.CompositeModel.get_conductivity" title="pyrrhenius.model.CompositeModel.get_conductivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_conductivity</span></code></a>([crystal_direction])</p></td>
+<td><p>Calculates the conductivity based on the model's mechanism and provided parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_row</span></code>()</p></td>
+<td><p>returns a pd.Series representation of the model</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_required_parameters</span></code>()</p></td>
+<td><p>Prints the keywords required to use get_conductivity()</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyrrhenius.model.CompositeModel.get_conductivity">
+<span class="sig-name descname"><span class="pre">get_conductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crystal_direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#CompositeModel.get_conductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.CompositeModel.get_conductivity" title="Link to this definition"></a></dt>
+<dd><p>Calculates the conductivity based on the model’s mechanism and provided parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>Additional parameters for the conductivity calculation. See the documentation on mech.Mechanism for a full list of possible keywords</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float or np.ndarray</dt><dd><p>The calculated conductivity in S/m</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.CompositeModel.get_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_id</span></span><a class="headerlink" href="#pyrrhenius.model.CompositeModel.get_id" title="Link to this definition"></a></dt>
+<dd><p>gets the model id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>str</dt><dd><p>the model id</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.CompositeModel.uses_co2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_co2</span></span><a class="headerlink" href="#pyrrhenius.model.CompositeModel.uses_co2" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses CO2 as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses CO2, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.CompositeModel.uses_fo2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_fo2</span></span><a class="headerlink" href="#pyrrhenius.model.CompositeModel.uses_fo2" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses fo2 as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses fo2, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.CompositeModel.uses_iron">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_iron</span></span><a class="headerlink" href="#pyrrhenius.model.CompositeModel.uses_iron" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses iron as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses iron, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.CompositeModel.uses_na2o">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_na2o</span></span><a class="headerlink" href="#pyrrhenius.model.CompositeModel.uses_na2o" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses Na2O as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses Na2O, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.CompositeModel.uses_nacl">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_nacl</span></span><a class="headerlink" href="#pyrrhenius.model.CompositeModel.uses_nacl" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses NaCl as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses NaCl, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.CompositeModel.uses_pressure">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_pressure</span></span><a class="headerlink" href="#pyrrhenius.model.CompositeModel.uses_pressure" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses pressure as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses pressure, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.CompositeModel.uses_sio2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_sio2</span></span><a class="headerlink" href="#pyrrhenius.model.CompositeModel.uses_sio2" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses SiO2 as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses SiO2, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.CompositeModel.uses_water">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_water</span></span><a class="headerlink" href="#pyrrhenius.model.CompositeModel.uses_water" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses water as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses water, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyrrhenius.model.DryModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.model.</span></span><span class="sig-name descname"><span class="pre">DryModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#DryModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.DryModel" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#pyrrhenius.model.DryModel.get_id" title="pyrrhenius.model.DryModel.get_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_id</span></code></a></dt><dd><p>gets the model id</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_co2</span></code></dt><dd><p>Checks if the model uses CO2 as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_fo2</span></code></dt><dd><p>Checks if the model uses fo2 as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_iron</span></code></dt><dd><p>Checks if the model uses iron as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_na2o</span></code></dt><dd><p>Checks if the model uses Na2O as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_nacl</span></code></dt><dd><p>Checks if the model uses NaCl as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_pressure</span></code></dt><dd><p>Checks if the model uses pressure as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_sio2</span></code></dt><dd><p>Checks if the model uses SiO2 as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_water</span></code></dt><dd><p>Checks if the model uses water as a parameter.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">determine_starting_c_type</span></code>([starting_value, ...])</p></td>
+<td><p>Generates a <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> of a shape consistent with the provided keyword arguments</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_representative_conditions</span></code>([use_qfm])</p></td>
+<td><p>generates a dictionary of conditions relevant to the experiment</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyrrhenius.model.DryModel.get_conductivity" title="pyrrhenius.model.DryModel.get_conductivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_conductivity</span></code></a>(**kwargs)</p></td>
+<td><p>Calculates the conductivity based on the model's mechanism and provided parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_row</span></code>()</p></td>
+<td><p>returns a pd.Series representation of the model</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_required_parameters</span></code>()</p></td>
+<td><p>Prints the keywords required to use get_conductivity()</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyrrhenius.model.DryModel.get_conductivity">
+<span class="sig-name descname"><span class="pre">get_conductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#DryModel.get_conductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.DryModel.get_conductivity" title="Link to this definition"></a></dt>
+<dd><p>Calculates the conductivity based on the model’s mechanism and provided parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>Additional parameters for the conductivity calculation. See the documentation on mech.Mechanism for a full list of possible keywords</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float or np.ndarray</dt><dd><p>The calculated conductivity in S/m</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.DryModel.get_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_id</span></span><a class="headerlink" href="#pyrrhenius.model.DryModel.get_id" title="Link to this definition"></a></dt>
+<dd><p>gets the model id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>str</dt><dd><p>the model id</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyrrhenius.model.IsotropicMixture">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.model.</span></span><span class="sig-name descname"><span class="pre">IsotropicMixture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#IsotropicMixture"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.IsotropicMixture" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_id</span></code></dt><dd><p>gets the model id</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.IsotropicMixture.uses_co2" title="pyrrhenius.model.IsotropicMixture.uses_co2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_co2</span></code></a></dt><dd><p>Checks if the model uses CO2 as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.IsotropicMixture.uses_fo2" title="pyrrhenius.model.IsotropicMixture.uses_fo2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_fo2</span></code></a></dt><dd><p>Checks if the model uses fo2 as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.IsotropicMixture.uses_iron" title="pyrrhenius.model.IsotropicMixture.uses_iron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_iron</span></code></a></dt><dd><p>Checks if the model uses iron as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.IsotropicMixture.uses_na2o" title="pyrrhenius.model.IsotropicMixture.uses_na2o"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_na2o</span></code></a></dt><dd><p>Checks if the model uses Na2O as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.IsotropicMixture.uses_nacl" title="pyrrhenius.model.IsotropicMixture.uses_nacl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_nacl</span></code></a></dt><dd><p>Checks if the model uses NaCl as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.IsotropicMixture.uses_pressure" title="pyrrhenius.model.IsotropicMixture.uses_pressure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_pressure</span></code></a></dt><dd><p>Checks if the model uses pressure as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.IsotropicMixture.uses_sio2" title="pyrrhenius.model.IsotropicMixture.uses_sio2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_sio2</span></code></a></dt><dd><p>Checks if the model uses SiO2 as a parameter.</p>
+</dd>
+<dt><a class="reference internal" href="#pyrrhenius.model.IsotropicMixture.uses_water" title="pyrrhenius.model.IsotropicMixture.uses_water"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_water</span></code></a></dt><dd><p>Checks if the model uses water as a parameter.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">determine_starting_c_type</span></code>([starting_value, ...])</p></td>
+<td><p>Generates a <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> of a shape consistent with the provided keyword arguments</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_representative_conditions</span></code>([use_qfm])</p></td>
+<td><p>generates a dictionary of conditions relevant to the experiment</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyrrhenius.model.IsotropicMixture.get_conductivity" title="pyrrhenius.model.IsotropicMixture.get_conductivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_conductivity</span></code></a>([crystal_direction, averaging])</p></td>
+<td><p>Calculate and return the conductivity based on the specified crystal direction or averaging method.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_row</span></code>()</p></td>
+<td><p>returns a pd.Series representation of the model</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_required_parameters</span></code>()</p></td>
+<td><p>Prints the keywords required to use get_conductivity()</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyrrhenius.model.IsotropicMixture.get_conductivity">
+<span class="sig-name descname"><span class="pre">get_conductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crystal_direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">averaging</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'geometric'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#IsotropicMixture.get_conductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.IsotropicMixture.get_conductivity" title="Link to this definition"></a></dt>
+<dd><p>Calculate and return the conductivity based on the specified crystal direction or averaging method.</p>
+<section id="parameters">
+<h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<p>crystal_direction : str or float, optional
+The crystallographic direction to query for specific conductivity.
+If a float is provided, it is used to calculate an anisotropic factor between 0 and 1.</p>
+<dl class="simple">
+<dt>averaging<span class="classifier">str, optional</span></dt><dd><p>The method to average conductivity. Default is ‘geometric’.
+Options include:
+- ‘geometric’: Geometric mean of the available crystallographic directions.
+- ‘max_aniso’: Maximum anisotropic factor (conductivity in the most conductive direction).
+- ‘min_aniso’: Minimum anisotropic factor (conductivity in the least conductive direction).</p>
+</dd>
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>Additional keyword arguments passed to internal methods.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>float or np.ndarray</dt><dd><p>The computed conductivity based on the specified method or direction.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.IsotropicMixture.uses_co2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_co2</span></span><a class="headerlink" href="#pyrrhenius.model.IsotropicMixture.uses_co2" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses CO2 as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses CO2, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.IsotropicMixture.uses_fo2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_fo2</span></span><a class="headerlink" href="#pyrrhenius.model.IsotropicMixture.uses_fo2" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses fo2 as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses fo2, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.IsotropicMixture.uses_iron">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_iron</span></span><a class="headerlink" href="#pyrrhenius.model.IsotropicMixture.uses_iron" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses iron as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses iron, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.IsotropicMixture.uses_na2o">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_na2o</span></span><a class="headerlink" href="#pyrrhenius.model.IsotropicMixture.uses_na2o" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses Na2O as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses Na2O, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.IsotropicMixture.uses_nacl">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_nacl</span></span><a class="headerlink" href="#pyrrhenius.model.IsotropicMixture.uses_nacl" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses NaCl as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses NaCl, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.IsotropicMixture.uses_pressure">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_pressure</span></span><a class="headerlink" href="#pyrrhenius.model.IsotropicMixture.uses_pressure" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses pressure as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses pressure, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.IsotropicMixture.uses_sio2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_sio2</span></span><a class="headerlink" href="#pyrrhenius.model.IsotropicMixture.uses_sio2" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses SiO2 as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses SiO2, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.IsotropicMixture.uses_water">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_water</span></span><a class="headerlink" href="#pyrrhenius.model.IsotropicMixture.uses_water" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses water as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses water, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyrrhenius.model.Model">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mechanism</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mechanism</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.Model" title="Link to this definition"></a></dt>
+<dd><p>Base Model class used to hold both metadata and mechanisms</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mechanism</strong><span class="classifier">mech.Mechanism</span></dt><dd><p>The mechanism associated with the model.</p>
+</dd>
+<dt><strong>id_row</strong><span class="classifier">pd.Series or PublicationMetadata</span></dt><dd><p>The metadata or identifier row for the model.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>mechanism</strong><span class="classifier">mech.Mechanism</span></dt><dd><p>The mechanism associated with the model.</p>
+</dd>
+<dt><strong>metadata</strong><span class="classifier">PublicationMetadata</span></dt><dd><p>Metadata associated with the model.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>get_crystal_direction()</strong></p></td>
+<td><p>Returns the crystal direction from the metadata.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyrrhenius.model.Model.get_crystal_direction">
+<span class="sig-name descname"><span class="pre">get_crystal_direction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#Model.get_crystal_direction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.Model.get_crystal_direction" title="Link to this definition"></a></dt>
+<dd><p>returns the crystal direction for this model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>str</dt><dd><p>a 4 character representation of the crystal direction <code class="docutils literal notranslate"><span class="pre">[xxx]</span></code>, ex: [011]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.model.</span></span><span class="sig-name descname"><span class="pre">ModelInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#ModelInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.ModelInterface" title="Link to this definition"></a></dt>
+<dd><p>A base interface class for all models in the Pyrrhenius framework.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>id_row</strong><span class="classifier">pd.Series or PublicationMetadata</span></dt><dd><p>Metadata associated with the model. This can either be a pandas Series or a PublicationMetadata object.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>metadata</strong><span class="classifier">PublicationMetadata</span></dt><dd><p>Metadata associated with the model.</p>
+</dd>
+<dt><strong>mechanism</strong><span class="classifier">mech.Mechanism</span></dt><dd><p>The mechanism used in the model.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyrrhenius.model.ModelInterface.uses_water" title="pyrrhenius.model.ModelInterface.uses_water"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_water</span></code></a></p></td>
+<td><p>Checks if the model uses water as a parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyrrhenius.model.ModelInterface.uses_nacl" title="pyrrhenius.model.ModelInterface.uses_nacl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_nacl</span></code></a></p></td>
+<td><p>Checks if the model uses NaCl as a parameter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyrrhenius.model.ModelInterface.uses_iron" title="pyrrhenius.model.ModelInterface.uses_iron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_iron</span></code></a></p></td>
+<td><p>Checks if the model uses iron as a parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyrrhenius.model.ModelInterface.uses_na2o" title="pyrrhenius.model.ModelInterface.uses_na2o"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_na2o</span></code></a></p></td>
+<td><p>Checks if the model uses Na2O as a parameter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyrrhenius.model.ModelInterface.uses_sio2" title="pyrrhenius.model.ModelInterface.uses_sio2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_sio2</span></code></a></p></td>
+<td><p>Checks if the model uses SiO2 as a parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyrrhenius.model.ModelInterface.uses_co2" title="pyrrhenius.model.ModelInterface.uses_co2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_co2</span></code></a></p></td>
+<td><p>Checks if the model uses CO2 as a parameter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyrrhenius.model.ModelInterface.uses_pressure" title="pyrrhenius.model.ModelInterface.uses_pressure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_pressure</span></code></a></p></td>
+<td><p>Checks if the model uses pressure as a parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyrrhenius.model.ModelInterface.uses_fo2" title="pyrrhenius.model.ModelInterface.uses_fo2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_fo2</span></code></a></p></td>
+<td><p>Checks if the model uses fo2 as a parameter.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>get_conductivity(**kwargs)</strong></p></td>
+<td><p>Calculates the conductivity based on the model’s mechanism and provided parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>print_required_parameters()</strong></p></td>
+<td><p>Calculates the conductivity based on the model’s mechanism and provided parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>determine_starting_c_type(starting_value=0, **kwargs)</strong></p></td>
+<td><p>generates a <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> of a shape consistent with the provided keyword arguments</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.determine_starting_c_type">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">determine_starting_c_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">starting_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logfo2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xfe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">co2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nacl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">na2o</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sio2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#ModelInterface.determine_starting_c_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.ModelInterface.determine_starting_c_type" title="Link to this definition"></a></dt>
+<dd><p>Generates a <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> of a shape consistent with the provided keyword arguments</p>
+<p>Currently checks keywords for P, T, logfo2, Xfe, Cw, co2, nacl, na2o, and sio2</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>starting_value</strong><span class="classifier">float, optional</span></dt><dd><p>The variable value for conductivity casting, defaults to 0.</p>
+</dd>
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>Additional parameters used to calculate conductivity</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float or np.ndarray</dt><dd><p>The determined dummy conductivity variable used to cast the <code class="docutils literal notranslate"><span class="pre">get_conductivity</span></code> result into the proper shape.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.generate_representative_conditions">
+<span class="sig-name descname"><span class="pre">generate_representative_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_qfm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#ModelInterface.generate_representative_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.ModelInterface.generate_representative_conditions" title="Link to this definition"></a></dt>
+<dd><p>generates a dictionary of conditions relevant to the experiment</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>use_qfm</strong><span class="classifier">bool, optional</span></dt><dd><p>use the quartz-fayallite-magnetite buffer to calculate fo2 conditions. Currently will not work any other way</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>dictionary consisting of keys matching the model inputs and values consisting of either 1. a range of corresponding conditions or 2. a single average condition.
+1 is returned if the min and max values are different. 2. otherwise</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.get_conductivity">
+<span class="sig-name descname"><span class="pre">get_conductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#ModelInterface.get_conductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.ModelInterface.get_conductivity" title="Link to this definition"></a></dt>
+<dd><p>Calculates the conductivity based on the model’s mechanism and provided parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>Additional parameters for the conductivity calculation. See the documentation on mech.Mechanism for a full list of possible keywords</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float or np.ndarray</dt><dd><p>The calculated conductivity in S/m</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.get_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_id</span></span><a class="headerlink" href="#pyrrhenius.model.ModelInterface.get_id" title="Link to this definition"></a></dt>
+<dd><p>gets the model id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>str</dt><dd><p>the model id</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.get_row">
+<span class="sig-name descname"><span class="pre">get_row</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#ModelInterface.get_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.ModelInterface.get_row" title="Link to this definition"></a></dt>
+<dd><p>returns a pd.Series representation of the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>pd.Series</dt><dd><p>a pd.Series representation of the model</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.print_required_parameters">
+<span class="sig-name descname"><span class="pre">print_required_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#ModelInterface.print_required_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.ModelInterface.print_required_parameters" title="Link to this definition"></a></dt>
+<dd><p>Prints the keywords required to use get_conductivity()</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.uses_co2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_co2</span></span><a class="headerlink" href="#pyrrhenius.model.ModelInterface.uses_co2" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses CO2 as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses CO2, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.uses_fo2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_fo2</span></span><a class="headerlink" href="#pyrrhenius.model.ModelInterface.uses_fo2" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses fo2 as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses fo2, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.uses_iron">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_iron</span></span><a class="headerlink" href="#pyrrhenius.model.ModelInterface.uses_iron" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses iron as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses iron, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.uses_na2o">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_na2o</span></span><a class="headerlink" href="#pyrrhenius.model.ModelInterface.uses_na2o" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses Na2O as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses Na2O, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.uses_nacl">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_nacl</span></span><a class="headerlink" href="#pyrrhenius.model.ModelInterface.uses_nacl" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses NaCl as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses NaCl, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.uses_pressure">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_pressure</span></span><a class="headerlink" href="#pyrrhenius.model.ModelInterface.uses_pressure" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses pressure as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses pressure, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.uses_sio2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_sio2</span></span><a class="headerlink" href="#pyrrhenius.model.ModelInterface.uses_sio2" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses SiO2 as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses SiO2, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.ModelInterface.uses_water">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uses_water</span></span><a class="headerlink" href="#pyrrhenius.model.ModelInterface.uses_water" title="Link to this definition"></a></dt>
+<dd><p>Checks if the model uses water as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True if the model uses water, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyrrhenius.model.PublicationMetadata">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.model.</span></span><span class="sig-name descname"><span class="pre">PublicationMetadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">author</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equation_form</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">publication_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complete_or_partial_fit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">composite_or_single</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nacl_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nacl_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nacl_average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">na2o_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">na2o_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">na2o_average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sio2_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sio2_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sio2_average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">co2_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">co2_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">co2_average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">water_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">water_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">water_average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">water_calibration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">water_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iron_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iron_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iron_average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iron_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crystal_direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#PublicationMetadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.PublicationMetadata" title="Link to this definition"></a></dt>
+<dd><p>A Metadata class holding experimental information on a pyrrhenius model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>title</strong><span class="classifier">str</span></dt><dd><p>The title of the publication.</p>
+</dd>
+<dt><strong>author</strong><span class="classifier">str</span></dt><dd><p>The author(s) of the publication.</p>
+</dd>
+<dt><strong>year</strong><span class="classifier">str</span></dt><dd><p>The year the publication was published.</p>
+</dd>
+<dt><strong>doi</strong><span class="classifier">str</span></dt><dd><p>The DOI (Digital Object Identifier) of the publication.</p>
+</dd>
+<dt><strong>phase_type</strong><span class="classifier">str</span></dt><dd><p>The type of phase the model applies to.</p>
+</dd>
+<dt><strong>description</strong><span class="classifier">str</span></dt><dd><p>A description of the publication or model.</p>
+</dd>
+<dt><strong>sample_type</strong><span class="classifier">str</span></dt><dd><p>The type of sample used in the experiments.</p>
+</dd>
+<dt><strong>equation_form</strong><span class="classifier">str</span></dt><dd><p>The form of the equation used in the model.</p>
+</dd>
+<dt><strong>publication_id</strong><span class="classifier">str</span></dt><dd><p>A unique identifier for the publication.</p>
+</dd>
+<dt><strong>entry_id</strong><span class="classifier">str</span></dt><dd><p>A unique identifier for the specific model entry.</p>
+</dd>
+<dt><strong>complete_or_partial_fit</strong><span class="classifier">str</span></dt><dd><p>Indicates if the model is a complete or partial fit to the data.</p>
+</dd>
+<dt><strong>composite_or_single</strong><span class="classifier">str</span></dt><dd><p>Indicates if the model is a composite of multiple models or a single model.</p>
+</dd>
+<dt><strong>pressure_average</strong><span class="classifier">float</span></dt><dd><p>The average pressure condition of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>pressure_min</strong><span class="classifier">float</span></dt><dd><p>The minimum pressure condition of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>pressure_max</strong><span class="classifier">float</span></dt><dd><p>The maximum pressure condition of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>temp_min</strong><span class="classifier">float</span></dt><dd><p>The minimum temperature condition of the experiments in Kelvin.</p>
+</dd>
+<dt><strong>temp_max</strong><span class="classifier">float</span></dt><dd><p>The maximum temperature condition of the experiments in Kelvin.</p>
+</dd>
+<dt><strong>nacl_min</strong><span class="classifier">float</span></dt><dd><p>The minimum NaCl concentration of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>nacl_max</strong><span class="classifier">float</span></dt><dd><p>The maximum NaCl concentration of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>nacl_average</strong><span class="classifier">float</span></dt><dd><p>The average NaCl concentration of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>na2o_min</strong><span class="classifier">float</span></dt><dd><p>The minimum Na2O concentration of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>na2o_max</strong><span class="classifier">float</span></dt><dd><p>The maximum Na2O concentration of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>na2o_average</strong><span class="classifier">float</span></dt><dd><p>The average Na2O concentration of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>sio2_min</strong><span class="classifier">float</span></dt><dd><p>The minimum SiO2 concentration of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>sio2_max</strong><span class="classifier">float</span></dt><dd><p>The maximum SiO2 concentration of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>sio2_average</strong><span class="classifier">float</span></dt><dd><p>The average SiO2 concentration of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>co2_min</strong><span class="classifier">float</span></dt><dd><p>The minimum CO2 concentration of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>co2_max</strong><span class="classifier">float</span></dt><dd><p>The maximum CO2 concentration of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>co2_average</strong><span class="classifier">float</span></dt><dd><p>The average CO2 concentration of the experiments. Units unspecified.</p>
+</dd>
+<dt><strong>water_min</strong><span class="classifier">float</span></dt><dd><p>The minimum water concentration of the experiments. Units given by water_units.</p>
+</dd>
+<dt><strong>water_max</strong><span class="classifier">float</span></dt><dd><p>The maximum water concentration of the experiments. Units given by water_units.</p>
+</dd>
+<dt><strong>water_average</strong><span class="classifier">float</span></dt><dd><p>The average water concentration of the experiments. Units given by water_units.</p>
+</dd>
+<dt><strong>water_calibration</strong><span class="classifier">str</span></dt><dd><p>Information on how the water concentration was calibrated or determined.</p>
+</dd>
+<dt><strong>water_units</strong><span class="classifier">str</span></dt><dd><p>The units of the water concentration.</p>
+</dd>
+<dt><strong>iron_min</strong><span class="classifier">float</span></dt><dd><p>The minimum iron concentration of the experiments. Units given by iron_units.</p>
+</dd>
+<dt><strong>iron_max</strong><span class="classifier">float</span></dt><dd><p>The maximum iron concentration of the experiments. Units given by iron_units.</p>
+</dd>
+<dt><strong>iron_average</strong><span class="classifier">float</span></dt><dd><p>The average iron concentration of the experiments. Units given by iron_units.</p>
+</dd>
+<dt><strong>iron_units</strong><span class="classifier">str</span></dt><dd><p>The units of the iron concentration.</p>
+</dd>
+<dt><strong>crystal_direction</strong><span class="classifier">str</span></dt><dd><p>The crystal direction or orientation of the sample.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>NotImplementedError</dt><dd><p>if the water unit conversion suggested is not supported.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>single_pressure()</strong></p></td>
+<td><p>Returns True if pressure_min equals pressure_max, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>single_water()</strong></p></td>
+<td><p>Returns True if water_min equals water_max, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>single_nacl()</strong></p></td>
+<td><p>Returns True if nacl_min equals nacl_max, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>single_co2()</strong></p></td>
+<td><p>Returns True if co2_min equals co2_max, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>single_na2o()</strong></p></td>
+<td><p>Returns True if na2o_min equals na2o_max, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>single_sio2()</strong></p></td>
+<td><p>Returns True if sio2_min equals sio2_max, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>single_iron()</strong></p></td>
+<td><p>Returns True if iron_min equals iron_max, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>convert2ppm(water_average, water_units)</strong></p></td>
+<td><p>Converts the water_average to ppm based on the water_units.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>get_water_average_ppm()</strong></p></td>
+<td><p>Returns the water_average converted to ppm using the water_units.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>recalc_average_fields()</strong></p></td>
+<td><p>Recalculates the average fields from the min and max fields.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>from_kwargs(**kwargs)</strong></p></td>
+<td><p>Creates a PublicationMetadata instance from the provided keyword arguments.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyrrhenius.model.WaterCorrection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.model.</span></span><span class="sig-name descname"><span class="pre">WaterCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correction_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#WaterCorrection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.WaterCorrection" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#pyrrhenius.model.WaterCorrection.get_id" title="pyrrhenius.model.WaterCorrection.get_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_id</span></code></a></dt><dd><p>gets the model id</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_co2</span></code></dt><dd><p>Checks if the model uses CO2 as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_fo2</span></code></dt><dd><p>Checks if the model uses fo2 as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_iron</span></code></dt><dd><p>Checks if the model uses iron as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_na2o</span></code></dt><dd><p>Checks if the model uses Na2O as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_nacl</span></code></dt><dd><p>Checks if the model uses NaCl as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_pressure</span></code></dt><dd><p>Checks if the model uses pressure as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_sio2</span></code></dt><dd><p>Checks if the model uses SiO2 as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_water</span></code></dt><dd><p>Checks if the model uses water as a parameter.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">determine_starting_c_type</span></code>([starting_value, ...])</p></td>
+<td><p>Generates a <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> of a shape consistent with the provided keyword arguments</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_representative_conditions</span></code>([use_qfm])</p></td>
+<td><p>generates a dictionary of conditions relevant to the experiment</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyrrhenius.model.WaterCorrection.get_conductivity" title="pyrrhenius.model.WaterCorrection.get_conductivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_conductivity</span></code></a>(**kwargs)</p></td>
+<td><p>Calculates the conductivity based on the model's mechanism and provided parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_row</span></code>()</p></td>
+<td><p>returns a pd.Series representation of the model</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_required_parameters</span></code>()</p></td>
+<td><p>Prints the keywords required to use get_conductivity()</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyrrhenius.model.WaterCorrection.get_conductivity">
+<span class="sig-name descname"><span class="pre">get_conductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#WaterCorrection.get_conductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.WaterCorrection.get_conductivity" title="Link to this definition"></a></dt>
+<dd><p>Calculates the conductivity based on the model’s mechanism and provided parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>Additional parameters for the conductivity calculation. See the documentation on mech.Mechanism for a full list of possible keywords</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float or np.ndarray</dt><dd><p>The calculated conductivity in S/m</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.WaterCorrection.get_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_id</span></span><a class="headerlink" href="#pyrrhenius.model.WaterCorrection.get_id" title="Link to this definition"></a></dt>
+<dd><p>gets the model id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>str</dt><dd><p>the model id</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyrrhenius.model.WaterPTCorrection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.model.</span></span><span class="sig-name descname"><span class="pre">WaterPTCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correction_factor_call</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#WaterPTCorrection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.WaterPTCorrection" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#pyrrhenius.model.WaterPTCorrection.get_id" title="pyrrhenius.model.WaterPTCorrection.get_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_id</span></code></a></dt><dd><p>gets the model id</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_co2</span></code></dt><dd><p>Checks if the model uses CO2 as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_fo2</span></code></dt><dd><p>Checks if the model uses fo2 as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_iron</span></code></dt><dd><p>Checks if the model uses iron as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_na2o</span></code></dt><dd><p>Checks if the model uses Na2O as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_nacl</span></code></dt><dd><p>Checks if the model uses NaCl as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_pressure</span></code></dt><dd><p>Checks if the model uses pressure as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_sio2</span></code></dt><dd><p>Checks if the model uses SiO2 as a parameter.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">uses_water</span></code></dt><dd><p>Checks if the model uses water as a parameter.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">determine_starting_c_type</span></code>([starting_value, ...])</p></td>
+<td><p>Generates a <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> of a shape consistent with the provided keyword arguments</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_representative_conditions</span></code>([use_qfm])</p></td>
+<td><p>generates a dictionary of conditions relevant to the experiment</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyrrhenius.model.WaterPTCorrection.get_conductivity" title="pyrrhenius.model.WaterPTCorrection.get_conductivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_conductivity</span></code></a>(**kwargs)</p></td>
+<td><p>Calculates the conductivity based on the model's mechanism and provided parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_row</span></code>()</p></td>
+<td><p>returns a pd.Series representation of the model</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_required_parameters</span></code>()</p></td>
+<td><p>Prints the keywords required to use get_conductivity()</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>get_facade_model_id</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyrrhenius.model.WaterPTCorrection.get_conductivity">
+<span class="sig-name descname"><span class="pre">get_conductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#WaterPTCorrection.get_conductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.WaterPTCorrection.get_conductivity" title="Link to this definition"></a></dt>
+<dd><p>Calculates the conductivity based on the model’s mechanism and provided parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>Additional parameters for the conductivity calculation. See the documentation on mech.Mechanism for a full list of possible keywords</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float or np.ndarray</dt><dd><p>The calculated conductivity in S/m</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyrrhenius.model.WaterPTCorrection.get_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_id</span></span><a class="headerlink" href="#pyrrhenius.model.WaterPTCorrection.get_id" title="Link to this definition"></a></dt>
+<dd><p>gets the model id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>str</dt><dd><p>the model id</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyrrhenius.model.create_model_from_row">
+<span class="sig-prename descclassname"><span class="pre">pyrrhenius.model.</span></span><span class="sig-name descname"><span class="pre">create_model_from_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#create_model_from_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.create_model_from_row" title="Link to this definition"></a></dt>
+<dd><p>generates a Model object from a pandas series row</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>row</strong><span class="classifier">pd.Seriesorpd.DataFrame</span></dt><dd><p>a pandas row representing model parameters</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Model</dt><dd><p>a Pyrrhenius model</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modelsguide.html" class="btn btn-neutral float-left" title="Database, Models, and Metadata" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fordevelopers.html" class="btn btn-neutral float-right" title="test title" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Kevin A. Mendoza.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
