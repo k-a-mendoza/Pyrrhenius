@@ -2,7 +2,7 @@
 # Pyrrhenius: Electrical Conductivity Modeling for Geologic Materials
 
 <p align="center">
-  <img src="doc/build/html/_images/quickstart_17_1.png" >
+  <img src="docs/build/html/_images/quickstart_17_1.png" >
 </p>
 
 ![Python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
@@ -32,7 +32,7 @@ To install Pyrrhenius, clone the repository and install the necessary dependenci
 
 ```bash
 
-   pip install git+git://github.com/k-a-mendoza/pyrrhenius@master
+   pip install git+git://github.com/k-a-mendoza/Pyrrhenius@master
 ```
 ### Quickstart
 Below is a quick example of how to get started with Pyrrhenius by using the provided database to load a model and calculate conductivity.
