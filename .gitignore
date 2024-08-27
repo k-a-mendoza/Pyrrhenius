@@ -13,6 +13,7 @@ mixing.py
 .ipynb_checkpoints
 .pytest_cache 
 .Python
+.log
 build/
 develop-eggs/
 dist/
@@ -74,7 +75,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+
 
 # PyBuilder
 .pybuilder/
