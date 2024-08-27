@@ -5,7 +5,7 @@ sys.path.append('../../')
 sys.path.append('../')
 
 file = 'test_database.csv'
-from pyrrhenious import database
+from pyrrhenius import database
 
 
 def test_create_database():

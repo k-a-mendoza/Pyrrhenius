@@ -1,0 +1,28 @@
+.. Pyrrhenius documentation
+
+Welcome to the Documentation for **Pyrrhenius v1.0**  
+====================
+**Pyrrhenius** (Python-Arrhenius) is a Python library for manipulating electric conductivity models of minerals and melts. Developed out of necessity to interpret million+ parameter Magnetotelluric inversions, where simple 1D bounds of mineral conductance, Pyrrhenius provides *mostly* vectorized python mathematical models of
+electrical conductance. Each model has been verified and adjusted as much as possible to correspond to the empirical fits described in its originating publication.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents:
+
+   whypyrrhenius
+   installation
+   quickstart
+   userguide
+   databaseoverview
+   api
+   contributing
+
+   
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

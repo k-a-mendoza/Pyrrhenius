@@ -1,6 +1,9 @@
+from functools import reduce
 import numpy as np
 from dataclasses import dataclass
+from pyfluids import Fluid, FluidsList, Input
 import inspect
+from . import utils as pyutils
 def _count_positional_args_required(func):
     signature = inspect.signature(func)
     empty = inspect.Parameter.empty
@@ -9,6 +12,8 @@ def _count_positional_args_required(func):
         if param.default is empty:
             total += 1
     return total
+
+
 class Mechanism:
     """Base Abstract class for all electrical conductivity mechanisms"""
 
@@ -33,7 +38,7 @@ class Mechanism:
 
         self._water_units = units
 
-    def convert_water(self, cw):
+    def convert_water(self, Cw):
         """
         Convert water value to the equation specific units
 
@@ -53,14 +58,16 @@ class Mechanism:
             If the specified conversion units are not implemented
         """
 
-        assert cw is not None, "Water value must be provided"
+        assert Cw is not None, "Water value must be provided"
 
         if self._water_units == 'wtpct':
-            return cw * 1e-4
+            return Cw * 1e-4
         elif self._water_units == 'wtpct10x':
-            return cw * 1e-5
+            return Cw * 1e-5
         elif self._water_units == 'ppm':
-            return cw
+            return Cw
+        elif self._water_units == 'total_frac':
+            return Cw*1e-6
         else:
             raise NotImplementedError(
                 f"{self._water_units} conversion not implemented"
@@ -104,8 +111,78 @@ class Mechanism:
             The converted pressure value in eV
         """
 
-        assert P is not None, "Pressure value must be provided"
+        self.assert_pressure(P)
         return P * self.cm3GPamol_to_ev
+
+    def assert_pressure(self, P):
+        """
+        asserts the pressure value provided is correct and within reasonable limits
+
+        Parameters
+        ----------
+        P : float
+            The pressure value to be converted in GPa
+
+        Raises
+        -------
+        assertionError
+            if P is not provided
+        """
+        assert not np.all(np.isnan(P)), "Pressure contains only nans"
+        assert P is not None, "Pressure value must be provided"
+        assert np.all(np.isnan(P) | (P < 100)), "P exceeds 100 GPa!! Was this intended?"
+
+    def assert_nacl(self, nacl):
+        """
+        Asserts provided nacl is correct
+
+        Parameters
+        ----------
+        nacl : float
+            The nacl concentration in wt%
+
+        Raises
+        -------
+        assertionError
+            if nacl is not provided
+        """
+
+        assert nacl is not None, "nacl value must be provided"
+
+    def assert_na2o(self, na2o):
+        """
+        Asserts provided na2o is correct
+
+        Parameters
+        ----------
+        na2o : float
+            The na2o concentration in wt%
+
+        Raises
+        -------
+        assertionError
+            if na2o is not provided
+        """
+
+        assert na2o is not None, "na2o value must be provided"
+
+    def assert_siO2(self, sio2):
+        """
+        Asserts provided nacl is correct
+
+        Parameters
+        ----------
+        nacl : float
+            The nacl concentration in wt%
+
+        Raises
+        -------
+        assertionError
+            if nacl is not provided
+        """
+
+        assert sio2 is not None, "sio2 value must be provided"
+
 
     def get_conductivity(self, T=None, **kwargs):
         """
@@ -123,6 +200,9 @@ class Mechanism:
         """
         pass
 
+    def assert_water(self,Cw):
+        assert Cw is not None, "Cw value must be provided"
+
     @property
     def uses_water(self):
         """
@@ -132,6 +212,42 @@ class Mechanism:
         -------
         bool
             True if the mechanism uses water, False otherwise
+        """
+        return False
+
+    @property
+    def uses_nacl(self):
+        """
+        Returns whether the mechanism uses NaCl concentration or not
+
+        Returns
+        -------
+        bool
+            True if the mechanism uses NaCl, False otherwise
+        """
+        return False
+    
+    @property
+    def uses_sio2(self):
+        """
+        Returns whether the mechanism uses NaCl concentration or not
+
+        Returns
+        -------
+        bool
+            True if the mechanism uses NaCl, False otherwise
+        """
+        return False
+    
+    @property
+    def uses_na2o(self):
+        """
+        Returns whether the mechanism uses na2o concentration or not
+
+        Returns
+        -------
+        bool
+            True if the mechanism uses NaCl, False otherwise
         """
         return False
 
@@ -204,7 +320,142 @@ class Mechanism:
 
         """
         return _count_positional_args_required(cls.__init__)
+    
+    def __add__(self, other):
+        return Mechanisms(self,other)
+    
+class Mechanisms(Mechanism):
+      
 
+    def __init__(self,o1,o2):
+        self.o1=o1
+        self.o2=o2
+
+    def get_conductivity(self, **kwargs):
+        """
+        Abstract method to calculate the conductivity
+
+        Parameters
+        ----------
+        T : float, optional
+            The temperature value (default is None)
+
+        Returns
+        -------
+        np.ndarray or float
+            The calculated conductivity
+        """
+        o1_c = self.o1.get_conductivity(**kwargs)
+        o2_c = self.o2.get_conductivity(**kwargs)
+        return o1_c + o2_c
+
+   
+    def set_water_units(self,*args,**kwargs):
+        self.o1.set_water_units(*args,**kwargs)
+        self.o2.set_water_units(*args,**kwargs)
+        
+    @property
+    def uses_water(self):
+        """
+        Returns whether the mechanism uses water or not
+
+        Returns
+        -------
+        bool
+            True if the mechanism uses water, False otherwise
+        """
+        return self.o1.uses_water or self.o2.uses_water 
+
+    @property
+    def uses_nacl(self):
+        """
+        Returns whether the mechanism uses NaCl concentration or not
+
+        Returns
+        -------
+        bool
+            True if the mechanism uses NaCl, False otherwise
+        """
+        return self.o1.uses_nacl or self.o2.uses_nacl 
+    
+    @property
+    def uses_sio2(self):
+        """
+        Returns whether the mechanism uses sio2 concentration or not
+
+        Returns
+        -------
+        bool
+            True if the mechanism uses sio2, False otherwise
+        """
+        return self.o1.uses_sio2 or self.o2.uses_sio2 
+    
+    @property
+    def uses_na2o(self):
+        """
+        Returns whether the mechanism uses Na2O concentration or not
+
+        Returns
+        -------
+        bool
+            True if the mechanism uses Na2O, False otherwise
+        """
+        return self.o1.uses_na2o or self.o2.uses_na2o 
+
+    @property
+    def uses_co2(self):
+        """
+        Returns whether the mechanism uses co2 or not
+
+        Returns
+        -------
+        bool
+            True if the mechanism uses co2, False otherwise
+        """
+        return self.o1.uses_co2 or self.o2.uses_co2 
+
+    @property
+    def uses_iron(self):
+        """
+        Returns whether the mechanism uses iron or not
+
+        Returns
+        -------
+        bool
+            True if the mechanism uses iron, False otherwise
+        """
+        return self.o1.uses_iron or self.o2.uses_iron 
+
+    @property
+    def uses_pressure(self):
+        """
+        Returns whether the mechanism uses pressure or not
+
+        Returns
+        -------
+        bool
+            True if the mechanism uses pressure, False otherwise
+        """
+        return self.o1.uses_pressure or self.o2.uses_pressure 
+
+    @property
+    def uses_fo2(self):
+        """
+        Returns whether the mechanism uses fo2 or not
+
+        Returns
+        -------
+        bool
+            True if the mechanism uses fo2, False otherwise
+        """
+        return self.o1.uses_fo2 or self.o2.uses_fo2 
+    
+    def __repr__(self):
+        return str(self.o1)+' + '+str(self.o2)
+
+   
+
+    
 @dataclass
 class StochasticConstant:
     """
@@ -273,7 +524,7 @@ class StochasticConstant:
             The calculated constant value
         """
         if sample:
-            val = np.random.normal(loc=self.mean, scale=self.stdev)
+            val = np.random.normal(loc=float(self.mean), scale=float(self.stdev))
         else:
             val = self.mean
 
@@ -324,6 +575,8 @@ class SingleValue(Mechanism):
 
         """
         return self.value.get_value(**kwargs)
+    
+
     
 class ArrheniousSimple(Mechanism):
     """
@@ -422,7 +675,8 @@ class ArrheniousSimple(Mechanism):
         """
         preexp = self.get_preexp(T=T, **kwargs)
         enthalpy = self.get_enthalpy(T=T, **kwargs)
-        return preexp * np.exp(-enthalpy / (self.k * T))
+        val = preexp * np.exp(-enthalpy / (self.k * T))
+        return val
 
     def __repr__(self):
         return f'{self.preexp} exp( -{self.enthalpy}/kT)'
@@ -692,6 +946,325 @@ class LinkedArrheniousCO2(LinkedArrhenious):
         """
         co2 = self.convert_co2(co2)
         return co2
+
+class SIGMELTSPommier(ArrheniousSimple):
+    """
+    A class for calculating SiO2, Na2O, Water, P, and T depedent
+    magma conductivity. The basics of the class were taken by web scraping
+    the SIGMELTS portal: https://calcul-isto.cnrs-orleans.fr/apps/sigmelts/
+
+    Which has a corresponding publication @doi: 10.1016/j.cageo.2011.01.002
+
+    The parameterization is based on a natural-log space regression of the form:
+
+    delta H = a + b / (c*na2O + d) - e * na2O + f * P + g * Cw^2
+
+    ln(sigma) = h + i*siO2 + j*T + k*P + l* natural_log(Cw) + m*na2O + n * Cw + o * delta H / rT
+
+    Where SiO2, Na2O, and Cw are in wt%, P is in MPa, and T is in Kelvin.
+
+    no reported error on constants was available. I modify this class to have a reported error of 0.4 log units.
+    Additionally, there are three forms of the constants, piecewise implemented across different silica activities. 
+
+    To make it compatible with Pyrrhenious, four transforms are needed:
+
+    1. conversion of MPa into GPa
+
+    2. conversion of the enthaly term  o * delta H / rT into  o * delta H / kT
+
+    3. conversion of ppm Water inputs to wt% water
+
+    4. conversion of these factors into simple conductivity. 
+
+    Parameters
+    ----------
+    const1 : StochasticConstant
+        standard state enthalpy
+
+    const2 : StochasticConstant
+        term1 enthalpy na2o
+
+    const3 : StochasticConstant
+        term2 enthalpy na2o
+
+    const4 : StochasticConstant
+        term3 enthalpy na2o
+
+    const5 : StochasticConstant
+        term4 enthalpy na2o
+
+    const6 : StochasticConstant
+        activation volume
+
+    const7 : StochasticConstant
+        squared water constant
+
+    const8 : StochasticConstant
+        base conductivity
+
+    const9 : StochasticConstant
+        silica activity
+
+    const10 : StochasticConstant
+        temperature species availability modifier
+
+    const11 : StochasticConstant
+        pressure species availability modifier
+
+    const12 : StochasticConstant
+        log water factor
+
+    const13 : StochasticConstant
+        na2O activity
+
+    const14 : StochasticConstant
+        linear water activity
+
+    const15 : StochasticConstant
+        static enthalpy modifier
+
+    const16 : upper silica bound
+
+    const17 : lower silica bound
+
+    """
+    def __init__(self, const1 : StochasticConstant,const2 : StochasticConstant,const3 : StochasticConstant,const4 : StochasticConstant,
+                 const5 : StochasticConstant,const6 : StochasticConstant,const7 : StochasticConstant,const8 : StochasticConstant,
+                 const9 : StochasticConstant,const10 : StochasticConstant,const11 : StochasticConstant,const12 : StochasticConstant,
+                 const13 : StochasticConstant,const14 : StochasticConstant,const15 : StochasticConstant,const16 : StochasticConstant,
+                 const17 : StochasticConstant):
+        super().__init__(None, None)
+        self.h_h0 = const1.get_value()
+        self.h_na2o1 = const2.get_value()
+        self.h_na2o2 = const3.get_value()
+        self.h_na2o3 = const4.get_value()
+        self.h_na2o4 = const5.get_value()
+        self.h_dV = const6.get_value()
+        self.h_Cw = const7.get_value()
+        self.s_c = const8.get_value()
+        self.s_sio2 = const9.get_value()
+        self.s_T = const10.get_value()
+        self.s_P = const11.get_value()
+        self.s_logCw = const12.get_value()
+        self.s_na2o = const13.get_value()
+        self.s_Cw = const14.get_value()
+        self.activation_modifier = const15.get_value()
+        self.silica_upper = const16.get_value()
+        self.silica_lower = const17.get_value()
+
+    def get_enthalpy(self,na2o=None,Cw=None,P=None, **kwargs):
+        """
+        Get the value of the enthalpy.
+
+        Parameters
+        ----------
+
+        na2o : 
+            na2o equivalent concentration in wt%
+
+        Cw: 
+            water concentration, converted to wt%
+
+        P :
+            pressure in GPa
+
+        Returns
+        -------
+        float or np.ndarray
+            The value of the enthalpy in units of eV
+
+        """
+        self.assert_pressure(P)
+        self.assert_na2o(na2o)     
+        self.assert_water(Cw)   
+        linear_terms = self.h_h0 + self.h_na2o4*na2o + self.h_dV*P 
+        nonlinear_terms = (self.h_na2o1/(self.h_na2o2*na2o + self.h_na2o3))+ self.h_Cw*self.convert_water(Cw)**2
+        
+        result = self.activation_modifier * (linear_terms+nonlinear_terms)*self.k/(self.r*1e3)
+        return -result
+
+    def get_preexp(self,sio2=None,Cw=None,na2o=None,P=None,T=None, **kwargs):
+        """
+        Get the value of the preexponential factor.
+
+        Parameters
+        ----------
+        sio2 :
+            silica equivalent concentration in wt%
+
+        na2o : 
+            na2o equivalent concentration in wt%
+
+        Cw: 
+            water concentration, converted to wt%
+
+        P :
+            pressure in GPa
+
+        T : 
+            temperature in K
+
+
+        Returns
+        -------
+        float
+            The value of the enthalpy in units of eV.
+
+        """
+        # for stability, if Cw=0, set it to 0.01%
+        self.assert_pressure(P)
+        self.assert_na2o(na2o)     
+        self.assert_water(Cw)
+        self.assert_siO2(sio2)
+        if isinstance(Cw,float):
+            cw_prime=Cw
+            if Cw ==0:
+                cw_prime = 1e-2
+            
+        else:
+            cw_prime = Cw.copy()
+            cw_prime[Cw==0]=1e-2
+        valid_mask =  (sio2 >= self.silica_lower) &  (sio2 < self.silica_upper)
+        if not np.asarray(valid_mask).any():
+            return 0
+        else:
+            linear_terms = self.s_c+self.s_sio2*sio2 +self.s_T*T +self.s_P*P*1e3 +self.s_na2o*na2o +self.s_Cw*self.convert_water(cw_prime)
+
+            nonlinear_terms=self.s_logCw*np.log(self.convert_water(cw_prime))
+            total = linear_terms+nonlinear_terms
+            terms = np.exp(total)
+        terms[~valid_mask]=0
+        return terms
+
+    @property
+    def uses_water(self):
+        return True
+    
+    @property
+    def uses_pressure(self):
+        return True
+    
+    @property
+    def uses_sio2(self):
+        return True
+    
+    @property
+    def uses_na2o(self):
+        return True
+    
+
+class SIGMELTSGaillaird(ArrheniousSimple):
+    """
+    A class for calculating Water, P, and T depedent magma conductivity. The basics of the class were taken by web scraping
+    the SIGMELTS portal: https://calcul-isto.cnrs-orleans.fr/apps/sigmelts/
+
+    Which has a corresponding publication @doi: 10.1016/j.cageo.2011.01.002
+
+    The parameterization is based on a natural-log space regression of the form:
+
+    delta H = a*ln(water)+b + c*P
+
+    sigma = d*ln(water)+e
+
+    Where Cw is in wt%, P is in GPa, and T is in Kelvin.
+
+    no reported error on constants was available. I modify this class to have a reported error of 0.4 log units.
+    Additionally, there are three forms of the constants, piecewise implemented across different silica activities. 
+
+    To make it compatible with Pyrrhenious, four transforms are needed:
+
+    1. conversion of MPa into GPa
+
+    2. conversion of the enthaly term  o * delta H / rT into  o * delta H / kT
+
+    3. conversion of ppm Water inputs to wt% water
+
+    4. conversion of these factors into simple conductivity. 
+
+    Parameters
+    ----------
+    const1 : StochasticConstant
+        sigma_0 offset
+
+    const2 : StochasticConstant
+        water fit constant
+
+    const3 : StochasticConstant
+        standard state enthalpy
+
+    const4 : StochasticConstant
+        water fit constant
+
+    const5 : StochasticConstant
+        activation volume
+
+
+    """
+    def __init__(self, const1 : StochasticConstant,const2 : StochasticConstant,const3 : StochasticConstant,const4 : StochasticConstant,
+                 const5 : StochasticConstant):
+        super().__init__(None, None)
+        self.s_0 = const1.get_value()
+        self.s_lnCw = const2.get_value()
+        self.h_h0 = const3.get_value()
+        self.h_lnCw = const4.get_value()
+        self.h_dV = const5.get_value()
+       
+       
+        
+
+    def get_enthalpy(self,Cw=None,P=None, **kwargs):
+        """
+        Get the value of the enthalpy.
+
+        Parameters
+        ----------
+
+
+        Cw: 
+            water concentration, converted to wt%
+
+        P :
+            pressure in GPa
+
+        Returns
+        -------
+        float or np.ndarray
+            The value of the enthalpy in units of eV
+
+        """
+
+        linear_terms = self.h_h0 + self.h_dV*P 
+        nonlinear_terms = self.h_lnCw*np.log(self.convert_water(Cw))
+       
+        return (linear_terms+nonlinear_terms)*self.k/(self.r*1e3)
+
+    def get_preexp(self,Cw=None,**kwargs):
+        """
+        Get the value of the preexponential factor.
+
+        Parameters
+        ----------
+       
+        Cw: 
+            water concentration, converted to wt%
+
+
+        Returns
+        -------
+        float
+            The value of the enthalpy in units of eV.
+
+        """
+        return self.s_0 + self.s_lnCw*np.log(self.convert_water(Cw))
+
+    @property
+    def uses_water(self):
+        return True
+    
+    @property
+    def uses_pressure(self):
+        return True
+    
 
 
 class VogelFulcherTammanWet(ArrheniousSimple):
@@ -993,12 +1566,12 @@ class IronPreexpEnthalpyArrhenious(ArrheniousSimple):
         self.const2 = const2
 
     def get_preexp(self, X_fe=None, **kwargs):
-        assert X_fe is not None, "Iron value must be provided"
+        assert X_fe is not None, "Iron value must be provided(X_fe!=None)"
         a = self.preexp.get_value(**kwargs)
         return a*X_fe
 
     def get_enthalpy(self, X_fe=None, P=None, **kwargs):
-        assert X_fe is not None, "Iron value must be provided"
+        assert X_fe is not None, "Iron value must be provided(X_fe!=None)"
         h = self.enthalpy.get_value(**kwargs)
         v = self.volume.get_value(**kwargs)
         a = self.const1.get_value(**kwargs)
@@ -1045,15 +1618,14 @@ class IronWaterArrhenious1(ArrheniousSimple):
 
 class IronWaterArrhenious2(ArrheniousSimple):
     """
-    sigma = a (X_fe+b) ^c Cw^d exp( (-e+ f(X_fe+b)+ gCw^(h))/kT)
+    sigma = a (X_fe+b) ^c Cw^d exp( -(e+ f(X_fe+b)+ gCw^(h))/kT)
 
     """
     n_constants = 8
 
-    def __init__(self, preexp: StochasticConstant, const1: StochasticConstant,
-                 const2: StochasticConstant, const3: StochasticConstant,
-                 enthalpy1: StochasticConstant,const4 : StochasticConstant,
-                 const5 : StochasticConstant,const6 : StochasticConstant):
+    def __init__(self, preexp: StochasticConstant, const1: StochasticConstant, const2: StochasticConstant, const3: StochasticConstant,
+                 enthalpy1: StochasticConstant,const4 : StochasticConstant, const5 : StochasticConstant,const6 : StochasticConstant,
+                 const7 : StochasticConstant):
         super().__init__(None, None)
         self.preexp = preexp
         self.enthalpy = enthalpy1
@@ -1063,23 +1635,28 @@ class IronWaterArrhenious2(ArrheniousSimple):
         self.const4 = const4
         self.const5 = const5
         self.const6 = const6
+        self.const7 = const7
 
     def get_preexp(self, X_fe=None,Cw=None, **kwargs):
         assert X_fe is not None, "Iron value must be provided"
         a = self.preexp.get_value(**kwargs)
-        b = self.const1.get_value(**kwargs)
+        iron_offset = self.const1.get_value(**kwargs)
         c = self.const2.get_value(**kwargs)
         d = self.const3.get_value(**kwargs)
-        return a * (X_fe+b) **c * self.convert_water(Cw)**d
+        preexp = a * (X_fe + iron_offset) **c * self.convert_water(Cw)**d
+        return preexp
 
     def get_enthalpy(self, Cw=None, X_fe=None, **kwargs):
         assert X_fe is not None, "Iron value must be provided"
-        b = self.const1.get_value(**kwargs)
-        h = self.enthalpy.get_value(**kwargs)
+        h     = self.enthalpy.get_value(**kwargs)
         alpha = self.const4.get_value(**kwargs)
-        beta = self.const5.get_value(**kwargs)
-        exp = self.const6.get_value(**kwargs)
-        return h + alpha * (X_fe+b)  + beta * self.convert_water(Cw)**exp
+        iron_offset   = self.const1.get_value(**kwargs)
+        iron_exponent = self.const5.get_value(**kwargs)
+        beta          = self.const6.get_value(**kwargs)
+        water_exp     = self.const7.get_value(**kwargs)
+        water         = self.convert_water(Cw)
+        total_enthalpy = h + alpha * (X_fe+iron_offset)**iron_exponent + beta * water**water_exp
+        return total_enthalpy
 
     @property
     def uses_iron(self):
@@ -1088,6 +1665,16 @@ class IronWaterArrhenious2(ArrheniousSimple):
     @property
     def uses_water(self):
         return True
+
+    def __repr__(self):
+        """
+        a (X_fe+b) ^c Cw^d exp( -(e+ f(X_fe+b)^g+ hCw^(i))/kT)
+        Returns
+        -------
+
+        """
+        return f'{self.preexp} (X_fe+{self.const1})^{self.const2} (Cw)^{self.const3} \n'+\
+               f'exp( -({self.enthalpy} +{self.const4}(X_fe+{self.const1})^{self.const5}+{self.const6} Cw^{self.const7}  )/kT)'
 
 class NerstEinstein1(Mechanism):
     """
@@ -1170,6 +1757,106 @@ class NerstEinstein3(Mechanism):
 
     def __repr__(self):
         return f'{self.const1} q^2 {self.const2} Cw^({self.const3}+1) exp(-{self.enthalpy}/kT)/kT'
+
+
+@dataclass
+class BrinePTDependent(Mechanism):
+    """
+    log(sigma) = a + b/T + c log(NaCl) + d log(rho) + log(A0(P,T))
+    A0 = e + f*rho + g/T + h/T^2
+
+
+    """
+    a: StochasticConstant
+    b: StochasticConstant
+    c: StochasticConstant
+    d: StochasticConstant
+    e: StochasticConstant
+    f: StochasticConstant
+    g: StochasticConstant
+    h: StochasticConstant
+
+    water :  Fluid = Fluid(FluidsList.Water)
+
+
+    def get_density_field(self,P=None,T=None,**kwargs):
+        starting_var = pyutils.create_starting_variable(P=P,T=T,**kwargs)
+        if isinstance(starting_var,int) or isinstance(starting_var,float):
+            self.water.update(Input.pressure(P*1.0e9),Input.temperature(T-273.15))
+            rho= self.water.density
+        else:
+            def calc_density(P,T,water):
+                try:
+                    water.update(Input.pressure(P * 1.0e9), Input.temperature(T-273.15))
+                except:
+                    return np.nan
+                return water.density
+
+            rho = np.vectorize(calc_density)(P,T,self.water)
+        return rho/1e3
+
+    def get_lambda(self,rho,T=None,**kwargs):
+        val1 = self.e.get_value(**kwargs) + self.f.get_value(**kwargs)*rho
+        val2 = self.g.get_value(**kwargs)/T + self.h.get_value(**kwargs)/T**2
+        return val1 + val2
+    
+    def get_conductivity(self,T=None,P=None,nacl=None,**kwargs):
+        """
+        Calculates the conductivity in s/m from this mechanism
+
+        Parameters
+        ----------
+        T : np.ndarray or float
+            the temperature in Kelvin
+
+        logfo2: np.ndarray or float
+            The logarithm of the oxygen fugacity. Must not be None.
+
+        Returns
+        -------
+        float:
+            The calculated conductivity in s/m
+
+        Raises
+        ------
+        AssertionError:
+            If logfo2 is None.
+
+        """
+        self.assert_nacl(nacl)
+        self.assert_pressure(P)
+        rho = self.get_density_field(P=P,T=T,**kwargs)
+        # rho is 0.0012 for ints. 1.24 for arrays
+        A0 = self.get_lambda(rho,P=P,T=T,**kwargs)
+        # A0 is 1900.42 for ints. 388 for arrays
+        a = self.a.get_value(**kwargs)
+        # a is -0.9184 for ints
+        b = self.b.get_value(**kwargs)
+        # b is -872.0 for ints
+        c = self.c.get_value(**kwargs)
+        # c is 0.852 for ints
+        d = self.d.get_value(**kwargs)
+        # d is 7.6076 for ints
+        # density term is -22.089 for ints
+        temp_term    = b/T
+        salt_term    = c*np.log10(nacl)
+        density_term = d*np.log10(rho)
+        return 10**(a + temp_term + salt_term + density_term + np.log10(A0))
+
+    @classmethod
+    def n_args(cls):
+        return 8
+
+    def __repr__(self):
+        return f'{self.a} + {self.b}/T + {self.c}log(nacl) + {self.d}log(rho) + log(A0)'
+
+    @property
+    def uses_nacl(self):
+        return True
+
+    @property
+    def uses_pressure(self):
+        return True
 
 @dataclass
 class SEO3Term(Mechanism):
@@ -1345,7 +2032,6 @@ class WaterExpArrheniousPressure(ArrheniousPressure):
     sigma = a Cw^b exp(-(c + Pd)/kT)
 
     """
-    n_constants = 4
 
     def __init__(self, preexp: StochasticConstant, const1: StochasticConstant, enthalpy: StochasticConstant,
                  volume : StochasticConstant):
@@ -1395,6 +2081,8 @@ class WaterExpArrheniousInvT(WaterExpArrheniousPressure):
         return f'{WaterExpArrheniousPressure.__repr__(self)}/T'
 
 
+
+
 model_dict = {
             'arrhenious_fugacity':ArrheniousFugacity,
 'arrhenious_log_fO2':ArrheniousfO2,
@@ -1417,7 +2105,10 @@ model_dict = {
 'water_preexp_enthalpy_pressure':WaterExpArrhenious3,
 'vft_wet': VogelFulcherTammanWet,
 'linked_arrhenious_wet':LinkedArrheniousWet,
-'linked_arrhenious_co2':LinkedArrheniousCO2}
+'linked_arrhenious_co2':LinkedArrheniousCO2,
+'sigmelts_lowwater':SIGMELTSPommier,
+'sigmelts_highwater':SIGMELTSGaillaird,
+'brinePTdependence':BrinePTDependent}
 
 
 
@@ -1428,10 +2119,12 @@ def _create_multiple_mechanisms(row):
 
     for pot_mech in potential_mechanisms:
         n_constants = model_dict[pot_mech].n_args()
-        assert n_constants <= len(constants), f"not enough constants for eqid: {row['entry_id']}\n{row}"
+        assert n_constants <= len(constants), f"not enough constants for eqid: {row['entry_id']}\n{row}. Found {len(constants)} but should have {n_constants}"
         specific_constants = [constants.pop() for n in range(n_constants)]
-        mech_list.append(model_dict[pot_mech](*specific_constants))
-    return mech_list
+        mechanism = model_dict[pot_mech](*specific_constants)
+        mech_list.append(mechanism)
+    
+    return reduce(lambda x, y: x + y, mech_list)
 
 
 def _create_single_mechanism(row):
@@ -1439,14 +2132,13 @@ def _create_single_mechanism(row):
     target_mechanism = model_dict[mechanism]
     constants = create_constants_from_row(row)
     assert len(constants) == target_mechanism.n_args(), "Incorrect constant number defined for mechanism. " + \
-                                                        "Should have: " + str(
-        target_mechanism.n_args()) + " but found " + str(len(constants)) + " in file\n" + \
+                                                        "Should have: " + str(target_mechanism.n_args()) + " but found " + str(len(constants)) + " in file\n" + \
                                                         "Check database entry " + row['entry_id'] + " against " + \
                                                         str(target_mechanism)
-    return [target_mechanism(*constants)]
+    return target_mechanism(*constants)
 
 
-def create_mechanism_from_row(row) -> list:
+def create_mechanism_from_row(row) -> Mechanism:
     mechanism = row['eq_id']
     if '+' in mechanism:
         return _create_multiple_mechanisms(row)
@@ -1455,14 +2147,23 @@ def create_mechanism_from_row(row) -> list:
 
 
 def get_const_rows(row):
-    letter_rows = list(filter(lambda x: len(x) == 1, row.keys()))
-    valid_letter_rows = sorted(list(filter(lambda x: ~np.isnan(float(row[x])), letter_rows)))
+    non_constant_row_keys = ['Title','Author','Year','DOI','Phase Type','Description','Sample Type',
+                             'Equation Form','Eq ID','Publication ID','Entry ID','Complete or Partial Fit',
+                             'Composite or single','Pressure Average','Pressure Min','Pressure Max','Temp Min',
+                             'Temp Max','Water Min','Water Max','Water Average','water calibration','Water units',
+                             'Iron Min','Iron Max','Iron Average','Iron units','fO2 buffers used','Crystal Direction','Fitting Comments']
+    # insert op here. r
+    non_const_keys_lower_set = set(key.lower() for key in non_constant_row_keys)
+    
+    # Filter for keys that do not have a corresponding case-insensitive match in the non-constant row keys
+    potential_row_ids = [key for key in row.keys() if key.lower() not in non_const_keys_lower_set]
+    letter_rows = list(filter(lambda x: '_' not in x, potential_row_ids))
+    valid_letter_rows = sorted(list(filter(lambda x: ~np.isnan(float(row[x])), letter_rows)),key=lambda x: (len(x), x))
     return valid_letter_rows
 
 
 def create_constants_from_row(row):
     letter_columns = get_const_rows(row)
-
     try:
         variables = [StochasticConstant(row[f'{x}'],
                                                    row[f'{x}_uncertainty'],

@@ -1,0 +1,45 @@
+Overview: Why Pyrrhenius?
+=====================
+Pyrrhenious provides a powerful, flexible, and intuitive framework for working with mineral electrical conductivity models and data in Python. It introduces a modular, object-oriented approach that allows scientists to efficiently compute conductivities while seamlessly keeping track of metadata about the minerals, experimental conditions, and model parameters.
+
+Motivation
+------------------
+
+Over the past two decades, electromagnetic geophysical techniques have greatly improved in resolution and spatial extent. At the same time, mineral physicists have produced hundreds of models relating the physiochemical state of common minerals to their electrical conductivity.
+
+Pyrrhenius was designed to provide a means to tractably merge electrical modeling with laboratory observations, allowing geoscientists to flexibly use, compare, validate, and extend what is currently a heterogeneous corpus of mineral physics research. By abstracting away the implementation details and unit conversions, Pyrrhenious enables researchers to focus on science.
+
+The choice of Python and integration with the scientific Python ecosystem makes Pyrrhenious accessible to a wide audience and interoperable with existing electromagnetic geophysics libraries like MtPy and SimPEG. The open-source, object-oriented design also facilitates community contributions to expand the database and functionality over time.
+
+Why Objects?
+------------------
+
+Object-oriented programming (OOP) is a programming paradigm that organizes software design around data, or objects, rather than functions and logic. The main principles of OOP include encapsulation, abstraction, inheritance and polymorphism. This allows for modular, reusable and extensible code.
+
+The electrical conduction of geologic materials is dependent upon a number of chemical and physical states, including temperature, pressure, and water content. The relationships between these variables and electrical conductivity often take the form of an exponential relationship. However, there are many different specific mathematical forms and parameterizations which can be seen within the literature. 
+
+Pyrrhenius utilizes OOP to encapsulate the mathematical implementations of these conductivity laws into a common form, allowing for flexible addition and comparison of models while minimizing the amount of code which must be tested and maintained. Use of a common OOP framework also allows for metadata tracking and model mixing as is often reported in publications.
+
+Key Features 
+--------------------
+
+Pyrrhenious offers several key features that enable expressive and efficient computations of mineral electric conductivity:
+
+- A curated collection of over 100 models spanning a wide range of minerals and conditions
+
+- An extensible spreadsheet-based database framework for accessing models and associated metadata, so substituting your own work-groups database is as easy as providing an alternate ``.csv`` file.
+
+- Calculate electric conductivity across any mechanism combinations of mechanisms, model or combinations of models using the ``get_conductivity(*args,**kwargs)`` method.
+
+- Linearly combine metadata, mechanisms, and models using the ``+`` operator
+
+- Stochastic sample model parameters by using the optional keyword-argument ``sample=True``
+
+- Easily apply Cubes, Tubes, hashinStrikman, Effective Medium Theory, and Archie's Law phase mixing Variants
+
+- Access human readable metadata via the ``.metadata`` property of all objects
+
+- Integration with the broader scientific Python ecosystem including NumPy, SciPy, and Pandas
+
+With Pyrrhenius, you can go from a scattered collection of published conductivity models to science-driven insights in just a few lines of code
+The immediate payoff of using Pyrrhenius is that you'll write less code while worrying less about errors. The long-term payoff is that you'll be able to entertain more advanced geophysical analyses while easily recognizing what you did weeks to months ago.

@@ -4,7 +4,7 @@ import sys
 sys.path.append('../../')
 sys.path.append('../')
 import pytest
-from pyrrhenious import model
+from pyrrhenius import model
 
 file = 'test_database.csv'
 

@@ -6,8 +6,8 @@ import os
 import pickle
 import matplotlib.pyplot as plt
 file = 'Database/publication_database.csv'
-from pyrrhenious import database
-from pyrrhenious import utils as pyrutils
+from pyrrhenius import database
+from pyrrhenius import utils as pyrutils
 
 def get_fig_data(ec_model_row, image_directory):
     source_dir = os.sep.join([image_directory,str(ec_model_row['publication_id'].iloc[0]),'*.png'])

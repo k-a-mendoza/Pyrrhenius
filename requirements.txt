@@ -1,0 +1,5 @@
+python>=3.8
+numpy>=1.19.0
+pandas>2.0.0
+scipy>=1.6.0
+pyfluids>=2.6.0

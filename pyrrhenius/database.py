@@ -1,6 +1,10 @@
+import os 
 import numpy as np
 import pandas as pd
 from . import model, mechanisms
+
+DEFAULT_DATABASE_PATH = os.path.join('..', 'database', 'publication_database.csv')
+
 
 
 def _id_row_rename(col):
@@ -14,6 +18,12 @@ def calc_average_pressure(row):
     return row['pressure_average_gpa']
 
 
+def create_group(x):
+    for x1 in [0,1]:
+        for y1 in [0,1]:
+            for z1 in [0,1]:
+                x=x.replace(f'[{x1}{y1}{z1}]','[]')
+    return x
 class Database:
     """
     Master database for electric conductivity data
@@ -26,20 +36,19 @@ class Database:
     """
     isotropic_name = '_isotropic'
 
-    def __init__(self, csv):
+    def __init__(self, csv=DEFAULT_DATABASE_PATH):
         database = pd.read_csv(csv, encoding_errors='replace').dropna(how='all')
+
         data_rows = [model.create_model_from_row(x).get_row() for i, x in database.iterrows() ]
         self.database = pd.DataFrame(data_rows)
 
-    def create_anisotropic_models(self):
-        subframe = self.database[self.database['crystal_direction'] != 'isotropic']
-        subframe['grouping_id'] = subframe['entry_id'].str.slice(stop=-5)
-        groups = list(subframe.groupby(['grouping_id'])['ec_model'])
+    def create_isotropic_models(self):
+        self.database['grouping_id'] = self.database['entry_id'].apply(lambda row: create_group(row))
         new_models = []
-        for g in groups:
-            series_list = list(g[1])
-            new_model = model.AnisotropicModel(series_list)
-            new_models.append(new_model)
+        for _, g in self.database.groupby(['grouping_id']):
+            if len(g)>1 and 'isotropic' not in _:
+                new_model = model.IsotropicMixture([x['ec_model'] for index, x in g.iterrows()])
+                new_models.append(new_model)
         self.register_new_model(new_models)
 
     def register_new_model(self, ecmodel: model.ModelInterface or list):
