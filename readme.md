@@ -58,7 +58,8 @@ print(f"Conductivity: {conductivity}")
 
 ## Documentation
 
-Full documentation is available in the docs/ folder, including detailed guides for getting started, using different models, and advanced usage.
+The Pyrrhenius 
+[documentation](https://pyrrhenius.readthedocs.io/en/latest/index.html) is in a state of flux, but is currently built enough to be useful. It includes examples, detailed guides, and comparisons of current models contained in the database. 
 
 ## Contributing
 
