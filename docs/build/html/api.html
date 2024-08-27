@@ -1126,8 +1126,9 @@ Options include:
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pyrrhenius.model.WaterCorrection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.model.</span></span><span class="sig-name descname"><span class="pre">WaterCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correction_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#WaterCorrection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.WaterCorrection" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.model.</span></span><span class="sig-name descname"><span class="pre">WaterCorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correction_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#WaterCorrection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.WaterCorrection" title="Link to this definition"></a></dt>
+<dd><p>Applies a Correction factor to Cw to any encapsulated model</p>
+<dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><a class="reference internal" href="#pyrrhenius.model.WaterCorrection.get_id" title="pyrrhenius.model.WaterCorrection.get_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_id</span></code></a></dt><dd><p>gets the model id</p>
@@ -1161,7 +1162,7 @@ Options include:
 <td><p>generates a dictionary of conditions relevant to the experiment</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pyrrhenius.model.WaterCorrection.get_conductivity" title="pyrrhenius.model.WaterCorrection.get_conductivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_conductivity</span></code></a>(**kwargs)</p></td>
-<td><p>Calculates the conductivity based on the model's mechanism and provided parameters.</p></td>
+<td><p>gets the conductivity of the underlying model after locally correcting the water factor</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_row</span></code>()</p></td>
 <td><p>returns a pd.Series representation of the model</p></td>
@@ -1174,21 +1175,7 @@ Options include:
 <dl class="py method">
 <dt class="sig sig-object py" id="pyrrhenius.model.WaterCorrection.get_conductivity">
 <span class="sig-name descname"><span class="pre">get_conductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/model.html#WaterCorrection.get_conductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.model.WaterCorrection.get_conductivity" title="Link to this definition"></a></dt>
-<dd><p>Calculates the conductivity based on the model’s mechanism and provided parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>Additional parameters for the conductivity calculation. See the documentation on mech.Mechanism for a full list of possible keywords</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>float or np.ndarray</dt><dd><p>The calculated conductivity in S/m</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dd><p>gets the conductivity of the underlying model after locally correcting the water factor</p>
 </dd></dl>
 
 <dl class="py property">

@@ -876,14 +876,29 @@ class DryModel(ModelInterface):
 
 
 class WaterCorrection(ModelInterface):
+    """Applies a Correction factor to Cw to any encapsulated model
 
-    def __init__(self, model,correction_factor=1):
+    """
+
+    def __init__(self, model,correction_factor= 1.0):
+        """Creates a WaterCorrection facade around an existing model
+
+        Parameters
+        ----------
+        model : ModelInterface
+            a Pyrrhenius model
+
+        correction_factor : float, optional
+            the correction factor for water. Defaults to 1.0
+        """
         super().__init__(model.metadata)
-        self.mechanisms = [x for x in model.mechanisms]
         self.c_factor = correction_factor
         self.main_model = model
 
     def get_conductivity(self, **kwargs):
+        """gets the conductivity of the underlying model after locally correcting the water factor 
+
+        """
         new_kwargs = {**kwargs}
         new_kwargs['Cw']*=self.c_factor
         return self.main_model.get_conductivity(**new_kwargs)

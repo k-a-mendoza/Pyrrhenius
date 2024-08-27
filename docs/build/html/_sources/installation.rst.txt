@@ -35,7 +35,7 @@ pip can also be used to install the latest development branch of pyrrhenius, pro
 
 .. code-block:: bash
 
-   pip install git+git://github.com/@master
+   pip install git+git://github.com/k-a-mendoza/pyrrhenius@master
 
 Installing pyfluids
 -------------------

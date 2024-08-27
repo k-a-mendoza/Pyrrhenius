@@ -65,8 +65,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#basic-anisotropic-models">Basic Anisotropic Models</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#derived-isotropic-models-and-advanced-anisotropy">Derived Isotropic Models and Advanced Anisotropy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#special-models">Special Models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#water-corrections">Water Corrections</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cached-models">Cached Models</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#n-phase-assemblages">N-Phase Assemblages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#advanced-usage">Advanced Usage</a></li>
 </ul>
@@ -565,11 +563,11 @@ When <code class="docutils literal notranslate"><span class="pre">averaging</spa
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Anisotropic Factors: [0.62761196 0.06032951 0.4801983  ... 0.13951965 0.96086743 0.23703155]
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Anisotropic Factors: [0.50016605 0.55725348 0.59719412 ... 0.70878825 0.36941659 0.177983  ]
 </pre></div>
 </div>
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.57862678e-05, 8.39360216e-06, 6.93991416e-05, ...,
-       8.40790685e-04, 4.91160747e-03, 3.70268933e-03])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.29563807e-05, 3.49148839e-05, 8.31258099e-05, ...,
+       2.22089366e-03, 2.49771918e-03, 3.28805161e-03])
 </pre></div>
 </div>
 </div>
@@ -825,25 +823,25 @@ new ec model representation:fei_20_ol_ionic[001]+SEO3_ol:{fei_20_ol_ionic[001]:{
 </div>
 </div>
 </section>
-</section>
 <section id="water-corrections">
-<h3>Water Corrections<a class="headerlink" href="#water-corrections" title="Link to this heading"></a></h3>
+<h4>Water Corrections<a class="headerlink" href="#water-corrections" title="Link to this heading"></a></h4>
 <p>Water corrections adjust the conductivity model to account for the presence of water in the system. This is especially important in geophysical contexts where water can dramatically alter the behavior of mineral conductivities. Pyrrhenius provides several water correction models that adjust the conductivity based on the water content in a given system.</p>
-<p>### Available Models</p>
 <ul class="simple">
-<li><p><strong>Dry Model</strong>: The base model without water correction, representing conductivity in dry conditions.</p></li>
-<li><p><strong>WaterCorrection</strong>: A model that adds water dependence to the conductivity.</p></li>
-<li><p><strong>WaterPTCorrection</strong>: A model that adjusts the water correction further based on pressure and temperature dependencies.</p></li>
+<li><p><strong>Dry Model</strong>: copies passed keyword-arguments, setting Cw=0</p></li>
+<li><p><strong>WaterCorrection</strong>: copies passed keyword-arguments, then multiplies the Cw copy by a static factor</p></li>
+<li><p><strong>WaterPTCorrection</strong>: copies passed keyword-arguments, then sets Cw based on a function dependent on T and/or P.</p></li>
 </ul>
-<p>Each of these models can be used to dynamically adjust conductivity based on the amount of water present, as well as environmental factors like temperature and pressure.</p>
-<p>### Example Usage for Water-Corrected Models</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrrhenius.models</span> <span class="kn">import</span> <span class="n">WaterCorrection</span>
+<p>Each of these models can be used to dynamically adjust conductivity based on the amount of water present.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrrhenius.model</span> <span class="kn">import</span> <span class="n">WaterCorrection</span>
 <span class="kn">from</span> <span class="nn">pyrrhenius.database</span> <span class="kn">import</span> <span class="n">Database</span>
 
 <span class="c1"># Initialize database and water-corrected model</span>
 <span class="n">ecdatabase</span> <span class="o">=</span> <span class="n">Database</span><span class="p">()</span>
-<span class="n">base_model</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;SEO3_ol&#39;</span><span class="p">)</span>
-<span class="n">water_corrected_model</span> <span class="o">=</span> <span class="n">WaterCorrection</span><span class="p">(</span><span class="n">base_model</span><span class="p">)</span>
+<span class="n">ecdatabase</span><span class="o">.</span><span class="n">create_isotropic_models</span><span class="p">()</span>
+<span class="n">base_model</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;isotropic_model:gar_14_withers_ol[100]+gar_14_withers_ol[010]+gar_14_withers_ol[001]&#39;</span><span class="p">)</span>
+<span class="n">water_corrected_model</span> <span class="o">=</span> <span class="n">WaterCorrection</span><span class="p">(</span><span class="n">base_model</span><span class="p">,</span><span class="n">correction_factor</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
 
 <span class="c1"># Define parameters</span>
 <span class="n">T</span> <span class="o">=</span> <span class="mi">1200</span>  <span class="c1"># Temperature in K</span>
@@ -851,52 +849,135 @@ new ec model representation:fei_20_ol_ionic[001]+SEO3_ol:{fei_20_ol_ionic[001]:{
 <span class="n">Cw</span> <span class="o">=</span> <span class="mi">150</span>   <span class="c1"># Water concentration in ppm</span>
 
 <span class="c1"># Calculate conductivity with water correction</span>
-<span class="n">conductivity</span> <span class="o">=</span> <span class="n">water_corrected_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span> <span class="n">Cw</span><span class="o">=</span><span class="n">Cw</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Water-Corrected Conductivity: </span><span class="si">{</span><span class="n">conductivity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">corrected</span> <span class="o">=</span> <span class="n">water_corrected_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span> <span class="n">Cw</span><span class="o">=</span><span class="n">Cw</span><span class="p">)</span>
+<span class="n">original</span>  <span class="o">=</span> <span class="n">base_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span> <span class="n">Cw</span><span class="o">=</span><span class="n">Cw</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Original Conductivity: </span><span class="si">{</span><span class="n">original</span><span class="si">}</span><span class="s2"> S/m&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Water-Corrected Conductivity: </span><span class="si">{</span><span class="n">corrected</span><span class="si">}</span><span class="s2"> S/m&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This example demonstrates how to apply the <strong>WaterCorrection</strong> model to a base conductivity model, adjusting the output based on the water concentration and environmental conditions.</p>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Original Conductivity: [0.0039755] S/m
+Water-Corrected Conductivity: [0.00104387] S/m
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 <section id="cached-models">
-<h3>Cached Models<a class="headerlink" href="#cached-models" title="Link to this heading"></a></h3>
+<h4>Cached Models<a class="headerlink" href="#cached-models" title="Link to this heading"></a></h4>
 <p><strong>Cached Models</strong> are designed for performance optimization. When performing multiple conductivity calculations over the same parameter space (such as during large simulations or parameter sweeps), cached models store previous results to avoid redundant calculations. This dramatically improves performance when recalculating conductivity for the same inputs.</p>
 <p>Cached models are especially useful in long-running simulations or cases where many conductivity calculations are required over the same parameter range.</p>
-<p>### Example Usage for Cached Models</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrrhenius.models</span> <span class="kn">import</span> <span class="n">CachedModel</span>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyrrhenius.model</span> <span class="kn">import</span> <span class="n">CachedModel</span>
 <span class="kn">from</span> <span class="nn">pyrrhenius.database</span> <span class="kn">import</span> <span class="n">Database</span>
+<span class="kn">import</span> <span class="nn">timeit</span>
 
 <span class="c1"># Initialize database and cached model</span>
 <span class="n">ecdatabase</span> <span class="o">=</span> <span class="n">Database</span><span class="p">()</span>
-<span class="n">base_model</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;SEO3_ol&#39;</span><span class="p">)</span>
+<span class="n">base_model</span> <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;sk17_brine&#39;</span><span class="p">)</span>
+
 <span class="n">cached_model</span> <span class="o">=</span> <span class="n">CachedModel</span><span class="p">(</span><span class="n">base_model</span><span class="p">)</span>
 
 <span class="c1"># Define parameters for simulation</span>
-<span class="n">T</span> <span class="o">=</span> <span class="mi">1300</span>  <span class="c1"># Temperature in K</span>
-<span class="n">P</span> <span class="o">=</span> <span class="mf">2.0</span>   <span class="c1"># Pressure in GPa</span>
-<span class="n">Cw</span> <span class="o">=</span> <span class="mi">50</span> <span class="o">*</span> <span class="mf">1e-6</span>  <span class="c1"># Water concentration in ppm</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span><span class="mi">700</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span> <span class="c1"># Temperature in K</span>
+<span class="n">P</span> <span class="o">=</span> <span class="mf">1.0</span>   <span class="c1"># Pressure in GPa</span>
+<span class="n">nacl</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># 5% NaCl</span>
 
-<span class="c1"># First calculation (will be cached)</span>
-<span class="n">conductivity</span> <span class="o">=</span> <span class="n">cached_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span> <span class="n">Cw</span><span class="o">=</span><span class="n">Cw</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cached Model Conductivity (First Calculation): </span><span class="si">{</span><span class="n">conductivity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">time_base_model</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">base_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span> <span class="n">nacl</span><span class="o">=</span><span class="n">nacl</span><span class="p">)</span>
 
-<span class="c1"># Second calculation (cached result will be used)</span>
-<span class="n">conductivity_cached</span> <span class="o">=</span> <span class="n">cached_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span> <span class="n">Cw</span><span class="o">=</span><span class="n">Cw</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cached Model Conductivity (From Cache): </span><span class="si">{</span><span class="n">conductivity_cached</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">time_cached_model</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">cached_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span> <span class="n">nacl</span><span class="o">=</span><span class="n">nacl</span><span class="p">)</span>
+
+<span class="n">base_time</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">time_base_model</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Base Model Time (1000 iterations): </span><span class="si">{</span><span class="n">base_time</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+
+<span class="n">first_cached_time</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">time_cached_model</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cached Model Time (First Run): </span><span class="si">{</span><span class="n">first_cached_time</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+
+<span class="n">cached_time</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">time_cached_model</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cached Model Time (1000 iterations, using cache): </span><span class="si">{</span><span class="n">cached_time</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+
+<span class="n">base_conductivity</span> <span class="o">=</span> <span class="n">base_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span> <span class="n">nacl</span><span class="o">=</span><span class="n">nacl</span><span class="p">)</span>
+<span class="n">cached_conductivity</span> <span class="o">=</span> <span class="n">cached_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span> <span class="n">nacl</span><span class="o">=</span><span class="n">nacl</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Base Model Conductivity: </span><span class="si">{</span><span class="n">base_conductivity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cached Model Conductivity: </span><span class="si">{</span><span class="n">cached_conductivity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">speedup</span> <span class="o">=</span> <span class="n">base_time</span> <span class="o">/</span> <span class="n">cached_time</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Speedup factor (cached vs base): </span><span class="si">{</span><span class="n">speedup</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In this example, the <cite>CachedModel</cite> stores the result of the first conductivity calculation. When the same parameters are provided again, it retrieves the result from the cache, saving computational time.</p>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Base Model Time (1000 iterations): 2.475551 seconds
+Cached Model Time (First Run): 0.002820 seconds
+Cached Model Time (1000 iterations, using cache): 0.000314 seconds
+
+Base Model Conductivity: [12.51336529 13.3152351  14.09626467 ... 39.31318444 39.32998146
+ 39.34456567]
+Cached Model Conductivity: [12.51336529 13.3152351  14.09626467 ... 39.31318444 39.32998146
+ 39.34456567]
+
+Speedup factor (cached vs base): 7874.52x
+</pre></div>
+</div>
+</div>
+</div>
+<p>In this example, the <cite>CachedModel</cite> stores the result of the first conductivity calculation. When the same parameters are provided again, it retrieves the result from the cache. For an input array 100 elements long, a speedup greater than 8000x is achieved with the <code class="docutils literal notranslate"><span class="pre">CachedModel</span></code>.</p>
+<p>This is likely an extreme example. For most other models within the Pyrrhenius database, CachedModels are likely to provide a much smaller speedup factor.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Cached models are most effective in simulations with repeated parameter sweeps or when the same conditions are evaluated multiple times.</p>
 </div>
-<p>—</p>
-<p>These <strong>Special Models</strong> provide greater flexibility for dealing with complex real-world scenarios, such as handling water corrections, combining multiple physical mechanisms, or optimizing performance through caching.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>CachedModels do not check to see if the input arguments have changed over subsequent calls.</p>
+</div>
+<p>These <strong>Special Models</strong> provide greater flexibility for dealing with complex real-world scenarios, such as inter-mineral water partitioning corrections.</p>
+</section>
 </section>
 <section id="n-phase-assemblages">
 <h3>N-Phase Assemblages<a class="headerlink" href="#n-phase-assemblages" title="Link to this heading"></a></h3>
+<section id="extremal-bounds">
+<h4>Extremal Bounds<a class="headerlink" href="#extremal-bounds" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>HS + -</p></li>
+</ul>
+</section>
+<section id="geometric-mixing">
+<h4>Geometric Mixing<a class="headerlink" href="#geometric-mixing" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Cubes (thin film) and Tubes</p></li>
+<li><p>Archie’s laws</p></li>
+<li><p>Modified Archie’s Laws</p></li>
+</ul>
+</section>
+<section id="effective-medium-theories">
+<h4>Effective Medium Theories<a class="headerlink" href="#effective-medium-theories" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Bruggeman symmetric</p></li>
+<li><p>Maxwell Ghant</p></li>
+</ul>
+</section>
 </section>
 <section id="advanced-usage">
 <h3>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Link to this heading"></a></h3>
+<section id="inverse-modeling">
+<h4>Inverse Modeling<a class="headerlink" href="#inverse-modeling" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>casting against a conductivity image</p></li>
+<li><p>binary search</p></li>
+</ul>
+</section>
+<section id="defining-your-own-database">
+<h4>Defining your own Database<a class="headerlink" href="#defining-your-own-database" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Required excel sheet Formatting</p></li>
+</ul>
+</section>
 </section>
 </section>
 <section id="metadata">

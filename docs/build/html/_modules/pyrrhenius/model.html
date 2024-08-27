@@ -1002,16 +1002,31 @@
 <div class="viewcode-block" id="WaterCorrection">
 <a class="viewcode-back" href="../../api.html#pyrrhenius.model.WaterCorrection">[docs]</a>
 <span class="k">class</span> <span class="nc">WaterCorrection</span><span class="p">(</span><span class="n">ModelInterface</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Applies a Correction factor to Cw to any encapsulated model</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span><span class="n">correction_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span><span class="n">correction_factor</span><span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a WaterCorrection facade around an existing model</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model : ModelInterface</span>
+<span class="sd">            a Pyrrhenius model</span>
+
+<span class="sd">        correction_factor : float, optional</span>
+<span class="sd">            the correction factor for water. Defaults to 1.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mechanisms</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">mechanisms</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">c_factor</span> <span class="o">=</span> <span class="n">correction_factor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span> <span class="o">=</span> <span class="n">model</span>
 
 <div class="viewcode-block" id="WaterCorrection.get_conductivity">
 <a class="viewcode-back" href="../../api.html#pyrrhenius.model.WaterCorrection.get_conductivity">[docs]</a>
     <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;gets the conductivity of the underlying model after locally correcting the water factor </span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>
         <span class="n">new_kwargs</span><span class="p">[</span><span class="s1">&#39;Cw&#39;</span><span class="p">]</span><span class="o">*=</span><span class="bp">self</span><span class="o">.</span><span class="n">c_factor</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_model</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">new_kwargs</span><span class="p">)</span></div>

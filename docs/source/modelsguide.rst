@@ -418,29 +418,26 @@ Using these models is now as easy as getting them from the database, sending in 
 
 
 Water Corrections
------------------
+^^^^^^^^^^^^^^^^^
 
 Water corrections adjust the conductivity model to account for the presence of water in the system. This is especially important in geophysical contexts where water can dramatically alter the behavior of mineral conductivities. Pyrrhenius provides several water correction models that adjust the conductivity based on the water content in a given system.
 
-### Available Models
+- **Dry Model**: copies passed keyword-arguments, setting Cw=0
+- **WaterCorrection**: copies passed keyword-arguments, then multiplies the Cw copy by a static factor
+- **WaterPTCorrection**: copies passed keyword-arguments, then sets Cw based on a function dependent on T and/or P. 
 
-- **Dry Model**: The base model without water correction, representing conductivity in dry conditions.
-- **WaterCorrection**: A model that adds water dependence to the conductivity.
-- **WaterPTCorrection**: A model that adjusts the water correction further based on pressure and temperature dependencies.
+Each of these models can be used to dynamically adjust conductivity based on the amount of water present. 
 
-Each of these models can be used to dynamically adjust conductivity based on the amount of water present, as well as environmental factors like temperature and pressure.
+.. jupyter-execute:: 
 
-### Example Usage for Water-Corrected Models
-
-.. code-block:: python
-
-    from pyrrhenius.models import WaterCorrection
+    from pyrrhenius.model import WaterCorrection
     from pyrrhenius.database import Database
 
     # Initialize database and water-corrected model
     ecdatabase = Database()
-    base_model = ecdatabase.get_model('SEO3_ol')
-    water_corrected_model = WaterCorrection(base_model)
+    ecdatabase.create_isotropic_models() 
+    base_model = ecdatabase.get_model('isotropic_model:gar_14_withers_ol[100]+gar_14_withers_ol[010]+gar_14_withers_ol[001]')
+    water_corrected_model = WaterCorrection(base_model,correction_factor=1/3)
 
     # Define parameters
     T = 1200  # Temperature in K
@@ -448,51 +445,73 @@ Each of these models can be used to dynamically adjust conductivity based on the
     Cw = 150   # Water concentration in ppm
 
     # Calculate conductivity with water correction
-    conductivity = water_corrected_model.get_conductivity(T=T, P=P, Cw=Cw)
-    print(f"Water-Corrected Conductivity: {conductivity}")
+    corrected = water_corrected_model.get_conductivity(T=T, P=P, Cw=Cw)
+    original  = base_model.get_conductivity(T=T, P=P, Cw=Cw)
+    print(f"Original Conductivity: {original} S/m")
+    print(f"Water-Corrected Conductivity: {corrected} S/m")
 
-This example demonstrates how to apply the **WaterCorrection** model to a base conductivity model, adjusting the output based on the water concentration and environmental conditions.
 
 Cached Models
--------------
+^^^^^^^^^^^^^
 
 **Cached Models** are designed for performance optimization. When performing multiple conductivity calculations over the same parameter space (such as during large simulations or parameter sweeps), cached models store previous results to avoid redundant calculations. This dramatically improves performance when recalculating conductivity for the same inputs.
 
 Cached models are especially useful in long-running simulations or cases where many conductivity calculations are required over the same parameter range.
 
-### Example Usage for Cached Models
+.. jupyter-execute::
 
-.. code-block:: python
-
-    from pyrrhenius.models import CachedModel
+    from pyrrhenius.model import CachedModel
     from pyrrhenius.database import Database
+    import timeit
 
     # Initialize database and cached model
     ecdatabase = Database()
-    base_model = ecdatabase.get_model('SEO3_ol')
+    base_model = ecdatabase.get_model('sk17_brine')
+    
     cached_model = CachedModel(base_model)
 
     # Define parameters for simulation
-    T = 1300  # Temperature in K
-    P = 2.0   # Pressure in GPa
-    Cw = 50 * 1e-6  # Water concentration in ppm
+    T = np.linspace(400,700,num=100) # Temperature in K
+    P = 1.0   # Pressure in GPa
+    nacl = 5 # 5% NaCl
 
-    # First calculation (will be cached)
-    conductivity = cached_model.get_conductivity(T=T, P=P, Cw=Cw)
-    print(f"Cached Model Conductivity (First Calculation): {conductivity}")
+    def time_base_model():
+        return base_model.get_conductivity(T=T, P=P, nacl=nacl)
 
-    # Second calculation (cached result will be used)
-    conductivity_cached = cached_model.get_conductivity(T=T, P=P, Cw=Cw)
-    print(f"Cached Model Conductivity (From Cache): {conductivity_cached}")
+    def time_cached_model():
+        return cached_model.get_conductivity(T=T, P=P, nacl=nacl)
 
-In this example, the `CachedModel` stores the result of the first conductivity calculation. When the same parameters are provided again, it retrieves the result from the cache, saving computational time.
+    base_time = timeit.timeit(time_base_model, number=1000)
+    print(f"Base Model Time (1000 iterations): {base_time:.6f} seconds")
+
+    first_cached_time = timeit.timeit(time_cached_model, number=1)
+    print(f"Cached Model Time (First Run): {first_cached_time:.6f} seconds")
+
+    cached_time = timeit.timeit(time_cached_model, number=1000)
+    print(f"Cached Model Time (1000 iterations, using cache): {cached_time:.6f} seconds")
+
+    base_conductivity = base_model.get_conductivity(T=T, P=P, nacl=nacl)
+    cached_conductivity = cached_model.get_conductivity(T=T, P=P, nacl=nacl)
+
+    print(f"\nBase Model Conductivity: {base_conductivity}")
+    print(f"Cached Model Conductivity: {cached_conductivity}")
+
+    speedup = base_time / cached_time
+    print(f"\nSpeedup factor (cached vs base): {speedup:.2f}x")
+
+In this example, the `CachedModel` stores the result of the first conductivity calculation. When the same parameters are provided again, it retrieves the result from the cache. For an input array 100 elements long, a speedup greater than 8000x is achieved with the ``CachedModel``.  
+
+This is likely an extreme example. For most other models within the Pyrrhenius database, CachedModels are likely to provide a much smaller speedup factor. 
 
 .. note::
    Cached models are most effective in simulations with repeated parameter sweeps or when the same conditions are evaluated multiple times.
 
----
+.. warning::
+   CachedModels do not check to see if the input arguments have changed over subsequent calls.  
 
-These **Special Models** provide greater flexibility for dealing with complex real-world scenarios, such as handling water corrections, combining multiple physical mechanisms, or optimizing performance through caching.
+
+
+These **Special Models** provide greater flexibility for dealing with complex real-world scenarios, such as inter-mineral water partitioning corrections. 
 
 
 N-Phase Assemblages

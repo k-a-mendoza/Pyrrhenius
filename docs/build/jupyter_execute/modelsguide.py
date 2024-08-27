@@ -296,3 +296,70 @@ ax.legend()
 ax.set_ylim([1e-4,1])
 fig.show()
 
+
+# In[24]:
+
+
+from pyrrhenius.model import WaterCorrection
+from pyrrhenius.database import Database
+
+# Initialize database and water-corrected model
+ecdatabase = Database()
+ecdatabase.create_isotropic_models()
+base_model = ecdatabase.get_model('isotropic_model:gar_14_withers_ol[100]+gar_14_withers_ol[010]+gar_14_withers_ol[001]')
+water_corrected_model = WaterCorrection(base_model,correction_factor=1/3)
+
+# Define parameters
+T = 1200  # Temperature in K
+P = 1.5   # Pressure in GPa
+Cw = 150   # Water concentration in ppm
+
+# Calculate conductivity with water correction
+corrected = water_corrected_model.get_conductivity(T=T, P=P, Cw=Cw)
+original  = base_model.get_conductivity(T=T, P=P, Cw=Cw)
+print(f"Original Conductivity: {original} S/m")
+print(f"Water-Corrected Conductivity: {corrected} S/m")
+
+
+# In[25]:
+
+
+from pyrrhenius.model import CachedModel
+from pyrrhenius.database import Database
+import timeit
+
+# Initialize database and cached model
+ecdatabase = Database()
+base_model = ecdatabase.get_model('sk17_brine')
+
+cached_model = CachedModel(base_model)
+
+# Define parameters for simulation
+T = np.linspace(400,700,num=100) # Temperature in K
+P = 1.0   # Pressure in GPa
+nacl = 5 # 5% NaCl
+
+def time_base_model():
+    return base_model.get_conductivity(T=T, P=P, nacl=nacl)
+
+def time_cached_model():
+    return cached_model.get_conductivity(T=T, P=P, nacl=nacl)
+
+base_time = timeit.timeit(time_base_model, number=1000)
+print(f"Base Model Time (1000 iterations): {base_time:.6f} seconds")
+
+first_cached_time = timeit.timeit(time_cached_model, number=1)
+print(f"Cached Model Time (First Run): {first_cached_time:.6f} seconds")
+
+cached_time = timeit.timeit(time_cached_model, number=1000)
+print(f"Cached Model Time (1000 iterations, using cache): {cached_time:.6f} seconds")
+
+base_conductivity = base_model.get_conductivity(T=T, P=P, nacl=nacl)
+cached_conductivity = cached_model.get_conductivity(T=T, P=P, nacl=nacl)
+
+print(f"\nBase Model Conductivity: {base_conductivity}")
+print(f"Cached Model Conductivity: {cached_conductivity}")
+
+speedup = base_time / cached_time
+print(f"\nSpeedup factor (cached vs base): {speedup:.2f}x")
+
