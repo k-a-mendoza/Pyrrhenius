@@ -1,3 +1,4 @@
+from functools import reduce
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass
@@ -246,7 +247,7 @@ class PublicationMetadata:
             if max_field is None or min_field is None:
                 continue
 
-            max_field = float(max_field)
+            max_field = float(max_field) 
             min_field = float(min_field)
             if not np.isnan(max_field) and not np.isnan(min_field):
                 setattr(self, field,  float((float(getattr(self,max_field_name))+
@@ -346,7 +347,12 @@ class PublicationMetadata:
                 for unit_cal in self.get_units_and_calibrations():
                     value1 = getattr(self,unit_cal)
                     value2 = getattr(other,unit_cal)
-                    if value1!=value2 and ~np.isnan(value1):
+                    print(f'{value1} {value2}')
+                    if value1 is None and value2 is None:
+                        val = np.nan
+                    elif (isinstance(value1,str) and isinstance(value1,str)) and value1==value2:
+                        val = value1
+                    elif (isinstance(value1,str) and isinstance(value1,str)) and value1!=value2:
                         print(f'merging models with different {unit_cal}:\n\t{value1} {value2}')
                         print(f'this is not advised. However, operation will continue using {value1}')
                     val = getattr(self, name)
@@ -804,71 +810,67 @@ class CompositeModel(ModelInterface):
 
     def __init__(self, models, metadata):
         super().__init__(metadata)
-        self.models = {model.get_id : model for model in models}
+        self.models = [(model.get_id,model) for model in models]
 
     @property
     def uses_water(self):
-        return any([model.uses_water for model in self.models.values()])
+        return reduce(lambda x,y: x[1].uses_water | y[1].uses_water, self.models)
 
     @property
     def uses_nacl(self):
-        return any([model.uses_nacl for model in self.models.values()])
+        return reduce(lambda x,y: x[1].uses_nacl | y[1].uses_nacl, self.models)
     
     @property
     def uses_iron(self):
-        return any([model.uses_iron for model in self.models.values()])
+        return reduce(lambda x,y: x[1].uses_iron | y[1].uses_iron, self.models)
     
     @property
     def uses_na2o(self):
-        return any([model.uses_na2o for model in self.models.values()])
+        return reduce(lambda x,y: x[1].uses_na2o | y[1].uses_na2o, self.models)
 
     @property
     def uses_sio2(self):
-        return any([model.uses_sio2 for model in self.models.values()])
+        return reduce(lambda x,y: x[1].uses_sio2 | y[1].uses_sio2, self.models)
     
     @property
     def uses_co2(self):
-        return any([model.uses_co2 for model in self.models.values()])
+        return reduce(lambda x,y: x[1].uses_co2 | y[1].uses_co2, self.models)
     
     @property
     def uses_pressure(self):
-        return any([model.uses_pressure for model in self.models.values()])
+        return reduce(lambda x,y: x[1].uses_pressure | y[1].uses_pressure, self.models)
 
     @property
     def uses_fo2(self):
-        return any([model.uses_fo2 for model in self.models.values()])
+        return reduce(lambda x,y: x[1].uses_fo2 | y[1].uses_fo2, self.models)
     
     def get_conductivity(self, crystal_direction=None, **kwargs):
         c = self.determine_starting_c_type(**kwargs)
-        for m in self.models.values():
-            new_conductivity = m.get_conductivity(**kwargs)
+        for m in self.models:
+            new_conductivity = m[1].get_conductivity(**kwargs)
             c += new_conductivity
         return c
 
     @property
     def get_id(self):
-        return '+'.join([x.get_id for x in self.models.values()])
+        return '+'.join([x[0] for x in self.models])
 
     def __repr__(self):
-        return self.get_id + ':{' +'+'.join(str(m) for m in self.models.values()) + '}'
+        return  '{' +'+'.join(x[0] for x in self.models) + '}'
 
 class DryModel(ModelInterface):
 
     def __init__(self, model):
         super().__init__(model.metadata)
-        self.mechanisms = [x for x in model.mechanisms]
-
-        self.main_model = model
+        self.model = model
 
     def get_conductivity(self, **kwargs):
         new_kwargs = {**kwargs}
         new_kwargs['Cw']=0
-        return self.main_model.get_conductivity(**new_kwargs)
-
-
+        return self.model.get_conductivity(**new_kwargs)
 
     def __repr__(self):
-        return ':dry{' + self.main_model.get_id+'}'
+        return ':dry{' + self.model.get_id+'}'
 
     @property
     def get_id(self):
