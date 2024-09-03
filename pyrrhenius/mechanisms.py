@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from pyfluids import Fluid, FluidsList, Input
 import inspect
 from . import utils as pyutils
+
+from abc import ABC, abstractmethod
+
 def _count_positional_args_required(func):
     signature = inspect.signature(func)
     empty = inspect.Parameter.empty
@@ -113,85 +116,54 @@ class Mechanism:
 
         self.assert_pressure(P)
         return P * self.cm3GPamol_to_ev
-
-    def assert_pressure(self, P):
+    
+    def _parameter_assertion(self, variable, name):
         """
-        asserts the pressure value provided is correct and within reasonable limits
+        asserts the provided value provided is correct
 
         Parameters
         ----------
-        P : float
-            The pressure value to be converted in GPa
+        variable : float or np.ndarray
+            the value to be assessedd
+
+        name : str 
+            the name of the variable type
 
         Raises
         -------
         assertionError
-            if P is not provided
+            if variable is of a nature not digestible by the Mechanism Child Class
         """
-        assert not np.all(np.isnan(P)), "Pressure contains only nans"
-        assert P is not None, "Pressure value must be provided"
-        assert np.all(np.isnan(P) | (P < 100)), "P exceeds 100 GPa!! Was this intended?"
+        assert variable is not None, f"{name} not provided. Pass {name} as a keyword-argument"
+        assert not np.all(np.isnan(P)), f"{name} variable contains only NaNs. Passed parameter must contain at least one non NaN value"
 
-    def assert_nacl(self, nacl):
+    @abstractmethod
+    def _get_conductivity(self, **kwargs):
         """
-        Asserts provided nacl is correct
+        Calculates the conductivity of the substance.
+
+        Listed here are the available parameters. However, most child classes may only need two or three parameters. See documentation for more details. 
 
         Parameters
         ----------
-        nacl : float
-            The nacl concentration in wt%
-
-        Raises
-        -------
-        assertionError
-            if nacl is not provided
-        """
-
-        assert nacl is not None, "nacl value must be provided"
-
-    def assert_na2o(self, na2o):
-        """
-        Asserts provided na2o is correct
-
-        Parameters
-        ----------
-        na2o : float
-            The na2o concentration in wt%
-
-        Raises
-        -------
-        assertionError
-            if na2o is not provided
-        """
-
-        assert na2o is not None, "na2o value must be provided"
-
-    def assert_siO2(self, sio2):
-        """
-        Asserts provided nacl is correct
-
-        Parameters
-        ----------
-        nacl : float
-            The nacl concentration in wt%
-
-        Raises
-        -------
-        assertionError
-            if nacl is not provided
-        """
-
-        assert sio2 is not None, "sio2 value must be provided"
-
-
-    def get_conductivity(self, T=None, **kwargs):
-        """
-        Abstract method to calculate the conductivity
-
-        Parameters
-        ----------
-        T : float, optional
+        T : float or np.ndarray , optional
             The temperature value (default is None)
+        P : float or np.ndarray , optional
+            The pressure value in GPa (default is None)
+        co2 : float or np.ndarray , optional
+            The CO2 value (default is None)
+        Cw : float or np.ndarray , optional
+            The water value (default is None)
+        nacl : float or np.ndarray , optional
+            The NaCl concentration in wt% (default is None)
+        sio2 : float or np.ndarray , optional
+            The SiO2 concentration in wt% (default is None)
+        logfo2 : float or np.ndarray , optional
+            The log oxygen fugacity value (default is None)
+        X_fe : float or np.ndarray , optional
+            The iron fraction value (default is None)
+        **kwargs : dict
+            Additional keyword arguments
 
         Returns
         -------
@@ -199,9 +171,105 @@ class Mechanism:
             The calculated conductivity
         """
         pass
+   
 
-    def assert_water(self,Cw):
-        assert Cw is not None, "Cw value must be provided"
+    def get_conductivity(self, **kwargs):
+        """
+        Abstract method to calculate the conductivity. 
+
+        Listed here are the available parameters. However, most child classes may only need two or three parameters. See documentation for more details. 
+
+        Parameters
+        ----------
+        T : float or np.ndarray , optional
+            The temperature value (default is None)
+        P : float or np.ndarray , optional
+            The pressure value in GPa (default is None)
+        co2 : float or np.ndarray , optional
+            The CO2 value (default is None)
+        Cw : float or np.ndarray , optional
+            The water value (default is None)
+        nacl : float or np.ndarray , optional
+            The NaCl concentration in wt% (default is None)
+        sio2 : float or np.ndarray , optional
+            The SiO2 concentration in wt% (default is None)
+        logfo2 : float or np.ndarray , optional
+            The log oxygen fugacity value (default is None)
+        X_fe : float or np.ndarray , optional
+            The iron fraction value (default is None)
+        **kwargs : dict
+            Additional keyword arguments
+
+        Returns
+        -------
+        np.ndarray or float
+            The calculated conductivity
+         Raises
+        ------
+        AssertionError
+            error is raised if one or more keywords are not provided which are required by the mechanism
+        """
+        self.parameter_assertion(**kwargs)
+        return self._get_conductivity(**kwargs)
+
+
+    def parameter_assertion(self, T=None, P=None, co2=None, Cw=None, nacl=None, sio2=None, logfo2=None,X_fe=None, **kwargs):
+        """convenience method for asserting passed kwargs are provided if needed by the method
+
+        Parameters
+        ----------
+        T : float or np.ndarray , optional
+            The temperature value (default is None)
+        P : float or np.ndarray , optional
+            The pressure value in GPa (default is None)
+        co2 : float or np.ndarray , optional
+            The CO2 value (default is None)
+        Cw : float or np.ndarray , optional
+            The water value (default is None)
+        nacl : float or np.ndarray , optional
+            The NaCl concentration in wt% (default is None)
+        sio2 : float or np.ndarray , optional
+            The SiO2 concentration in wt% (default is None)
+        logfo2 : float or np.ndarray , optional
+            The log oxygen fugacity value (default is None)
+        X_fe : float or np.ndarray , optional
+            The oxygen fraction value (default is None)
+        **kwargs : dict
+            Additional keyword arguments
+
+        Raises
+        ------
+        AssertionError
+            error is raised if one or more keywords are not provided which are required by the mechanism
+        """
+        if self.uses_temperature:
+            self._parameter_assertion(T, 'T')
+        if self.uses_pressure:
+            self._parameter_assertion(P, 'P')
+        if self.uses_water:
+           self._parameter_assertion(Cw, 'Cw')
+        if self.uses_nacl:
+            self._parameter_assertion(nacl, 'nacl')
+        if self.uses_sio2:
+            self._parameter_assertion(sio2, 'sio2')
+        if self.uses_co2:
+            self._parameter_assertion(co2, 'co2')
+        if self.uses_fo2:
+            self._parameter_assertion(logfo2, 'logfo2')
+        if self.uses_iron:
+            self._parameter_assertion(X_fe, 'X_fe')
+
+    @property
+    def uses_temperature(self):
+        """
+        Returns whether the mechanism uses temperature or not
+
+        Returns
+        -------
+        bool
+            True if the mechanism uses temperature, False otherwise
+        """
+        return False
 
     @property
     def uses_water(self):
@@ -299,14 +367,18 @@ class Mechanism:
         """
         return False
     
+    @abstractmethod
     def __repr__(self):
-        repr_string = f"{self.__class__.__name__} "
-        for k, v in vars(self).items():
+        """String representation of a Mechanism class
 
-            if isinstance(v, StochasticConstant):
-                repr_string += str(v) + " "
+        All __repr__ children must implement a routine which creates a human-readable math symbol corresponding to the represented equation. 
 
-        return repr_string
+        Returns
+        -------
+        equation_str
+            the string equation representation
+        """
+        pass
 
     @classmethod
     def n_args(cls):
@@ -331,9 +403,9 @@ class Mechanisms(Mechanism):
         self.o1=o1
         self.o2=o2
 
-    def get_conductivity(self, **kwargs):
+    def _get_conductivity(self, **kwargs):
         """
-        Abstract method to calculate the conductivity
+        calculates the conductivity
 
         Parameters
         ----------
@@ -564,13 +636,13 @@ class SingleValue(Mechanism):
         super().__init__()
         self.value=value
 
-    def get_conductivity(self,**kwargs):
+    def _get_conductivity(self,**kwargs):
         """
         Get the conductivity.
 
         Returns
         -------
-        float
+        float or np.ndarray
             The conductivity in units of s/m
 
         """
@@ -655,9 +727,9 @@ class ArrheniousSimple(Mechanism):
         """
         return self.enthalpy.get_value(**kwargs)
 
-    def get_conductivity(self, T=None, **kwargs):
+    def _get_conductivity(self, T=None, **kwargs):
         """
-        Get the conductivity.
+        Gets the conductivity.
 
         Parameters
         ----------
@@ -669,7 +741,7 @@ class ArrheniousSimple(Mechanism):
 
         Returns
         -------
-        float
+        float or np.ndarray
             The conductivity in units of s/m
 
         """
@@ -782,9 +854,9 @@ class LinkedArrhenious(ArrheniousSimple):
         e = self.const5.get_value(**kwargs)
         return np.exp(ea * d + e)
 
-    def get_conductivity(self, T=None, **kwargs):
+    def _get_conductivity(self, T=None, **kwargs):
         """
-        Get the conductivity.
+        Gets the conductivity.
 
         Parameters
         ----------
@@ -795,7 +867,7 @@ class LinkedArrhenious(ArrheniousSimple):
 
         Returns
         -------
-        float
+        float or np.ndarray
             The conductivity in s/m.
 
         """
@@ -1365,7 +1437,7 @@ class VogelFulcherTammanWet(ArrheniousSimple):
         exponent = self.const2.get_value(**kwargs)
         return h + w_effect* self.convert_water(Cw)**exponent
 
-    def get_conductivity(self, T=None, **kwargs):
+    def _get_conductivity(self, T=None, **kwargs):
         """
         Calculates and returns the conductivity of the wet substance.
 
@@ -1417,7 +1489,7 @@ class ArrheniousFugacity(ArrheniousSimple):
         super().__init__(preexp,enthalpy)
         self.exponent = exponent
 
-    def get_conductivity(self, logfo2=None, **kwargs):
+    def _get_conductivity(self, logfo2=None, **kwargs):
         """Calculates the conductivity using the Arrhenius equation with an additional factor from the oxygen fugacity.
 
         Parameters
@@ -1438,7 +1510,6 @@ class ArrheniousFugacity(ArrheniousSimple):
             f logfo2 is None.
 
         """
-        assert logfo2 is not None, 'Did not provide an oxygen fugacity value!'
         conductivity1 = ArrheniousSimple.get_conductivity(self,**kwargs)
         return conductivity1 * (10**logfo2) ** self.exponent.get_value(**kwargs)
 
@@ -1468,13 +1539,27 @@ class ArrheniousfO2(Mechanism):
     enthalpy : StochasticConstant
     const : StochasticConstant
 
-    def get_conductivity(self, logfo2=None,T=None, **kwargs):
-        assert logfo2 is not None, 'Did not provide an oxygen fugacity value!'
+    def _get_conductivity(self, logfo2=None,T=None, **kwargs):
+        """Calculates the conductivity
+
+        Parameters
+        ----------
+        logfo2 : float or np.ndarray, optional
+            logfo2 value, by default None
+        T : float or np.ndarray, optional
+            temperature value, by default None
+
+        Returns
+        -------
+        conductivity: float or np.ndarray
+            conductivity value in S/m
+        """
         a = self.preexp.get_value(**kwargs)
         b = self.enthalpy.get_value(**kwargs)
         c = self.const.get_value(**kwargs)
         return 10**(a - b/T + c*logfo2)
 
+    @property
     def uses_fo2(self):
         return True
 
@@ -1487,13 +1572,14 @@ class ArrheniousfO22(Mechanism):
     preexp: StochasticConstant
     const: StochasticConstant
     enthalpy: StochasticConstant
-    def get_conductivity(self, logfo2=None, T=None, **kwargs):
-        assert logfo2 is not None, 'Did not provide an oxygen fugacity value!'
+
+    def _get_conductivity(self, logfo2=None, T=None, **kwargs):
         a = self.preexp.get_value(**kwargs)
         b = self.enthalpy.get_value(**kwargs)
         c = self.const.get_value(**kwargs)
         return 10**(a + b / T + c*logfo2)
 
+    @property
     def uses_fo2(self):
         return True
 
@@ -1621,7 +1707,7 @@ class IronWaterArrhenious2(ArrheniousSimple):
     sigma = a (X_fe+b) ^c Cw^d exp( -(e+ f(X_fe+b)+ gCw^(h))/kT)
 
     """
-    n_constants = 8
+
 
     def __init__(self, preexp: StochasticConstant, const1: StochasticConstant, const2: StochasticConstant, const3: StochasticConstant,
                  enthalpy1: StochasticConstant,const4 : StochasticConstant, const5 : StochasticConstant,const6 : StochasticConstant,
@@ -1679,32 +1765,54 @@ class IronWaterArrhenious2(ArrheniousSimple):
 class NerstEinstein1(Mechanism):
     """
 
-    sigma =  a exp(b/kT) Ch q^2/kT
+    sigma =  a Ch exp(b/kT)/kT
 
     """
-    n_constants = 2
+
     def __init__(self,const1 : StochasticConstant, enthalpy : StochasticConstant):
         super().__init__()
         self.const1 = const1
         self.enthalpy = enthalpy
-    def get_conductivity(self, T=None,Cw=None, **kwargs):
-        a = self.const1.get_value(**kwargs)
-        h = self.enthalpy.get_value(**kwargs)
 
-        return self.convert_water(Cw) * a * np.exp(-h/(self.k*T))/(self.k*T)
+    def prep_preexponential_constant(self,T=None, Cw=None,**kwargs):
+        """provides the preexponential constant for the Nernst Einstein Law
+
+        Parameters
+        ----------
+        T: float or np.ndarray
+            the temperature value, by default None
+
+        Cw : float or np.ndarray, optional
+            the water value , by default None
+
+        Returns
+        -------
+        const : float or np.ndarray 
+            the preexponential constant 
+        """
+        a = self.const1.get_value(**kwargs)
+        b = self.convert_water(Cw)
+        invt = 1/(self.k*T)
+        return  a * b * invt
+    
+    def _get_conductivity(self, T=None,**kwargs):
+        a = self.prep_preexponential_constant(T=T,**kwargs)
+        h = self.enthalpy.get_value(T=T,**kwargs)
+
+        return  a * np.exp(-h/(self.k*T))
 
     @property
     def uses_water(self):
         return True
 
 
-class NerstEinstein2(Mechanism):
+class NerstEinstein2(NerstEinstein1):
     """
 
     a Cw b q^2 exp(-h/kT)/kT
 
     """
-    n_constants = 3
+
 
     def __init__(self, const1: StochasticConstant, const2: StochasticConstant, enthalpy : StochasticConstant):
         super().__init__()
@@ -1712,27 +1820,37 @@ class NerstEinstein2(Mechanism):
         self.const2 = const2
         self.enthalpy = enthalpy
 
-    def get_conductivity(self, T=None, Cw=None, **kwargs):
+    def prep_preexponential_constant(self,T=None, Cw=None,**kwargs):
+        """provides the preexponential constant for the Nernst Einstein Law
+
+        Parameters
+        ----------
+        T: float or np.ndarray
+            the temperature value, by default None
+
+        Cw : float or np.ndarray, optional
+            the water value , by default None
+
+        Returns
+        -------
+        const : float or np.ndarray 
+            the preexponential constant 
+        """
         a = self.const1.get_value(**kwargs)
+        cw = self.convert_water(Cw)
         b = self.const2.get_value(**kwargs)
-        h = self.enthalpy.get_value(**kwargs)
-        a0 = self.q2 / (self.k* T)
-
-        enthalpy_term = np.exp(-h/(self.k*T))
-        return  a * self.convert_water(Cw) * b *  enthalpy_term * a0 
+        invt = 1/(self.k*T)
+        return  a * b * self.q2 * invt * cw
+    
 
 
-    @property
-    def uses_water(self):
-        return True
-
-
-class NerstEinstein3(Mechanism):
+class NerstEinstein3(NerstEinstein1):
     """
 
     sigma =  a * b Cw^(1+c) exp( d/kT)q^2/kT
 
     """
+
 
     def __init__(self, const1: StochasticConstant, const2: StochasticConstant, const3: StochasticConstant, enthalpy: StochasticConstant):
         super().__init__()
@@ -1740,15 +1858,33 @@ class NerstEinstein3(Mechanism):
         self.const2 = const2
         self.const3 = const3
         self.enthalpy = enthalpy
+    
+    def prep_preexponential_constant(self,T=None, Cw=None,**kwargs):
+        """provides the preexponential constant for the Nernst Einstein Law
 
-    def get_conductivity(self, T=None, Cw=None, **kwargs):
+        Parameters
+        ----------
+        T: float or np.ndarray
+            the temperature value, by default None
+
+        Cw : float or np.ndarray, optional
+            the water value , by default None
+
+        Returns
+        -------
+        const : float or np.ndarray 
+            the preexponential constant 
+        """
         a = self.const1.get_value(**kwargs)
         b = self.const2.get_value(**kwargs)
         c = self.const3.get_value(**kwargs)
-        h = self.enthalpy.get_value(**kwargs)
-        a0 = self.q2 / self.k
+        q2 = self.q2 
 
-        return a * b *  self.convert_water(Cw) **(1+c) * np.exp(-h/(self.k*T)) * a0/T
+        cw = self.convert_water(Cw)**(1+c)
+        invt = 1/(self.kb*T)
+
+        return  a * b * q2 * invt * cw
+    
 
 
     @property
@@ -1800,7 +1936,7 @@ class BrinePTDependent(Mechanism):
         val2 = self.g.get_value(**kwargs)/T + self.h.get_value(**kwargs)/T**2
         return val1 + val2
     
-    def get_conductivity(self,T=None,P=None,nacl=None,**kwargs):
+    def _get_conductivity(self,T=None,P=None,nacl=None,**kwargs):
         """
         Calculates the conductivity in s/m from this mechanism
 
@@ -1843,9 +1979,7 @@ class BrinePTDependent(Mechanism):
         density_term = d*np.log10(rho)
         return 10**(a + temp_term + salt_term + density_term + np.log10(A0))
 
-    @classmethod
-    def n_args(cls):
-        return 8
+
 
     def __repr__(self):
         return f'{self.a} + {self.b}/T + {self.c}log(nacl) + {self.d}log(rho) + log(A0)'
@@ -1949,7 +2083,6 @@ class WaterExpArrhenious1(ArrheniousSimple):
     sigma = a Cw^b exp( -c /kT)
 
     """
-    n_constants = 3
     def __init__(self,preexp: StochasticConstant, const1 : StochasticConstant, enthalpy : StochasticConstant):
         super().__init__(preexp,enthalpy)
         self.const1 = const1
@@ -2060,7 +2193,6 @@ class WaterExpArrheniousInvT(WaterExpArrheniousPressure):
     sigma = a Cw^b exp(-(c + Pd)/kT)/T
 
     """
-    n_constants = 4
 
     def __init__(self, preexp: StochasticConstant, const1: StochasticConstant, enthalpy: StochasticConstant, volume: StochasticConstant):
         super().__init__(preexp,const1, enthalpy, volume)
