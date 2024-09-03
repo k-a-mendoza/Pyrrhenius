@@ -1,32 +1,29 @@
+
 from functools import reduce
+from typing import List
 import numpy as np
 from dataclasses import dataclass
 from pyfluids import Fluid, FluidsList, Input
-import inspect
-from . import utils as pyutils
-
 from abc import ABC, abstractmethod
 
-def _count_positional_args_required(func):
-    signature = inspect.signature(func)
-    empty = inspect.Parameter.empty
-    total = -1
-    for param in signature.parameters.values():
-        if param.default is empty:
-            total += 1
-    return total
+import inspect
+from . import utils as pyutils
+from . import CONSTANTS
+
 
 
 class Mechanism:
-    """Base Abstract class for all electrical conductivity mechanisms"""
+    """Base Abstract class for all electrical conductivity MultiMechanism"""
 
-    k = 8.617333262e-5 # in ev/k
-    q = 1.602176634e-19 # charge of electron
-    q2 =(1.602176634e-19)**2
-    r = 8.31446261815324e-3 # gas constant in kj/mol
-    cm3GPamol_to_ev = 1/96.49 # converts pressure*cm^3/mol volume to ev
 
-    def __init__(self):
+    def __init__(self,**kwargs):
+        defaults = {key:value for key, value in CONSTANTS.items()}
+        
+        # Override defaults with any provided keyword arguments
+        defaults.update(kwargs)
+        
+        # Assign attributes based on the final configuration
+        self.__dict__.update(defaults)
         self.repr_properties = []
 
     def set_water_units(self, units):
@@ -39,7 +36,7 @@ class Mechanism:
             The units the model uses for water. Should be either wtpct or ppm
         """
 
-        self._water_units = units
+        self.water_units = units
 
     def convert_water(self, Cw):
         """
@@ -63,17 +60,17 @@ class Mechanism:
 
         assert Cw is not None, "Water value must be provided"
 
-        if self._water_units == 'wtpct':
+        if self.water_units == 'wtpct':
             return Cw * 1e-4
-        elif self._water_units == 'wtpct10x':
+        elif self.water_units == 'wtpct10x':
             return Cw * 1e-5
-        elif self._water_units == 'ppm':
+        elif self.water_units == 'ppm':
             return Cw
-        elif self._water_units == 'total_frac':
+        elif self.water_units == 'total_frac':
             return Cw*1e-6
         else:
             raise NotImplementedError(
-                f"{self._water_units} conversion not implemented"
+                f"{self.water_units} conversion not implemented"
             )
 
     def convert_co2(self, co2):
@@ -136,6 +133,7 @@ class Mechanism:
         """
         assert variable is not None, f"{name} not provided. Pass {name} as a keyword-argument"
         assert not np.all(np.isnan(P)), f"{name} variable contains only NaNs. Passed parameter must contain at least one non NaN value"
+
 
     @abstractmethod
     def _get_conductivity(self, **kwargs):
@@ -394,14 +392,22 @@ class Mechanism:
         return _count_positional_args_required(cls.__init__)
     
     def __add__(self, other):
-        return Mechanisms(self,other)
+        return MultiMechanism(self,other)
     
-class Mechanisms(Mechanism):
+class MultiMechanism(Mechanism):
+    """A combination of two or more mechanisms
+
+    class is used when the overall electric conductivity is a linear combination of multiple mechanisms
+
+    Parameters
+    ----------
+    mechanism_list : List[Mechanism]
+        a list of mechanisms
+    """
       
 
-    def __init__(self,o1,o2):
-        self.o1=o1
-        self.o2=o2
+    def __init__(self,mechanism_list: List[Mechanism]):
+        self.multi_mechanisms = mechanism_list 
 
     def _get_conductivity(self, **kwargs):
         """
@@ -409,22 +415,24 @@ class Mechanisms(Mechanism):
 
         Parameters
         ----------
-        T : float, optional
-            The temperature value (default is None)
+        **kwargs : dict, optional
+            parameters required by the object to calculate conductivity.
 
         Returns
         -------
         np.ndarray or float
             The calculated conductivity
         """
-        o1_c = self.o1.get_conductivity(**kwargs)
-        o2_c = self.o2.get_conductivity(**kwargs)
-        return o1_c + o2_c
+        return reduce(lambda x,y: x.get_conductivity(**kwargs) + y.get_conductivity(**kwargs), self.multi_mechanisms)
+
 
    
     def set_water_units(self,*args,**kwargs):
-        self.o1.set_water_units(*args,**kwargs)
-        self.o2.set_water_units(*args,**kwargs)
+        """Sets the units for water. 
+
+        """
+        for mechanism in self.multi_mechanisms:
+            mechanism.set_water_units(*args,**kwargs)
         
     @property
     def uses_water(self):
@@ -436,7 +444,7 @@ class Mechanisms(Mechanism):
         bool
             True if the mechanism uses water, False otherwise
         """
-        return self.o1.uses_water or self.o2.uses_water 
+        return reduce(lambda x,y: x.uses_water | y.uses_water, self.multi_mechanisms)
 
     @property
     def uses_nacl(self):
@@ -448,7 +456,7 @@ class Mechanisms(Mechanism):
         bool
             True if the mechanism uses NaCl, False otherwise
         """
-        return self.o1.uses_nacl or self.o2.uses_nacl 
+        return reduce(lambda x,y: x.uses_nacl | y.uses_nacl, self.multi_mechanisms)
     
     @property
     def uses_sio2(self):
@@ -460,7 +468,8 @@ class Mechanisms(Mechanism):
         bool
             True if the mechanism uses sio2, False otherwise
         """
-        return self.o1.uses_sio2 or self.o2.uses_sio2 
+        return reduce(lambda x,y: x.uses_sio2 | y.uses_sio2, self.multi_mechanisms)
+    
     
     @property
     def uses_na2o(self):
@@ -472,7 +481,7 @@ class Mechanisms(Mechanism):
         bool
             True if the mechanism uses Na2O, False otherwise
         """
-        return self.o1.uses_na2o or self.o2.uses_na2o 
+        return reduce(lambda x,y: x.uses_na2o | y.uses_na2o, self.multi_mechanisms)
 
     @property
     def uses_co2(self):
@@ -484,7 +493,7 @@ class Mechanisms(Mechanism):
         bool
             True if the mechanism uses co2, False otherwise
         """
-        return self.o1.uses_co2 or self.o2.uses_co2 
+        return reduce(lambda x,y: x.uses_co2 | y.uses_co2, self.multi_mechanisms)
 
     @property
     def uses_iron(self):
@@ -496,7 +505,7 @@ class Mechanisms(Mechanism):
         bool
             True if the mechanism uses iron, False otherwise
         """
-        return self.o1.uses_iron or self.o2.uses_iron 
+        return reduce(lambda x,y: x.uses_iron | y.uses_iron, self.multi_mechanisms)
 
     @property
     def uses_pressure(self):
@@ -508,7 +517,7 @@ class Mechanisms(Mechanism):
         bool
             True if the mechanism uses pressure, False otherwise
         """
-        return self.o1.uses_pressure or self.o2.uses_pressure 
+        return reduce(lambda x,y: x.uses_pressure | y.uses_pressure, self.multi_mechanisms)
 
     @property
     def uses_fo2(self):
@@ -520,10 +529,10 @@ class Mechanisms(Mechanism):
         bool
             True if the mechanism uses fo2, False otherwise
         """
-        return self.o1.uses_fo2 or self.o2.uses_fo2 
+        return reduce(lambda x,y: x.uses_fo2 | y.uses_fo2, self.multi_mechanisms)
     
     def __repr__(self):
-        return str(self.o1)+' + '+str(self.o2)
+        return reduce(lambda x,y: str(x) + ' + ' + str(y), self.multi_mechanisms)
 
    
 
@@ -747,7 +756,7 @@ class ArrheniousSimple(Mechanism):
         """
         preexp = self.get_preexp(T=T, **kwargs)
         enthalpy = self.get_enthalpy(T=T, **kwargs)
-        val = preexp * np.exp(-enthalpy / (self.k * T))
+        val = preexp * np.exp(-enthalpy / (self.kb * T))
         return val
 
     def __repr__(self):
@@ -1152,7 +1161,7 @@ class SIGMELTSPommier(ArrheniousSimple):
         linear_terms = self.h_h0 + self.h_na2o4*na2o + self.h_dV*P 
         nonlinear_terms = (self.h_na2o1/(self.h_na2o2*na2o + self.h_na2o3))+ self.h_Cw*self.convert_water(Cw)**2
         
-        result = self.activation_modifier * (linear_terms+nonlinear_terms)*self.k/(self.r*1e3)
+        result = self.activation_modifier * (linear_terms+nonlinear_terms)*self.kb/(self.r*1e3)
         return -result
 
     def get_preexp(self,sio2=None,Cw=None,na2o=None,P=None,T=None, **kwargs):
@@ -1308,7 +1317,7 @@ class SIGMELTSGaillaird(ArrheniousSimple):
         linear_terms = self.h_h0 + self.h_dV*P 
         nonlinear_terms = self.h_lnCw*np.log(self.convert_water(Cw))
        
-        return (linear_terms+nonlinear_terms)*self.k/(self.r*1e3)
+        return (linear_terms+nonlinear_terms)*self.kb/(self.r*1e3)
 
     def get_preexp(self,Cw=None,**kwargs):
         """
@@ -1456,7 +1465,7 @@ class VogelFulcherTammanWet(ArrheniousSimple):
         preexp  = self.get_preexp(T=T, **kwargs)
         enthalpy = self.get_enthalpy(T=T, **kwargs)
         t0 = self.const3.get_value(**kwargs)
-        return preexp * np.exp(-enthalpy / (self.k * (T- t0)))
+        return preexp * np.exp(-enthalpy / (self.kb * (T- t0)))
 
 class ArrheniousFugacity(ArrheniousSimple):
     """ 
@@ -1691,7 +1700,7 @@ class IronWaterArrhenious1(ArrheniousSimple):
         water = self.convert_water(Cw)
         b = self.const.get_value(**kwargs)
         c = self.enthalpy2.get_value(**kwargs)
-        upper_enth = X_fe * c/(self.k * T)
+        upper_enth = X_fe * c/(self.kb * T)
         return preexp * (water**b) * np.exp(upper_enth)
 
     @property
@@ -1801,6 +1810,7 @@ class NerstEinstein1(Mechanism):
 
         return  a * np.exp(-h/(self.k*T))
 
+
     @property
     def uses_water(self):
         return True
@@ -1878,6 +1888,7 @@ class NerstEinstein3(NerstEinstein1):
         a = self.const1.get_value(**kwargs)
         b = self.const2.get_value(**kwargs)
         c = self.const3.get_value(**kwargs)
+
         q2 = self.q2 
 
         cw = self.convert_water(Cw)**(1+c)
@@ -2212,7 +2223,14 @@ class WaterExpArrheniousInvT(WaterExpArrheniousPressure):
     def __repr__(self):
         return f'{WaterExpArrheniousPressure.__repr__(self)}/T'
 
-
+def _count_positional_args_required(func):
+    signature = inspect.signature(func)
+    empty = inspect.Parameter.empty
+    total = -1
+    for param in signature.parameters.values():
+        if param.default is empty:
+            total += 1
+    return total
 
 
 model_dict = {
@@ -2244,19 +2262,30 @@ model_dict = {
 
 
 
-def _create_multiple_mechanisms(row):
-    potential_mechanisms = [x.strip() for x in row['eq_id'].split('+')]
+def _count_positional_args_required(func):
+    signature = inspect.signature(func)
+    empty = inspect.Parameter.empty
+    total = -1
+    for param in signature.parameters.values():
+        if param.default is empty:
+            total += 1
+    return total
+
+
+
+def _create_multiple_MultiMechanism(row):
+    potential_MultiMechanism = [x.strip() for x in row['eq_id'].split('+')]
     constants = create_constants_from_row(row)[::-1]
     mech_list = []
 
-    for pot_mech in potential_mechanisms:
+    for pot_mech in potential_MultiMechanism:
         n_constants = model_dict[pot_mech].n_args()
         assert n_constants <= len(constants), f"not enough constants for eqid: {row['entry_id']}\n{row}. Found {len(constants)} but should have {n_constants}"
         specific_constants = [constants.pop() for n in range(n_constants)]
         mechanism = model_dict[pot_mech](*specific_constants)
         mech_list.append(mechanism)
     
-    return reduce(lambda x, y: x + y, mech_list)
+    return MultiMechanism(mech_list)
 
 
 def _create_single_mechanism(row):
@@ -2273,7 +2302,7 @@ def _create_single_mechanism(row):
 def create_mechanism_from_row(row) -> Mechanism:
     mechanism = row['eq_id']
     if '+' in mechanism:
-        return _create_multiple_mechanisms(row)
+        return _create_multiple_MultiMechanism(row)
     else:
         return _create_single_mechanism(row)
 

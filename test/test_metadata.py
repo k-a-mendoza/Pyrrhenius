@@ -1,4 +1,5 @@
 import numpy as np
+import os 
 import pandas as pd
 import sys
 sys.path.append('../../')
@@ -6,7 +7,7 @@ sys.path.append('../')
 import pytest
 from pyrrhenius import model
 
-file = 'test_database.csv'
+file = os.path.join(os.path.dirname(__file__), 'test_database.csv')
 
 @pytest.fixture
 def dataframe():

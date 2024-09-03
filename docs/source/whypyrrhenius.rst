@@ -2,7 +2,7 @@
 Overview: Why Pyrrhenius?
 =========================
 
-Pyrrhenius provides a powerful, flexible, and intuitive framework for working with mineral electrical conductivity models and data in Python. It introduces a modular, object-oriented approach that allows scientists to efficiently compute conductivities while seamlessly keeping track of metadata about the minerals, experimental conditions, and model parameters.
+Pyrrhenius provides a powerful, flexible, and intuitive framework for working with mineral electrical conductivity models and data in Python. It introduces a modular, object-oriented approach that allows scientists to efficiently compute conductivities while seamlessly keeping track of metadata about mineral experimental conditions and model parameters.
 
 Motivation
 ----------
@@ -10,7 +10,7 @@ Motivation
 
 Over the past two decades, electromagnetic geophysical techniques have greatly improved in resolution and spatial extent. At the same time, mineral physicists have produced hundreds of models relating the physiochemical state of common minerals to their electrical conductivity.
 
-Pyrrhenius was designed to provide a means to tractably merge electrical modeling with laboratory observations, allowing geoscientists to flexibly use, compare, validate, and extend what is currently a heterogeneous corpus of mineral physics research. By abstracting away the implementation details and unit conversions, Pyrrhenius enables researchers to focus on science.
+Pyrrhenius was designed to provide a means to tractably merge geophysical modeling with laboratory observations, allowing geoscientists to flexibly use, compare, validate, and extend what is currently a heterogeneous corpus of mineral physics research. By abstracting away the implementation details and unit conversions, Pyrrhenius enables researchers to focus on science.
 
 The choice of Python and integration with the scientific Python ecosystem makes Pyrrhenius accessible to a wide audience and interoperable with existing electromagnetic geophysics libraries like MtPy and SimPEG. The open-source, object-oriented design also facilitates community contributions to expand the database and functionality over time.
 
@@ -69,15 +69,15 @@ The values of both :math:`\Delta H` and :math:`\sigma_0` may themselves be depen
     
     \sigma = \sigma_0(\mathbf{PX}) \cdot \exp\left(\frac{-\Delta H(\mathbf{PX})}{k_b T}\right)
 
-Where :math:`X_j` indicates a dependence on the material chemistry and :math:`fO_2` (oxygen fugacity) is used as a proxy for the redox state.
-Furthermore, within a single geologic material multiple reactions may result in the movement of electrons. The linear combination of several of these mechanisms is then needed to describe the mineral's total conductivity
+
+Within a single geologic material multiple reactions may result in the movement of electrons. The linear combination of several of these mechanisms is then needed to describe the mineral's total conductivity
 
 .. math::
 
     \sigma_{total} =\sum_i \sigma_i(\mathbf{PX})  \cdot \exp\left(\frac{-\Delta H_i(\mathbf{PX})}{k_b T}\right)
 
 
-While an arrhenius equation can be used to describe the conductivity of materials, there are likely numerous unexpected complexities arising from unknown dependencies on numerous variables. This presents several design challenges, as there is a large hereogeneity in both the published parameter values and mathematical form of arrhenian-type equations. Lets look at a few type examples of these
+While an arrhenius equation can be used to describe the conductivity of materials, there are numerous complexities arising from observed depenence on :math:`\mathbf{PX}`. This presents several design challenges, as there is a large hereogeneity in both the published parameter values and mathematical form of arrhenian-type equations. Lets look at a few type examples of these
 where numerical constants have been replaced with subscripted :math:`\alpha_i`'s. Also,the following symbols are used:
 
 * :math:`X_{fe}` for Iron Fraction 
@@ -112,9 +112,9 @@ Pommier & Le-Trong (2011). "SIGMELTS: A web portal for electrical conductivity c
 
    \sigma = \left( \exp(\alpha_0 \cdot \ln(C_w) + \alpha_1) \right) \cdot \exp\left( \frac{-(\alpha_2 \cdot \ln(C_w) + \alpha_3 + \alpha_4 \cdot P)}{k_bT} \right)
 
-Clearly, experimentalists suggest more or less complicated relationships are needed to parameterize electric conductivity in terms of geologically relevant chemistries and thermodynamic conditions. The upside of this approach is that the sensitivity of electric conductivity to mineral-relevant factors can be modeled. The downside is that it becomes hard to create a non hard coded database of parameterizations.
+It should be evident that suggested parameterizations may take a wide variety of functional forms.  The upside of such parameterizations  is that the sensitivity of electric conductivity to mineral-relevant factors can be modeled. The downside is that it becomes hard to create a non hard coded database of parameterizations.
 
-Since the :math:`\Delta H` and :math:`\sigma_0`'s of the original arrhenian equation might have oft repeated paramterizations, one way to simplify the matter is to encapsulate all Enthalpy and preexponential-like constants into a object oriented hierarchy. Lets apply this concept to the previous equations and see what happens. Each bolded constant is assumed to depend on Physiochemical states. Their subscripts indicate a unique category of *meta*-parameter 
+One way to simplify the matter is to encapsulate all Enthalpy and preexponential-like constants into a object oriented hierarchy. Lets apply this concept to the previous equations and see what happens. Each bolded constant is assumed to depend on Physiochemical states. Their subscripts indicate a unique category of *meta*-parameter 
 
 **Omphacite**
 
@@ -135,7 +135,7 @@ Since the :math:`\Delta H` and :math:`\sigma_0`'s of the original arrhenian equa
 
    \sigma = \mathbf{\alpha_0}\cdot \exp\left( \frac{\mathbf{\Delta H_0}}{k_bT} \right)
 
-So as long as each *meta*-parameter is handled appropriately, each mineral can be represented by a simplified internal state essentially corresponding to an arrhenian equation. 
+So as long as each *meta* preexponential constand and enthalpy is handled appropriately, even complicated mineral laws can be represented by a simplified arrhenian equation. 
 
 We can do one better though. Each arrhenian-type equation can be substituted by an Arrhenian object:
 
@@ -160,7 +160,7 @@ We can do one better though. Each arrhenian-type equation can be substituted by 
 
    \sigma = \mathbf{Arr}(\sigma_0,\Delta H_0) 
 
-Use of the arrhenian object seems to simplify the relationships to either linear superpositions of equations, or single equation objects, provided the input parameters are implemented correctly. Thus we can see that by adopting an *object oriented* approach, representing a heterogeneous inventory of possible conductivity parameterizations can be dramatically simplified. 
+Use of the arrhenian object seems to simplify the relationships to either linear superpositions of equations, or single equation objects, provided the input parameters are implemented correctly. Thus we can see that by adopting an *object oriented* approach, representing a heterogeneous inventory of possible conductivity parameterizations can be simplified. 
 
 
 Simplifying Design with Objects
