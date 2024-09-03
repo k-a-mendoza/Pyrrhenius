@@ -111,7 +111,6 @@ class Mechanism:
             The converted pressure value in eV
         """
 
-        self.assert_pressure(P)
         return P * self.cm3GPamol_to_ev
     
     def _parameter_assertion(self, variable, name):
@@ -1155,9 +1154,7 @@ class SIGMELTSPommier(ArrheniousSimple):
             The value of the enthalpy in units of eV
 
         """
-        self.assert_pressure(P)
-        self.assert_na2o(na2o)     
-        self.assert_water(Cw)   
+     
         linear_terms = self.h_h0 + self.h_na2o4*na2o + self.h_dV*P 
         nonlinear_terms = (self.h_na2o1/(self.h_na2o2*na2o + self.h_na2o3))+ self.h_Cw*self.convert_water(Cw)**2
         
@@ -1193,10 +1190,7 @@ class SIGMELTSPommier(ArrheniousSimple):
 
         """
         # for stability, if Cw=0, set it to 0.01%
-        self.assert_pressure(P)
-        self.assert_na2o(na2o)     
-        self.assert_water(Cw)
-        self.assert_siO2(sio2)
+
         if isinstance(Cw,float):
             cw_prime=Cw
             if Cw ==0:
@@ -1970,8 +1964,7 @@ class BrinePTDependent(Mechanism):
             If logfo2 is None.
 
         """
-        self.assert_nacl(nacl)
-        self.assert_pressure(P)
+
         rho = self.get_density_field(P=P,T=T,**kwargs)
         # rho is 0.0012 for ints. 1.24 for arrays
         A0 = self.get_lambda(rho,P=P,T=T,**kwargs)

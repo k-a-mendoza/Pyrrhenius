@@ -35,4 +35,4 @@ def test_convert_pressure(mechanism):
 
 def test_assert_pressure(mechanism):
     with pytest.raises(AssertionError):
-        mechanism.assert_pressure(None)
+        mechanism._parameter_assertion(None,'P')
