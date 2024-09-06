@@ -5728,8 +5728,12 @@ Options include:
 <dt class="sig sig-object py" id="pyrrhenius.mixing.ArchiesLaw">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.mixing.</span></span><span class="sig-name descname"><span class="pre">ArchiesLaw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/mixing.html#ArchiesLaw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.mixing.ArchiesLaw" title="Link to this definition"></a></dt>
 <dd><p>Represents the conductivity of a mixture using Archie’s law</p>
-<p>The parameterization looks like:
-sigma_total = c*phi^n * sigma_fluid</p>
+<p>The parameterization looks like:</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{total} = C\cdot \phi^n \cdot \sigma_c\]</div>
+<p>where <span class="math notranslate nohighlight">\(\sigma_c\)</span> is the conductivity of a conductive phase in a resistive medium, such that</p>
+<div class="math notranslate nohighlight">
+\[\sigma_c &gt;&gt; \sigma_r\]</div>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -5769,14 +5773,18 @@ sigma_total = c*phi^n * sigma_fluid</p>
 <dt class="sig sig-object py" id="pyrrhenius.mixing.ArchiesLawGlover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.mixing.</span></span><span class="sig-name descname"><span class="pre">ArchiesLawGlover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.9</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/mixing.html#ArchiesLawGlover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.mixing.ArchiesLawGlover" title="Link to this definition"></a></dt>
 <dd><p>a reparameterization of archies law to reduce the number of unknown coefficients first described by Glover et al., (2000)</p>
-<p>the parameterization looks like:
-sigma_total = C_m * (1 - phi)^p + C_f * phi^m</p>
-<p>where p:
-p = log(1 - phi^m)/log(1 - phi)</p>
-<p>suggested values for m are:
-m: 1.9 for brine in peridotite: Huang et al., (2021)
-m: 1.05 for silicic melts Gaillard et al., (2005)
-m: 1.2 to match basalt vs peridotite Yoshino et al., (2010)</p>
+<p>the parameterization looks like:</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{total} = \sigma_r \cdot (1 - \phi)^p + \sigma_c \cdot \phi^m\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[p = \frac{log(1 - \phi^m)}{log(1 - \phi)}\]</div>
+<p>suggested values for m are:</p>
+<ul class="simple">
+<li><p>m: 1.9 for brine in peridotite: (Huang et al., 2021)</p></li>
+<li><p>m: 1.05 for silicic melts (Gaillard et al., 2005)</p></li>
+<li><p>m: 1.2 to match basalt within peridotite (Yoshino et al., 2010)</p></li>
+</ul>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -5816,8 +5824,9 @@ m: 1.2 to match basalt vs peridotite Yoshino et al., (2010)</p>
 <dt class="sig sig-object py" id="pyrrhenius.mixing.ArithmeticAverage">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.mixing.</span></span><span class="sig-name descname"><span class="pre">ArithmeticAverage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phases</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/mixing.html#ArithmeticAverage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.mixing.ArithmeticAverage" title="Link to this definition"></a></dt>
 <dd><p>Represents the arithmetic average of the conductivities of the phases</p>
-<p>The arithmetic average is defined as:
-sigma_total = sum(f_i * C_i)</p>
+<p>The arithmetic average is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{total} = \sum f_i \cdot \sigma_i\]</div>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -5856,10 +5865,17 @@ sigma_total = sum(f_i * C_i)</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.mixing.</span></span><span class="sig-name descname"><span class="pre">BruggemanSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polarizations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_fractions</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/mixing.html#BruggemanSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.mixing.BruggemanSolver" title="Link to this definition"></a></dt>
 <dd><p>Bruggeman solver for the effective medium theory</p>
 <p>The Bruggeman symmetrical equation is the most widely used EMT equation. It is sometimes known as the Bruggemane Landauer equation.
-The system is considered to be an aggregate of unconnected units</p>
+The system is considered to be an aggregate of unconnected units.</p>
 <p>The bulk conductivity of the system is parameterized as:</p>
-<p>sum_i f_i * (sigma_i - sigma_bulk) / (sigma_i + (1/p_i - 1) * sigma_bulk) = 0</p>
-<p>and thus, sigma_bulk must be solved for. To generalize over N-phases, sigma_bulk is solved for iteratively using the binary search algorithm.</p>
+<div class="math notranslate nohighlight">
+\[\sum_i f_i  \frac{\sigma_i - \sigma_{bulk}}{\sigma_i + (P_i^{-1} - 1) \cdot \sigma_{bulk}} = 0\]</div>
+<p>Where <span class="math notranslate nohighlight">\(\sigma_i\)</span> is the conductivity of the i-th phase, <span class="math notranslate nohighlight">\(f_i\)</span> is the volume fraction of the i-th phase, and <span class="math notranslate nohighlight">\(P_i\)</span> is the polarization factor of the i-th phase. For a homogeneous medium filled with spherical inclusions, <span class="math notranslate nohighlight">\(P_i\)</span> is equal to 1/3. <span class="math notranslate nohighlight">\(P_i\)</span> goes to zero as inclusions approach rod-like forms.</p>
+<p>The variant implemented here assumes any amount of phase fractions may be passed, and thus, <span class="math notranslate nohighlight">\(\sigma_{bulk}\)</span> must be numerically solved. For this purpose, a vectorized variant of the binary search algorithm is employed.</p>
+<p>IMPORTANT:</p>
+<ol class="arabic simple">
+<li><p>The Bruggeman solver is not guaranteed to converge for all combinations of models and phase fractions. If it does not converge, check the absolute values of the conductive phases.</p></li>
+<li><p>Additionally, the solver is meant to be used with the EffectiveMediumTheoryMixture class. You may use this class out of the box, but use of the EffectiveMediumTheoryMixture class is recommended.</p></li>
+</ol>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -5874,11 +5890,24 @@ The system is considered to be an aggregate of unconnected units</p>
 <dt class="sig sig-object py" id="pyrrhenius.mixing.CubeModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.mixing.</span></span><span class="sig-name descname"><span class="pre">CubeModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'waff74-1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/mixing.html#CubeModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.mixing.CubeModel" title="Link to this definition"></a></dt>
 <dd><p>Represents the conductivity of a lattice of cubes separated by thin sheets. Also known as the thin film model.</p>
-<p>Two variants are implemented:
-waff74-1:
-sigma_total = (1 -(1-phi)^(2/3) ) * sigma_melt</p>
-<p>waff74-2:
-sigma_total = solid * melt * ( 1 - phi)^(2/3) / ( melt * (1 - phi)^(1/3) + solid * (1 - (1-phi)^(1/3)) )</p>
+<p>Three variants are implemented:</p>
+<p>Three variants are implemented:</p>
+<ol class="arabic simple">
+<li><p>“waff74-1”: From equation 34 in “<em>Theoretical considerations of the electrical conductivity in a partially molten mantle and implications for geothermometry</em>”, Waff et al., (1974)</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\sigma_{total} = (1 -(1-\phi)^(2/3) ) \cdot \sigma_c\]</div>
+<ol class="arabic simple" start="2">
+<li><p>“waff74-2”: From equation 33 in “<em>Theoretical considerations of the electrical conductivity in a partially molten mantle and implications for geothermometry</em>”, Waff et al., (1974)</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\sigma_{total} = \sigma_c \cdot \sigma_r \cdot \frac{ (1 - \phi)^{2/3} }{ \sigma_c \cdot (1 - \phi)^{1/3} + \sigma_r \cdot (1 - (1-\phi)^{1/3}) }\]</div>
+<ol class="arabic simple" start="3">
+<li><p>“P00”: From equation 1 in “<em>The influence of partial melting on the electrical behavior of crustal rocks: laboratory examinations, model calculations and geological interpretations</em>”, Partzsch et al., (2000)</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\sigma_{total} = \frac{1}{ (1 - \phi) / \sigma_r + \phi / \sigma_c }\]</div>
+<p>Where <span class="math notranslate nohighlight">\(\sigma_r\)</span> is the conductivity of the assumed resistive matrix and <span class="math notranslate nohighlight">\(\sigma_c\)</span> is the conductivity of the smaller fraction conductive phase.</p>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -5994,10 +6023,9 @@ For reference, 1/3 is the polarization factor for a sphere and 0 is the polariza
 <dt class="sig sig-object py" id="pyrrhenius.mixing.GeomAverage">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.mixing.</span></span><span class="sig-name descname"><span class="pre">GeomAverage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyrrhenius.model.ModelInterface" title="pyrrhenius.model.ModelInterface"><span class="pre">ModelInterface</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/mixing.html#GeomAverage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.mixing.GeomAverage" title="Link to this definition"></a></dt>
 <dd><p>Represents the geometric average of the conductivities of the phases</p>
-<p>The geometric average is defined as:
-sigma_total = exp(1/N * sum(log(C_i)))
-or alternatively as
-sigma_total = (prod(C_i^(f_i)))</p>
+<p>The geometric average is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{total} = \prod \sigma_i^{f_i}\]</div>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -6032,8 +6060,8 @@ sigma_total = (prod(C_i^(f_i)))</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.mixing.</span></span><span class="sig-name descname"><span class="pre">HashinStrickmanBound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyrrhenius.model.ModelInterface" title="pyrrhenius.model.ModelInterface"><span class="pre">ModelInterface</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/mixing.html#HashinStrickmanBound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.mixing.HashinStrickmanBound" title="Link to this definition"></a></dt>
 <dd><p>Represents the Hashin-Shtrikman bound for the conductivity of a mixture</p>
 <p>The Hashin-Shtrikman bound simulates the conductivity of spheres embedded in a matrix.</p>
-<p>summation_term = sum phase_fractions / (sigma_i +2*sigma_{min/max})
-sigma_total    =  summation_term^-1 - 2*sigma_{min/max}</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\sigma_{total} =  \frac{1}{\\sum \frac{f_i}{\sigma_i +2*\sigma_{min/max}}} - 2*\sigma_{min/max}\end{split}\]</div>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -6076,7 +6104,8 @@ sigma_total    =  summation_term^-1 - 2*sigma_{min/max}</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.mixing.</span></span><span class="sig-name descname"><span class="pre">ParallelModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyrrhenius.model.ModelInterface" title="pyrrhenius.model.ModelInterface"><span class="pre">ModelInterface</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/mixing.html#ParallelModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.mixing.ParallelModel" title="Link to this definition"></a></dt>
 <dd><p>Represents the conductivity of two phases connected in parallel.
 The parameterization looks like:</p>
-<p>sigma_total = sum  phase_fraction_i * conductivity_i</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{total} = \sum f_i\sigma_i\]</div>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -6116,8 +6145,9 @@ The parameterization looks like:</p>
 <dt class="sig sig-object py" id="pyrrhenius.mixing.SeriesModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.mixing.</span></span><span class="sig-name descname"><span class="pre">SeriesModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phases</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/mixing.html#SeriesModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.mixing.SeriesModel" title="Link to this definition"></a></dt>
 <dd><p>Represents the conductivity of several phases connected in series.
-The parameterization looks like:
-1/sigma_total = sum phase_fraction_i / conductivity_i</p>
+The parameterization looks like:</p>
+<div class="math notranslate nohighlight">
+\[1/\sigma_{total} = \sum f_i / \sigma_i\]</div>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
@@ -6151,8 +6181,9 @@ The parameterization looks like:
 <dt class="sig sig-object py" id="pyrrhenius.mixing.TubesModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyrrhenius.mixing.</span></span><span class="sig-name descname"><span class="pre">TubesModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyrrhenius.model.ModelInterface" title="pyrrhenius.model.ModelInterface"><span class="pre">ModelInterface</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrrhenius/mixing.html#TubesModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyrrhenius.mixing.TubesModel" title="Link to this definition"></a></dt>
 <dd><p>Represents the conductivity of a tube-like lattice embedded in a matrix</p>
-<p>The parameterization looks like:
-sigma_total = C_m * (1 - phi) + C_f * phi</p>
+<p>The parameterization looks like:</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{total} = \sigma_r \cdot (1 - \phi) + \sigma_c \cdot \phi\]</div>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>

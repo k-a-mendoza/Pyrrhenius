@@ -158,14 +158,24 @@
 <span class="sd">    Bruggeman solver for the effective medium theory</span>
 
 <span class="sd">    The Bruggeman symmetrical equation is the most widely used EMT equation. It is sometimes known as the Bruggemane Landauer equation. </span>
-<span class="sd">    The system is considered to be an aggregate of unconnected units</span>
+<span class="sd">    The system is considered to be an aggregate of unconnected units.</span>
 
 <span class="sd">    The bulk conductivity of the system is parameterized as:</span>
 
-<span class="sd">    sum_i f_i * (sigma_i - sigma_bulk) / (sigma_i + (1/p_i - 1) * sigma_bulk) = 0 </span>
+<span class="sd">    .. math::</span>
 
-<span class="sd">    and thus, sigma_bulk must be solved for. To generalize over N-phases, sigma_bulk is solved for iteratively using the binary search algorithm. </span>
+<span class="sd">        \\sum_i f_i  \\frac{\\sigma_i - \\sigma_{bulk}}{\\sigma_i + (P_i^{-1} - 1) \\cdot \\sigma_{bulk}} = 0 </span>
 
+<span class="sd">    Where :math:`\\sigma_i` is the conductivity of the i-th phase, :math:`f_i` is the volume fraction of the i-th phase, and :math:`P_i` is the polarization factor of the i-th phase. For a homogeneous medium filled with spherical inclusions, :math:`P_i` is equal to 1/3. :math:`P_i` goes to zero as inclusions approach rod-like forms.</span>
+
+<span class="sd">    The variant implemented here assumes any amount of phase fractions may be passed, and thus, :math:`\\sigma_{bulk}` must be numerically solved. For this purpose, a vectorized variant of the binary search algorithm is employed. </span>
+
+
+<span class="sd">    IMPORTANT: </span>
+<span class="sd">    </span>
+<span class="sd">    1. The Bruggeman solver is not guaranteed to converge for all combinations of models and phase fractions. If it does not converge, check the absolute values of the conductive phases. </span>
+
+<span class="sd">    2.  Additionally, the solver is meant to be used with the EffectiveMediumTheoryMixture class. You may use this class out of the box, but use of the EffectiveMediumTheoryMixture class is recommended. </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span><span class="n">polarizations</span><span class="p">,</span><span class="n">phase_fractions</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -349,10 +359,11 @@
 
 <span class="sd">    The Hashin-Shtrikman bound simulates the conductivity of spheres embedded in a matrix. </span>
 
+<span class="sd">    .. math::</span>
 
-<span class="sd">    summation_term = sum phase_fractions / (sigma_i +2*sigma_{min/max})</span>
-<span class="sd">    sigma_total    =  summation_term^-1 - 2*sigma_{min/max}</span>
+<span class="sd">        \\sigma_{total} =  \\frac{1}{\\\sum \\frac{f_i}{\\sigma_i +2*\\sigma_{min/max}}} - 2*\\sigma_{min/max}</span>
 
+<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">phases</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">ModelInterface</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -411,7 +422,9 @@
 <span class="sd">    Represents the conductivity of two phases connected in parallel.</span>
 <span class="sd">    The parameterization looks like:</span>
 <span class="sd">    </span>
-<span class="sd">    sigma_total = sum  phase_fraction_i * conductivity_i</span>
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\sigma_{total} = \\sum f_i\\sigma_i</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">phases</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">ModelInterface</span><span class="p">]):</span>
@@ -459,7 +472,10 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents the conductivity of several phases connected in series. </span>
 <span class="sd">    The parameterization looks like:</span>
-<span class="sd">    1/sigma_total = sum phase_fraction_i / conductivity_i</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        1/\\sigma_{total} = \\sum f_i / \\sigma_i</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span><span class="p">):</span>
@@ -501,14 +517,32 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents the conductivity of a lattice of cubes separated by thin sheets. Also known as the thin film model.</span>
 
-<span class="sd">    Two variants are implemented:</span>
-<span class="sd">    waff74-1:</span>
-<span class="sd">    sigma_total = (1 -(1-phi)^(2/3) ) * sigma_melt</span>
+<span class="sd">    Three variants are implemented:</span>
 
-<span class="sd">    waff74-2:</span>
-<span class="sd">    sigma_total = solid * melt * ( 1 - phi)^(2/3) / ( melt * (1 - phi)^(1/3) + solid * (1 - (1-phi)^(1/3)) )</span>
+<span class="sd">    Three variants are implemented:</span>
+<span class="sd">    </span>
+<span class="sd">    1. &quot;waff74-1&quot;: From equation 34 in &quot;*Theoretical considerations of the electrical conductivity in a partially molten mantle and implications for geothermometry*&quot;, Waff et al., (1974)</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">                \\sigma_{total} = (1 -(1-\\phi)^(2/3) ) \\cdot \\sigma_c</span>
+
+<span class="sd">    2. &quot;waff74-2&quot;: From equation 33 in &quot;*Theoretical considerations of the electrical conductivity in a partially molten mantle and implications for geothermometry*&quot;, Waff et al., (1974)</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">                \\sigma_{total} = \\sigma_c \\cdot \\sigma_r \\cdot \\frac{ (1 - \\phi)^{2/3} }{ \\sigma_c \\cdot (1 - \\phi)^{1/3} + \\sigma_r \\cdot (1 - (1-\\phi)^{1/3}) }</span>
+
+<span class="sd">    3. &quot;P00&quot;: From equation 1 in &quot;*The influence of partial melting on the electrical behavior of crustal rocks: laboratory examinations, model calculations and geological interpretations*&quot;, Partzsch et al., (2000)</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">                \\sigma_{total} = \\frac{1}{ (1 - \\phi) / \\sigma_r + \\phi / \\sigma_c }</span>
+
+
+<span class="sd">    Where :math:`\\sigma_r` is the conductivity of the assumed resistive matrix and :math:`\\sigma_c` is the conductivity of the smaller fraction conductive phase.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">mixing_model</span> <span class="o">=</span> <span class="s1">&#39;Cube&#39;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span><span class="p">,</span><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;waff74-1&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the CubeModel class</span>
@@ -517,20 +551,18 @@
 <span class="sd">        ----------</span>
 <span class="sd">        phases : List[model.ModelInterface]</span>
 <span class="sd">            a list of models corresponding to the consitutent phases. The model assuems the first phase </span>
-<span class="sd">            is the matrix phase, and the second is the inclusion. Alternatively a single phase passed will be interpreted to </span>
+<span class="sd">            is the matrix phase, and the second is the inclusion. Alternatively if a single phase is passed it will be interpreted to </span>
 <span class="sd">            represent that of the fluid, but will fail if the variant selected requires two phases</span>
 <span class="sd">       </span>
 <span class="sd">        variant : str</span>
-<span class="sd">            the variant of the cube model to use</span>
-<span class="sd">            Two variants are implemented:</span>
-<span class="sd">            -waff74-1:</span>
-<span class="sd">             sigma_total = (1 -(1-phi)^(2/3) ) * sigma_melt</span>
+<span class="sd">            the variant of the cube model to use. Defaults to &#39;waff74-1&#39;.</span>
+<span class="sd">            available options are:</span>
 
-<span class="sd">            -waff74-2:</span>
-<span class="sd">             sigma_total = solid * melt * ( 1 - phi)^(2/3) / ( melt * (1 - phi)^(1/3) + solid * (1 - (1-phi)^(1/3)) )</span>
+<span class="sd">            1. &quot;waff74-1&quot;: Cube-like approximation requiring only conductive inclusions</span>
 
-<span class="sd">            -P00:</span>
-<span class="sd">             sigma_total = 1/( (1 - phi) / sigma_solid + phi / sigma_fluid )</span>
+<span class="sd">            2. &quot;waff74-2&quot;: Cube-like approximation requiring both conductive inclusions and the resistive matrix. </span>
+
+<span class="sd">            3. &quot;P00&quot;: Partzsch et al., 2000. Cube-like approximation with both conductive inclusions and the resistive matrix. </span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
@@ -585,7 +617,17 @@
 <span class="sd">    Represents the conductivity of a mixture using Archie&#39;s law</span>
 
 <span class="sd">    The parameterization looks like:</span>
-<span class="sd">    sigma_total = c*phi^n * sigma_fluid</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\sigma_{total} = C\\cdot \\phi^n \\cdot \\sigma_c</span>
+
+<span class="sd">    where :math:`\\sigma_c` is the conductivity of a conductive phase in a resistive medium, such that</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\sigma_c &gt;&gt; \\sigma_r</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -639,15 +681,24 @@
 <span class="sd">    a reparameterization of archies law to reduce the number of unknown coefficients first described by Glover et al., (2000)</span>
 
 <span class="sd">    the parameterization looks like:</span>
-<span class="sd">    sigma_total = C_m * (1 - phi)^p + C_f * phi^m</span>
 
-<span class="sd">    where p: </span>
-<span class="sd">    p = log(1 - phi^m)/log(1 - phi)</span>
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\sigma_{total} = \\sigma_r \\cdot (1 - \\phi)^p + \\sigma_c \\cdot \\phi^m</span>
+
+<span class="sd">    where</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        p = \\frac{log(1 - \\phi^m)}{log(1 - \\phi)}</span>
 
 <span class="sd">    suggested values for m are:</span>
-<span class="sd">    m: 1.9 for brine in peridotite: Huang et al., (2021)</span>
-<span class="sd">    m: 1.05 for silicic melts Gaillard et al., (2005)</span>
-<span class="sd">    m: 1.2 to match basalt vs peridotite Yoshino et al., (2010)</span>
+
+<span class="sd">    - m: 1.9 for brine in peridotite: (Huang et al., 2021)</span>
+
+<span class="sd">    - m: 1.05 for silicic melts (Gaillard et al., 2005)</span>
+
+<span class="sd">    - m: 1.2 to match basalt within peridotite (Yoshino et al., 2010)</span>
 
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -701,7 +752,10 @@
 <span class="sd">    Represents the conductivity of a tube-like lattice embedded in a matrix</span>
 
 <span class="sd">    The parameterization looks like:</span>
-<span class="sd">    sigma_total = C_m * (1 - phi) + C_f * phi</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\sigma_{total} = \\sigma_r \\cdot (1 - \\phi) + \\sigma_c \\cdot \\phi</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span> <span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">ModelInterface</span><span class="p">):</span>
@@ -748,9 +802,10 @@
 <span class="sd">    Represents the geometric average of the conductivities of the phases</span>
 
 <span class="sd">    The geometric average is defined as:</span>
-<span class="sd">    sigma_total = exp(1/N * sum(log(C_i)))</span>
-<span class="sd">    or alternatively as</span>
-<span class="sd">    sigma_total = (prod(C_i^(f_i)))</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\sigma_{total} = \\prod \\sigma_i^{f_i}</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">ModelInterface</span><span class="p">]):</span>
@@ -794,7 +849,10 @@
 <span class="sd">    Represents the arithmetic average of the conductivities of the phases</span>
 
 <span class="sd">    The arithmetic average is defined as:</span>
-<span class="sd">    sigma_total = sum(f_i * C_i)</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\sigma_{total} = \\sum f_i \\cdot \\sigma_i</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span><span class="p">):</span>
