@@ -67,10 +67,9 @@
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html">Pyrrhenius Quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modelsguide.html">Database, Models, and Metadata</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html">Pyrrhenius API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="fordevelopers.html">test title</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Pyrrhenius API</a></li>
 </ul>
 
         </div>
@@ -100,11 +99,11 @@
              
   <section id="overview-why-pyrrhenius">
 <h1>Overview: Why Pyrrhenius?<a class="headerlink" href="#overview-why-pyrrhenius" title="Link to this heading"></a></h1>
-<p>Pyrrhenius provides a powerful, flexible, and intuitive framework for working with mineral electrical conductivity models and data in Python. It introduces a modular, object-oriented approach that allows scientists to efficiently compute conductivities while seamlessly keeping track of metadata about the minerals, experimental conditions, and model parameters.</p>
+<p>Pyrrhenius provides a powerful, flexible, and intuitive framework for working with mineral electrical conductivity models and data in Python. It introduces a modular, object-oriented approach that allows scientists to efficiently compute conductivities while seamlessly keeping track of metadata about mineral experimental conditions and model parameters.</p>
 <section id="motivation">
 <h2>Motivation<a class="headerlink" href="#motivation" title="Link to this heading"></a></h2>
 <p>Over the past two decades, electromagnetic geophysical techniques have greatly improved in resolution and spatial extent. At the same time, mineral physicists have produced hundreds of models relating the physiochemical state of common minerals to their electrical conductivity.</p>
-<p>Pyrrhenius was designed to provide a means to tractably merge electrical modeling with laboratory observations, allowing geoscientists to flexibly use, compare, validate, and extend what is currently a heterogeneous corpus of mineral physics research. By abstracting away the implementation details and unit conversions, Pyrrhenius enables researchers to focus on science.</p>
+<p>Pyrrhenius was designed to provide a means to tractably merge geophysical modeling with laboratory observations, allowing geoscientists to flexibly use, compare, validate, and extend what is currently a heterogeneous corpus of mineral physics research. By abstracting away the implementation details and unit conversions, Pyrrhenius enables researchers to focus on science.</p>
 <p>The choice of Python and integration with the scientific Python ecosystem makes Pyrrhenius accessible to a wide audience and interoperable with existing electromagnetic geophysics libraries like MtPy and SimPEG. The open-source, object-oriented design also facilitates community contributions to expand the database and functionality over time.</p>
 </section>
 <section id="the-arrhenius-equation">
@@ -157,11 +156,10 @@
 <p>The values of both <span class="math notranslate nohighlight">\(\Delta H\)</span> and <span class="math notranslate nohighlight">\(\sigma_0\)</span> may themselves be dependent on <span class="math notranslate nohighlight">\(\mathbf{PX}\)</span> <em>Physiochemical state</em> (redox state, electron carrier density, pressure, and other thermodynamic parameters), such that it is more appropriate to rewrite <a class="reference internal" href="#equation-arrhenius-electric">(2)</a> as</p>
 <div class="math notranslate nohighlight">
 \[\sigma = \sigma_0(\mathbf{PX}) \cdot \exp\left(\frac{-\Delta H(\mathbf{PX})}{k_b T}\right)\]</div>
-<p>Where <span class="math notranslate nohighlight">\(X_j\)</span> indicates a dependence on the material chemistry and <span class="math notranslate nohighlight">\(fO_2\)</span> (oxygen fugacity) is used as a proxy for the redox state.
-Furthermore, within a single geologic material multiple reactions may result in the movement of electrons. The linear combination of several of these mechanisms is then needed to describe the mineral’s total conductivity</p>
+<p>Within a single geologic material multiple reactions may result in the movement of electrons. The linear combination of several of these mechanisms is then needed to describe the mineral’s total conductivity</p>
 <div class="math notranslate nohighlight">
 \[\sigma_{total} =\sum_i \sigma_i(\mathbf{PX})  \cdot \exp\left(\frac{-\Delta H_i(\mathbf{PX})}{k_b T}\right)\]</div>
-<p>While an arrhenius equation can be used to describe the conductivity of materials, there are likely numerous unexpected complexities arising from unknown dependencies on numerous variables. This presents several design challenges, as there is a large hereogeneity in both the published parameter values and mathematical form of arrhenian-type equations. Lets look at a few type examples of these
+<p>While an arrhenius equation can be used to describe the conductivity of materials, there are numerous complexities arising from observed depenence on <span class="math notranslate nohighlight">\(\mathbf{PX}\)</span>. This presents several design challenges, as there is a large hereogeneity in both the published parameter values and mathematical form of arrhenian-type equations. Lets look at a few type examples of these
 where numerical constants have been replaced with subscripted <span class="math notranslate nohighlight">\(\alpha_i\)</span>’s. Also,the following symbols are used:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(X_{fe}\)</span> for Iron Fraction</p></li>
@@ -181,8 +179,8 @@ where numerical constants have been replaced with subscripted <span class="math 
 <p>Pommier &amp; Le-Trong (2011). “SIGMELTS: A web portal for electrical conductivity calculations in geosciences”. 10.1016/j.cageo.2011.01.002</p>
 <div class="math notranslate nohighlight">
 \[\sigma = \left( \exp(\alpha_0 \cdot \ln(C_w) + \alpha_1) \right) \cdot \exp\left( \frac{-(\alpha_2 \cdot \ln(C_w) + \alpha_3 + \alpha_4 \cdot P)}{k_bT} \right)\]</div>
-<p>Clearly, experimentalists suggest more or less complicated relationships are needed to parameterize electric conductivity in terms of geologically relevant chemistries and thermodynamic conditions. The upside of this approach is that the sensitivity of electric conductivity to mineral-relevant factors can be modeled. The downside is that it becomes hard to create a non hard coded database of parameterizations.</p>
-<p>Since the <span class="math notranslate nohighlight">\(\Delta H\)</span> and <span class="math notranslate nohighlight">\(\sigma_0\)</span>’s of the original arrhenian equation might have oft repeated paramterizations, one way to simplify the matter is to encapsulate all Enthalpy and preexponential-like constants into a object oriented hierarchy. Lets apply this concept to the previous equations and see what happens. Each bolded constant is assumed to depend on Physiochemical states. Their subscripts indicate a unique category of <em>meta</em>-parameter</p>
+<p>It should be evident that suggested parameterizations may take a wide variety of functional forms.  The upside of such parameterizations  is that the sensitivity of electric conductivity to mineral-relevant factors can be modeled. The downside is that it becomes hard to create a non hard coded database of parameterizations.</p>
+<p>One way to simplify the matter is to encapsulate all Enthalpy and preexponential-like constants into a object oriented hierarchy. Lets apply this concept to the previous equations and see what happens. Each bolded constant is assumed to depend on Physiochemical states. Their subscripts indicate a unique category of <em>meta</em>-parameter</p>
 <p><strong>Omphacite</strong></p>
 <div class="math notranslate nohighlight">
 \[\sigma = \mathbf{\alpha_0}\exp\left( \frac{-\mathbf{\Delta H_0}}{k_bT} \right)\]</div>
@@ -192,7 +190,7 @@ where numerical constants have been replaced with subscripted <span class="math 
 <p><strong>Silicate Melt</strong></p>
 <div class="math notranslate nohighlight">
 \[\sigma = \mathbf{\alpha_0}\cdot \exp\left( \frac{\mathbf{\Delta H_0}}{k_bT} \right)\]</div>
-<p>So as long as each <em>meta</em>-parameter is handled appropriately, each mineral can be represented by a simplified internal state essentially corresponding to an arrhenian equation.</p>
+<p>So as long as each <em>meta</em> preexponential constand and enthalpy is handled appropriately, even complicated mineral laws can be represented by a simplified arrhenian equation.</p>
 <p>We can do one better though. Each arrhenian-type equation can be substituted by an Arrhenian object:</p>
 <p><strong>Omphacite</strong></p>
 <div class="math notranslate nohighlight">
@@ -203,7 +201,7 @@ where numerical constants have been replaced with subscripted <span class="math 
 <p><strong>Silicate Melt</strong></p>
 <div class="math notranslate nohighlight">
 \[\sigma = \mathbf{Arr}(\sigma_0,\Delta H_0)\]</div>
-<p>Use of the arrhenian object seems to simplify the relationships to either linear superpositions of equations, or single equation objects, provided the input parameters are implemented correctly. Thus we can see that by adopting an <em>object oriented</em> approach, representing a heterogeneous inventory of possible conductivity parameterizations can be dramatically simplified.</p>
+<p>Use of the arrhenian object seems to simplify the relationships to either linear superpositions of equations, or single equation objects, provided the input parameters are implemented correctly. Thus we can see that by adopting an <em>object oriented</em> approach, representing a heterogeneous inventory of possible conductivity parameterizations can be simplified.</p>
 </section>
 <section id="simplifying-design-with-objects">
 <h2>Simplifying Design with Objects<a class="headerlink" href="#simplifying-design-with-objects" title="Link to this heading"></a></h2>
@@ -211,9 +209,9 @@ where numerical constants have been replaced with subscripted <span class="math 
 <p>Pyrrhenius utilizes OOP design across four levels of abstraction:</p>
 <ul class="simple">
 <li><p><strong>Level 1</strong> Empirically-fitted constants (<code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.mechanisms.StochasticConstants</span></code>) are objects, allowing for both mean value sampling and random sampling via bootstraping using a single keyword-argument.</p></li>
-<li><p><strong>Level 2</strong> Variants of the Arrhenius equation (<code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.mechanisms.Mechanism</span></code> and children) are coded in an inheritance heirarchy, using <code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.mechanisms.StochasticConstants</span></code> to calculate arrhenian equation parameters. Most child class differences revolve around providing a more complex enthalpy or preexponential constant.</p></li>
-<li><p><strong>Level 3</strong> Mineral physics models are represented by <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> objects, which contain a single <code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.mechanisms.Mechanism</span></code> or other <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> objects. <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a>’s also use a metadata property object <a class="reference internal" href="api.html#pyrrhenius.model.PublicationMetadata" title="pyrrhenius.model.PublicationMetadata"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.PublicationMetadata</span></code></a>, taking care of metadata management so you don’t have to.</p></li>
-<li><p><strong>Level 4</strong> A database  object <code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.database.Database</span></code> which provides a flexible interface to access specific <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a>’s reported by the literature.</p></li>
+<li><p><strong>Level 2</strong> Variants of the Arrhenius equation (<a class="reference internal" href="api.html#pyrrhenius.mechanisms.Mechanism" title="pyrrhenius.mechanisms.Mechanism"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.mechanisms.Mechanism</span></code></a> and children) are coded in an inheritance heirarchy, using <code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.mechanisms.StochasticConstants</span></code> to calculate arrhenian equation parameters. Most child class differences revolve around providing a more complex enthalpy or preexponential constant.</p></li>
+<li><p><strong>Level 3</strong> Mineral physics models are represented by <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> objects, which contain a single <a class="reference internal" href="api.html#pyrrhenius.mechanisms.Mechanism" title="pyrrhenius.mechanisms.Mechanism"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.mechanisms.Mechanism</span></code></a> or other <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> objects. <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a>’s also use a metadata property object <a class="reference internal" href="api.html#pyrrhenius.model.PublicationMetadata" title="pyrrhenius.model.PublicationMetadata"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.PublicationMetadata</span></code></a>, taking care of metadata management so you don’t have to.</p></li>
+<li><p><strong>Level 4</strong> A database  object <a class="reference internal" href="api.html#pyrrhenius.database.Database" title="pyrrhenius.database.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.database.Database</span></code></a> which provides a flexible interface to access specific <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a>’s reported by the literature.</p></li>
 </ul>
 <p>Because each level of abstraction utilizes a near-identical interface, more complicated mineral models involving compound mechanisms or models are easily created using the <cite>+</cite> operator. These unified interfaces also allow for easy application of mineral mixing models.  Thus, adapting pyrrhenius to your needs is usually easy to express in-code and does not require modifications to the codebase.</p>
 </section>

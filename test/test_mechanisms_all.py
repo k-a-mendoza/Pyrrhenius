@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import sys
 import pytest
-from pyrrhenius.mechanisms import Mechanism
+from pyrrhenius.mechanisms import SingleValue, StochasticConstant
 
 sys.path.append('../../')
 sys.path.append('../')
@@ -10,7 +10,7 @@ sys.path.append('../')
 
 @pytest.fixture
 def mechanism():
-    return Mechanism()
+    return SingleValue(StochasticConstant(0,0.1,type='test'))
 
 def test_set_water_units(mechanism):
     with pytest.raises(NotImplementedError):

@@ -8,7 +8,7 @@ Pyrrhenius Documentation
    :caption: Sections
 
    userguide.rst
-   fordevelopers.rst
+   api.rst
 
 Indices and tables
 ==================

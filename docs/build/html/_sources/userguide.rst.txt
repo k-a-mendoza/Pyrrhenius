@@ -9,7 +9,6 @@ User Guide
    installation
    quickstart
    modelsguide
-   api
    
 
 * :ref:`genindex`

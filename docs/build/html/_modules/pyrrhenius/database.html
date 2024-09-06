@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyrrhenius.database &mdash; Pyrrhenius 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css?v=572af1d6" />
+      <link rel="stylesheet" type="text/css" href="../../_static/thebelab.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
+        <script src="../../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Pyrrhenius
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sections</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Pyrrhenius API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Pyrrhenius</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyrrhenius.database</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyrrhenius.database</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span> 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">model</span><span class="p">,</span> <span class="n">mechanisms</span>
+
+<span class="n">DEFAULT_DATABASE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">,</span> <span class="s1">&#39;database&#39;</span><span class="p">,</span> <span class="s1">&#39;publication_database.csv&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="calc_average_pressure">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.database.calc_average_pressure">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_average_pressure</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the Average Pressure of a model entry</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    row : pd.Series</span>
+<span class="sd">        pandas series describing a model</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    modified_row</span>
+<span class="sd">        a modified row with a new pressure_average_gpa key-value pair. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;pressure_average_gpa&#39;</span><span class="p">]):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;pressure_min_gpa&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;pressure_max_gpa&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;pressure_average_gpa&#39;</span><span class="p">]</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">create_group</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">x1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">y1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">z1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">x1</span><span class="si">}{</span><span class="n">y1</span><span class="si">}{</span><span class="n">z1</span><span class="si">}</span><span class="s1">]&#39;</span><span class="p">,</span><span class="s1">&#39;[]&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+<div class="viewcode-block" id="Database">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.database.Database">[docs]</a>
+<span class="k">class</span> <span class="nc">Database</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The Database class is designed to manage and manipulate a master database of electric conductivity data.</span>
+
+
+<span class="sd">    </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    isotropic_name : str</span>
+<span class="sd">        A class-level attribute that assigns the name suffix for isotropic models.</span>
+<span class="sd">    database : pd.DataFrame</span>
+<span class="sd">        A pandas DataFrame that holds the loaded and processed database entries.</span>
+<span class="sd">    </span>
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    __init__(csv=DEFAULT_DATABASE_PATH)</span>
+<span class="sd">        Initializes the Database object by loading data from a CSV file.</span>
+<span class="sd">    </span>
+<span class="sd">    create_isotropic_models()</span>
+<span class="sd">        Creates isotropic models from the existing database entries and registers them.</span>
+<span class="sd">    </span>
+<span class="sd">    register_new_model(ecmodel)</span>
+<span class="sd">        Registers a new model or a list of models into the database.</span>
+<span class="sd">    </span>
+<span class="sd">    get_model_names()</span>
+<span class="sd">        Returns a list of unique model entry IDs in the database.</span>
+<span class="sd">    </span>
+<span class="sd">    get_model_properties(entry_id)</span>
+<span class="sd">        Returns the properties of a model given its entry ID.</span>
+<span class="sd">    </span>
+<span class="sd">    get_model(entry_id)</span>
+<span class="sd">        Returns the model object for a given entry ID.</span>
+<span class="sd">    </span>
+<span class="sd">    get_phases()</span>
+<span class="sd">        Returns a list of unique phase types in the database.</span>
+<span class="sd">    </span>
+<span class="sd">    get_model_list_for_phase(phase)</span>
+<span class="sd">        Returns a list of model entry IDs for a given phase type.</span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; database = Database()</span>
+<span class="sd">    &gt;&gt;&gt; phase_list = database.get_phases()</span>
+<span class="sd">    &gt;&gt;&gt; # pick the phase  you want to use</span>
+<span class="sd">    &gt;&gt;&gt; model_id_list = database.get_model_list_for_phase(&#39;olivine&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; # look at the model_id&#39;s you could use</span>
+<span class="sd">    &gt;&gt;&gt; ecmodel = database.get_model(model_id_list[0])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">isotropic_name</span> <span class="o">=</span> <span class="s1">&#39;_isotropic&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_file</span><span class="o">=</span><span class="n">DEFAULT_DATABASE_PATH</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the Database object by loading data from a CSV file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        csv_file : str, optional</span>
+<span class="sd">            The path to the CSV file containing the database data. Defaults to the DEFAULT_DATABASE_PATH, the database shipped with Pyrrhenius. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">database</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">encoding_errors</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+
+        <span class="n">data_rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">create_model_from_row</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">get_row</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">database</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()</span> <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_rows</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Database.create_isotropic_models">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.database.Database.create_isotropic_models">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_isotropic_models</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates isotropic models from the existing database entries and registers them.</span>
+
+<span class="sd">        This method identifies groups of models that are identical except for their orientation,</span>
+<span class="sd">        and creates isotropic mixtures from these groups. It then registers these new isotropic models.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="s1">&#39;grouping_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="s1">&#39;entry_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">create_group</span><span class="p">(</span><span class="n">row</span><span class="p">))</span>
+        <span class="n">new_models</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;grouping_id&#39;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span> <span class="ow">and</span> <span class="s1">&#39;isotropic&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_</span><span class="p">:</span>
+                <span class="n">new_model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">IsotropicMixture</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;ec_model&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()])</span>
+                <span class="n">new_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_new_model</span><span class="p">(</span><span class="n">new_models</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Database.register_new_model">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.database.Database.register_new_model">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_new_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ecmodel</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">ModelInterface</span> <span class="ow">or</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Registers a new model or a list of models into the database.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ecmodel : model.ModelInterface or list</span>
+<span class="sd">            The model or list of models to be registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ecmodel</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">get_row</span><span class="p">()</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ecmodel</span><span class="p">],</span>
+                                      <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">db_row</span> <span class="o">=</span> <span class="n">ecmodel</span><span class="o">.</span><span class="n">get_row</span><span class="p">()</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">,</span> <span class="n">db_row</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Database.get_model_names">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.database.Database.get_model_names">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_model_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of unique model entry IDs in the database.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[str]</span>
+<span class="sd">            A list of unique model entry IDs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="s1">&#39;entry_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Database.get_model_properties">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.database.Database.get_model_properties">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_model_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the properties of a model given its entry ID.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        entry_id : str</span>
+<span class="sd">            The entry ID of the model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        properties : pd.Series</span>
+<span class="sd">            A pandas Series containing the properties of the model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="s1">&#39;entry_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entry_id</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Database.get_model">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.database.Database.get_model">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the electric conductivity model object for a given entry ID.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        entry_id : str</span>
+<span class="sd">            The entry ID of the model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ec_model : model.ModelInterface</span>
+<span class="sd">            The electric conductivity model object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="s1">&#39;entry_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entry_id</span><span class="p">][</span><span class="s1">&#39;ec_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="Database.get_phases">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.database.Database.get_phases">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_phases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of unique phase types in the database.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[str]</span>
+<span class="sd">            A list of unique phase types.</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="s1">&#39;ec_model&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="s2">&quot;please load database with .load_data()&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="s1">&#39;phase_type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Database.get_model_list_for_phase">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.database.Database.get_model_list_for_phase">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_model_list_for_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of model entry IDs for a given phase type.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phase : str</span>
+<span class="sd">            The phase type.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ------- </span>
+<span class="sd">        list[str]</span>
+<span class="sd">            A list of model entry IDs for the given phase type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="s1">&#39;ec_model&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="s2">&quot;please load database with .load_data()&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="s1">&#39;phase_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">phase</span><span class="p">][</span><span class="s1">&#39;entry_id&#39;</span><span class="p">])</span></div>
+</div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Kevin A. Mendoza.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
