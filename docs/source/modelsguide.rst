@@ -15,12 +15,12 @@ Database, Models, and Metadata
 Models
 ======
 
-The core functionality of pyrrhenius is used via :py:class:`pyrrhenius.model.Model` objects. While you can certainty instantiate your own, :py:class:`pyrrhenius.model.Model`'s are more easily obtained through interaction with a
+The core functionality of pyrrhenius is used via :py:class:`pyrrhenius.model.ModelInterface` objects. While you can certainty instantiate your own, :py:class:`pyrrhenius.model.ModelInterface`'s are more easily obtained through interaction with a
 :py:class:`pyrrhenius.database.Database` object as described in the quickstart and database sections. 
 
-:py:class:`pyrrhenius.model.Model` objects have a number of useful methods and attributes. One of these is the :py:class:`pyrrhenius.model.Model.metadata` attribute, which is integrated into the model to allow automatic error-checking when using the model to calculate electric conductivity. 
+:py:class:`pyrrhenius.model.ModelInterface` objects have a number of useful methods and attributes. One of these is the :py:class:`pyrrhenius.model.ModelInterface.metadata` attribute, which is integrated into the model to allow automatic error-checking when using the model to calculate electric conductivity. 
 
-:py:class:`pyrrhenius.model.Model` objects can also be combined with the `+` operator, resulting in a linear combination of the two models. This is useful when integtrating say, a proton diffusion model with an electronic conduction model:
+:py:class:`pyrrhenius.model.ModelInterface` objects can also be combined with the `+` operator, resulting in a linear combination of the two models. This is useful when integtrating say, a proton diffusion model with an electronic conduction model:
 
 
 .. jupyter-execute::

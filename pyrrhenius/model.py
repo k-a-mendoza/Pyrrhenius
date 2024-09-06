@@ -1,4 +1,5 @@
 from functools import reduce
+from typing import Union
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass
@@ -8,10 +9,23 @@ from . import utils
 
 
 def _id_row_rename(col):
+    """
+    Renames a column name to be used in a pandas series or dataframe
+
+    Parameters
+    ----------
+    col : str
+        The column name to rename
+
+    Returns
+    -------
+    str
+        The renamed column name
+    """
     col = col.replace(' ', '_').replace('(', '').replace(')', '')
     return col.lower()
 
-def create_model_from_row(row: pd.Series or pd.DataFrame):
+def create_model_from_row(row: Union[pd.Series, pd.DataFrame]):
     """generates a Model object from a pandas series row
 
     Parameters
@@ -120,20 +134,8 @@ class PublicationMetadata:
 
     Methods
     -------
-    single_pressure()
-        Returns True if pressure_min equals pressure_max, False otherwise.
-    single_water() 
-        Returns True if water_min equals water_max, False otherwise.
-    single_nacl()
-        Returns True if nacl_min equals nacl_max, False otherwise.
-    single_co2()
-        Returns True if co2_min equals co2_max, False otherwise.
-    single_na2o()
-        Returns True if na2o_min equals na2o_max, False otherwise.
-    single_sio2()
-        Returns True if sio2_min equals sio2_max, False otherwise.
-    single_iron()
-        Returns True if iron_min equals iron_max, False otherwise.
+    single_condition(parameter)
+        Checks if the minimum and maximum values for a given parameter are the same.
     convert2ppm(water_average, water_units)
         Converts the water_average to ppm based on the water_units.
     get_water_average_ppm()
@@ -188,28 +190,43 @@ class PublicationMetadata:
     iron_units: str
     crystal_direction : str
 
-    def single_pressure(self):
-        return self.pressure_min==self.pressure_max
+    def single_condition(self, parameter: str):
+        """        
+        Checks if the minimum and maximum values for a given parameter are the same.
 
-    def single_water(self):
-        return self.water_min==self.water_max
+        Parameters
+        ----------
+        parameter : str
+            The parameter to check. Should be one of the following:
+            'pressure', 'water', 'nacl', 'co2', 'na2o', 'sio2', 'iron'
 
-    def single_nacl(self):
-        return self.nacl_min==self.nacl_max
-
-    def single_co2(self):
-        return self.co2_min==self.co2_max
-
-    def single_na2o(self):
-        return self.na2o_min==self.na2o_max
-
-    def single_sio2(self):
-        return self.sio2_min==self.sio2_max
-
-    def single_iron(self):
-        return self.iron_min==self.iron_max
+        Returns
+        -------
+        bool
+            True if the minimum and maximum values are the same, False otherwise.
+        """
+        min_attr = getattr(self, f"{parameter}_min")
+        max_attr = getattr(self, f"{parameter}_max")
+        return min_attr == max_attr
 
     def convert2ppm(self,water_average,water_units):
+        """
+        Converts the water_average to ppm based on the water_units.
+
+        used to normalize water concentrations across different experiments
+
+        Parameters
+        ----------
+        water_average : float
+            The water concentration to convert.
+        water_units : str
+            The units of the water concentration.
+
+        Returns
+        -------
+        float
+            The water concentration in ppm.
+        """
         if water_units == 'wtpct':
             return water_average * 1e4
         elif water_units == 'wtpct10x':
@@ -223,6 +240,16 @@ class PublicationMetadata:
                 f"{water_units} conversion not implemented"
             )
     def get_water_average_ppm(self):
+        """
+        Converts the water_average to ppm based on the water_units.
+
+        used to normalize water concentrations across different experiments
+
+        Parameters
+        ----------
+        water_average : float
+            The water concentration to convert.
+        """
         if self.water_units == 'wtpct':
             return self.water_average * 1e4
         elif self.water_units == 'wtpct10x':
@@ -238,6 +265,9 @@ class PublicationMetadata:
 
 
     def recalc_average_fields(self):
+        """
+        Recalculates the average fields from the min and max fields.
+        """
         avg_fields = ['iron_average','water_average','pressure_average','nacl_average','co2_average','na2o_average','sio2_average']
         for field in avg_fields:
             max_field_name = field.split('_')[0] + '_max'
@@ -254,20 +284,35 @@ class PublicationMetadata:
                                        float(getattr(self, min_field_name)))/2))
     @classmethod
     def get_float_field_prefixes(cls):
+        """
+        Returns the prefixes of the float fields.
+        """
         return ['iron','water','pressure','temp','nacl','co2','na2o','sio2']
     @classmethod
     def get_additive_field_strings(cls):
+        """
+        Returns the prefixes of the additive fields.
+        """
         return ['author','entry_id','publication_id','crystal_direction']
 
     @classmethod
     def get_units_and_calibrations(cls):
+        """
+        Returns the prefixes of the units and calibrations.
+        """
         return ['water_calibration','water_units','iron_units']
     @classmethod
     def get_static_field_strings(cls):
+        """
+        Returns the prefixes of the static fields.
+        """
         return ['phase_type']
 
     @classmethod
     def from_kwargs(cls, **kwargs):
+        """
+        Creates a PublicationMetadata instance from the provided keyword arguments.
+        """
         # fetch the constructor's signature
         cls_fields = {field for field in signature(cls).parameters}
 
@@ -286,8 +331,10 @@ class PublicationMetadata:
         return ret
 
     def __repr__(self):
+        """
+        Returns a string representation of the PublicationMetadata instance.
+        """
         properties = filter(lambda x: str(x[0])!='_' and x!='entry_id',self.__dict__.keys())
-
         return self.entry_id + '\n:' +'\n\t'.join(k+':'+str(getattr(self,k)) for k  in properties)
 
     def __add__(self,other):
@@ -411,11 +458,19 @@ class ModelInterface:
         Checks if the model uses pressure as a parameter.
     uses_fo2
         Checks if the model uses fo2 as a parameter.
-    determine_starting_c_type(starting_value=0, **kwargs)
-        generates a ``float`` or ``np.ndarray`` of a shape consistent with the provided keyword arguments
-
+   
     """
-    def __init__(self,id_row: pd.Series or PublicationMetadata):
+    def __init__(self,id_row: Union[pd.Series,PublicationMetadata]):
+        """
+        Initializes the ModelInterface with the provided id_row.
+
+        Typically meant to be called by the Database class to create electric conductivity models from a database
+
+        Parameters
+        ----------
+        id_row : pd.Series or PublicationMetadata
+            Metadata associated with the model. This can either be a pandas Series or a PublicationMetadata object.
+        """
         if id_row is not None:
             if isinstance(id_row, pd.Series):
                 self.metadata = PublicationMetadata.from_kwargs(**id_row)
@@ -444,7 +499,7 @@ class ModelInterface:
         print('-'*20)
         for test_func, name in zip([self.uses_iron,
                                     self.uses_fo2],
-                                    ['X_fe','logfo2']):
+                                    ['Xfe','logfo2']):
             if test_func:
                 print('*'+name)
         print('\nDiffusion Conduction Arguments')
@@ -476,9 +531,7 @@ class ModelInterface:
         float or np.ndarray
             The calculated conductivity in S/m
         """
-        start= self.determine_starting_c_type(starting_value=1,**kwargs)
-        start*=self.mechanism.get_conductivity(**kwargs)
-        return start
+        return self.mechanism.get_conductivity(**kwargs)
     
     @property
     def get_id(self):
@@ -587,48 +640,7 @@ class ModelInterface:
         """
         return self.mechanism.uses_fo2
     
-    @staticmethod
-    def determine_starting_c_type(starting_value=0, P=None, T=None,logfo2=None,Xfe=None,Cw=None,co2=None,nacl=None,na2o=None,sio2=None,**kwargs):
-        """
-        Generates a ``float`` or ``np.ndarray`` of a shape consistent with the provided keyword arguments
 
-        Currently checks keywords for P, T, logfo2, Xfe, Cw, co2, nacl, na2o, and sio2
-
-        Parameters
-        ----------
-        starting_value : float, optional
-            The variable value for conductivity casting, defaults to 0.
-
-        **kwargs : dict
-            Additional parameters used to calculate conductivity
-
-        Returns
-        -------
-        float or np.ndarray
-            The determined dummy conductivity variable used to cast the ``get_conductivity`` result into the proper shape.
-        """
-        ndarrays = list(filter(lambda x: isinstance(x[1], np.ndarray) and x[1] is not None, zip(['P', 'T', 'logfo2','Xfe','Cw','co2','nacl','na2o','sio2'],
-                                                                                          [P, T, logfo2,Xfe,Cw,co2,nacl,na2o,sio2])))
-        if len(ndarrays)<1:
-            reference_shape=(1)
-        elif len(ndarrays)==1:
-            reference_shape= ndarrays[0][1].shape
-        else:
-            reference_shape = ndarrays[0][1].shape
-            if not all(array[1].shape == reference_shape for array in ndarrays):
-                starting_array =None
-                for label, array in ndarrays:
-                    if starting_array is None:
-                        starting_array=np.copy(array)
-                    elif array is not None:
-                        try:
-                            starting_array*=array
-                        except Exception as e:
-                            print('passed arrays will not multiply together\n')
-                            for label, array in ndarrays:
-                                if array is not None:
-                                    print(f'\t{label}: {array.shape}')
-        return np.ones(reference_shape)*starting_value
 
     def get_row(self):
         """ returns a pd.Series representation of the model
@@ -715,11 +727,11 @@ class ModelInterface:
                 callouts['Cw']=[ppm_min,ppm_max]
         if self.uses_iron:
             if self.metadata.single_iron():
-                callouts['X_fe']=self.metadata.iron_average
+                callouts['Xfe']=self.metadata.iron_average
             else:
                 fe_min = self.metadata.iron_min
                 fe_max = self.metadata.iron_max
-                callouts['X_fe']=[fe_min,fe_max]
+                callouts['Xfe']=[fe_min,fe_max]
 
         if self.uses_fo2:
             if 'P' not in callouts.keys():
@@ -787,9 +799,15 @@ class Model(ModelInterface):
     -------
     get_crystal_direction()
         Returns the crystal direction from the metadata.
+    Examples
+    --------
+    >>> model = database.get_model('model_id')
+    >>> T = np.linspace(1000,2000,10)
+    >>> P = np.linspace(1,2,10)
+    >>> conductivity = model.get_conductivity(T=T,P=P)
 
     """
-    def __init__(self, mechanism: mech.Mechanism, id_row: pd.Series or PublicationMetadata):
+    def __init__(self, mechanism: mech.Mechanism, id_row: Union[pd.Series,PublicationMetadata]):
         super().__init__(id_row)
         self.mechanism = mechanism
         self.mechanism.set_water_units(self.metadata.water_units)
@@ -806,6 +824,25 @@ class Model(ModelInterface):
 
 
 class CompositeModel(ModelInterface):
+    """
+    A composite model that combines multiple models into a single model.
+
+    Composite models are created by adding two models together, and they inherit all the properties of the models they are composed of.
+    These models are also meant to be made from adding the models together, rather than explicitly instantiating the class. 
+
+    Parameters
+    ----------
+    models : list of ModelInterface
+        The models to be combined.
+    metadata : PublicationMetadata
+        The metadata for the composite model.
+
+    Examples
+    --------
+    >>> model1 = database.get_model('model_id1')
+    >>> model2 = database.get_model('model_id2')
+    >>> composite_model = model1 + model2
+    """
 
 
     def __init__(self, models, metadata):
@@ -845,7 +882,56 @@ class CompositeModel(ModelInterface):
         return reduce(lambda x,y: x[1].uses_fo2 | y[1].uses_fo2, self.models)
     
     def get_conductivity(self, crystal_direction=None, **kwargs):
-        c = self.determine_starting_c_type(**kwargs)
+        """
+        returns the conductivity of the composite model 
+
+        Not all parameters are required by all models. To see which parameters are required by the encapsulated model, 
+        use the model ``.print_required_parameters()`` 
+
+        Parameters
+        ----------
+        crystal_direction : str or float, optional
+            The crystallographic direction to query for specific conductivity.
+            If a float is provided, it is used to calculate an anisotropic factor between 0 and 1.
+        
+        averaging : str, optional
+            The method to average conductivity. Default is 'geometric'. 
+            Options include:
+            - 'geometric': Geometric mean of the available crystallographic directions.
+            - 'max_aniso': Maximum anisotropic factor (conductivity in the most conductive direction).
+            - 'min_aniso': Minimum anisotropic factor (conductivity in the least conductive direction).
+        T : float or np.ndarray , optional
+            The temperature value (default is None)
+        P : float or np.ndarray , optional
+            The pressure value in GPa (default is None)
+        co2 : float or np.ndarray , optional
+            The CO2 value (default is None)
+        Cw : float or np.ndarray , optional
+            The water value (default is None)
+        nacl : float or np.ndarray , optional
+            The NaCl concentration in wt% (default is None)
+        sio2 : float or np.ndarray , optional
+            The SiO2 concentration in wt% (default is None)
+        na2o : float or np.ndarray , optional
+            The na2o fraction (default is None)
+        logfo2 : float or np.ndarray , optional
+            The log oxygen fugacity value (default is None)
+        Xfe : float or np.ndarray , optional
+            The iron fraction value (default is None)
+        **kwargs : dict
+            Additional keyword arguments
+
+        Returns
+        -------
+        np.ndarray or float
+            The calculated conductivity
+         Raises
+        ------
+        AssertionError
+            error is raised if one or more keywords are not provided which are required by the mechanism
+        
+        """
+        c = utils.create_starting_variable(**kwargs)
         for m in self.models:
             new_conductivity = m[1].get_conductivity(**kwargs)
             c += new_conductivity
@@ -853,18 +939,109 @@ class CompositeModel(ModelInterface):
 
     @property
     def get_id(self):
+        """
+        returns the id of the composite model
+
+        Returns
+        -------
+        str
+            the id of the composite model
+        """
         return '+'.join([x[0] for x in self.models])
 
     def __repr__(self):
+        """
+        returns the string representation of the composite model
+
+        Returns
+        -------
+        str
+            the string representation of the composite model
+        """
         return  '{' +'+'.join(x[0] for x in self.models) + '}'
 
 class DryModel(ModelInterface):
+    """
+    A dry model that removes water from the encapsulated model
 
+    Parameters
+    ----------
+    model : ModelInterface
+        The model to encapsulate.
+
+    Examples
+    --------
+    >>> wet_model = database.get_model('model_id')
+    >>> dry_model = DryModel(wet_model)
+    >>> T = np.linspace(1000,2000,10)
+    >>> P = np.linspace(1,2,10)
+    >>> Cw = np.linspace(1,2,10)
+    >>> wet_model_conductivity = wet_model.get_conductivity(T=T,P=P,Cw=Cw)
+    >>> dry_model_conductivity = dry_model.get_conductivity(T=T,P=P,Cw=Cw)
+    >>> assert not np.array_equal(dry_model_conductivity, wet_model_conductivity)
+
+    """
     def __init__(self, model):
+        """
+        Initializes the DryModel with the provided model.
+
+        Parameters
+        ----------
+        model : ModelInterface
+            The model to encapsulate.
+        """
         super().__init__(model.metadata)
         self.model = model
 
     def get_conductivity(self, **kwargs):
+        """
+        returns the conductivity of the encapsulated model with Cw set to 0. 
+
+        Not all parameters are required by all models. To see which parameters are required by the encapsulated model, 
+        use the model ``.print_required_parameters()`` 
+
+        Parameters
+        ----------
+
+        crystal_direction : str or float, optional
+            The crystallographic direction to query for specific conductivity.
+            If a float is provided, it is used to calculate an anisotropic factor between 0 and 1.
+        
+        averaging : str, optional
+            The method to average conductivity. Default is 'geometric'. 
+            Options include:
+            - 'geometric': Geometric mean of the available crystallographic directions.
+            - 'max_aniso': Maximum anisotropic factor (conductivity in the most conductive direction).
+            - 'min_aniso': Minimum anisotropic factor (conductivity in the least conductive direction).
+        T : float or np.ndarray , optional
+            The temperature value (default is None)
+        P : float or np.ndarray , optional
+            The pressure value in GPa (default is None)
+        co2 : float or np.ndarray , optional
+            The CO2 value (default is None)
+        nacl : float or np.ndarray , optional
+            The NaCl concentration in wt% (default is None)
+        sio2 : float or np.ndarray , optional
+            The SiO2 concentration in wt% (default is None)
+        na2o : float or np.ndarray , optional
+            The na2o fraction (default is None)
+        logfo2 : float or np.ndarray , optional
+            The log oxygen fugacity value (default is None)
+        Xfe : float or np.ndarray , optional
+            The iron fraction value (default is None)
+        **kwargs : dict
+            Additional keyword arguments
+
+        Returns
+        -------
+        np.ndarray or float
+            The calculated conductivity
+         Raises
+        ------
+        AssertionError
+            error is raised if one or more keywords are not provided which are required by the mechanism
+        
+        """
         new_kwargs = {**kwargs}
         new_kwargs['Cw']=0
         return self.model.get_conductivity(**new_kwargs)
@@ -880,6 +1057,27 @@ class DryModel(ModelInterface):
 class WaterCorrection(ModelInterface):
     """Applies a Correction factor to Cw to any encapsulated model
 
+    This class is used to apply a correction factor to Cw to any encapsulated model, for example
+    to noramlize the response of a model for appropriate comparison to another model developed using a different water calibration.
+
+    Parameters
+    ----------
+    model : ModelInterface
+        a Pyrrhenius model
+
+    correction_factor : float, optional
+        the correction factor for water. Defaults to 1.0
+
+    Examples
+    --------
+    >>> model = database.get_model('model_id')
+    >>> corrected_model = WaterCorrection(model,2.0)
+    >>> T = np.linspace(1000,2000,10)
+    >>> P = np.linspace(1,2,10)
+    >>> Cw = np.linspace(1,2,10)
+    >>> uncorrected_model_conductivity = model.get_conductivity(T=T,P=P,Cw=Cw)
+    >>> corrected_model_conductivity = corrected_model.get_conductivity(T=T,P=P,Cw=Cw)
+    >>> assert not np.array_equal(corrected_model_conductivity, uncorrected_model_conductivity)
     """
 
     def __init__(self, model,correction_factor= 1.0):
@@ -898,8 +1096,55 @@ class WaterCorrection(ModelInterface):
         self.main_model = model
 
     def get_conductivity(self, **kwargs):
-        """gets the conductivity of the underlying model after locally correcting the water factor 
+        """
+        returns the conductivity of the encapsulated model
 
+        Not all parameters are required by all models. To see which parameters are required by the encapsulated model, 
+        use the model ``.print_required_parameters()`` 
+
+        Parameters
+        ----------
+
+        crystal_direction : str or float, optional
+            The crystallographic direction to query for specific conductivity.
+            If a float is provided, it is used to calculate an anisotropic factor between 0 and 1.
+        
+        averaging : str, optional
+            The method to average conductivity. Default is 'geometric'. 
+            Options include:
+            - 'geometric': Geometric mean of the available crystallographic directions.
+            - 'max_aniso': Maximum anisotropic factor (conductivity in the most conductive direction).
+            - 'min_aniso': Minimum anisotropic factor (conductivity in the least conductive direction).
+        T : float or np.ndarray , optional
+            The temperature value (default is None)
+        P : float or np.ndarray , optional
+            The pressure value in GPa (default is None)
+        co2 : float or np.ndarray , optional
+            The CO2 value (default is None)
+        Cw : float or np.ndarray , optional
+            The water value (default is None)
+        nacl : float or np.ndarray , optional
+            The NaCl concentration in wt% (default is None)
+        sio2 : float or np.ndarray , optional
+            The SiO2 concentration in wt% (default is None)
+        na2o : float or np.ndarray , optional
+            The na2o fraction (default is None)
+        logfo2 : float or np.ndarray , optional
+            The log oxygen fugacity value (default is None)
+        Xfe : float or np.ndarray , optional
+            The iron fraction value (default is None)
+        **kwargs : dict
+            Additional keyword arguments
+
+        Returns
+        -------
+        np.ndarray or float
+            The calculated conductivity
+         Raises
+        ------
+        AssertionError
+            error is raised if one or more keywords are not provided which are required by the mechanism
+        
         """
         new_kwargs = {**kwargs}
         new_kwargs['Cw']*=self.c_factor
@@ -913,19 +1158,100 @@ class WaterCorrection(ModelInterface):
         return f':Wcorr_x_{self.c_factor}'+'{' + self.metadata.entry_id + '}'
 
 class CachedModel(ModelInterface):
+    """
+    A model that caches the conductivity of the encapsulated model
 
+    Useful when calculating the conductivity of a model takes a nontrivial amount of compute. 
+
+    Parameters
+    ----------
+    model : ModelInterface
+        a Pyrrhenius model
+
+    Examples
+    --------   
+    >>> model = database.get_model('model_id')
+    >>> cached_model = CachedModel(model)
+    >>> T = np.linspace(1000,2000,10)
+    >>> P = np.linspace(1,2,10)
+    >>> conductivity = cached_model.get_conductivity(T=T,P=P)
+    >>> assert np.array_equal(conductivity, model.get_conductivity(T=T,P=P,Cw=Cw))
+    """
     def __init__(self, model):
+        """
+        Parameters
+        ----------
+        model : ModelInterface
+            a Pyrrhenius model
+        """
         super().__init__(model.metadata)
         self.cached_c = None
         self.main_model = model
 
     def reset_cache(self):
+        """
+        resets the cache
+        """
         self.cached_c = None
 
     def set_cache(self,**kwargs):
+        """
+        sets the cache
+        """
         self.cached_c =self.main_model.get_conductivity(**kwargs)
 
     def get_conductivity(self, ignore_cache=False,**kwargs):
+        """
+        returns the cached conductivity of the encapsulated model with Cw set to 0. 
+
+        Not all parameters are required by all models. To see which parameters are required by the encapsulated model, 
+        use the model ``.print_required_parameters()`` 
+
+        Parameters
+        ----------
+        ignore_cache : bool, optional
+            If True, the cache is ignored and the conductivity is recalculated.
+        crystal_direction : str or float, optional
+            The crystallographic direction to query for specific conductivity. Only active if the encapsulated model is an IsotropicMixture.
+            If a float is provided, it is used to calculate an anisotropic factor between 0 and 1.
+        
+        averaging : str, optional
+            The method to average conductivity. Default is 'geometric'. Only active if the encapsulated model is an IsotropicMixture.
+            Options include:
+            - 'geometric': Geometric mean of the available crystallographic directions.
+            - 'max_aniso': Maximum anisotropic factor (conductivity in the most conductive direction).
+            - 'min_aniso': Minimum anisotropic factor (conductivity in the least conductive direction).
+        T : float or np.ndarray , optional
+            The temperature value (default is None)
+        P : float or np.ndarray , optional
+            The pressure value in GPa (default is None)
+        co2 : float or np.ndarray , optional
+            The CO2 value (default is None)
+        Cw : float or np.ndarray , optional
+            The water value (default is None)
+        nacl : float or np.ndarray , optional
+            The NaCl concentration in wt% (default is None)
+        sio2 : float or np.ndarray , optional
+            The SiO2 concentration in wt% (default is None)
+        na2o : float or np.ndarray , optional
+            The na2o fraction (default is None)
+        logfo2 : float or np.ndarray , optional
+            The log oxygen fugacity value (default is None)
+        Xfe : float or np.ndarray , optional
+            The iron fraction value (default is None)
+        **kwargs : dict
+            Additional keyword arguments
+
+        Returns
+        -------
+        np.ndarray or float
+            The calculated conductivity
+         Raises
+        ------
+        AssertionError
+            error is raised if one or more keywords are not provided which are required by the mechanism
+        
+        """
         if self.cached_c is None:
             self.set_cache(**kwargs)
 
@@ -944,16 +1270,101 @@ class CachedModel(ModelInterface):
         return self.main_model.get_id()
 
 class WaterPTCorrection(ModelInterface):
+    """
+    Applies a Correction factor to Cw to any encapsulated model
+
+    Parameters
+    ----------
+    model : ModelInterface
+        a Pyrrhenius model
+
+    correction_factor_call : function
+        a function that takes in P and T and returns a correction factor for Cw
+
+    Examples
+    --------
+    >>> def correction_factor_call(P,T):
+    >>>     return 1.0
+    >>> corrected_model = WaterPTCorrection(uncorrected_model,correction_factor_call)
+    """
 
     def __init__(self, model,correction_factor_call):
+        """
+        Parameters
+        ----------
+        model : ModelInterface
+            a Pyrrhenius model
+
+        correction_factor_call : function
+            a function that takes in P and T and returns a correction factor for Cw
+        """
         super().__init__(model.metadata)
         self.c_factor = correction_factor_call
         self.main_model = model
 
     def get_facade_model_id(self):
+        """
+        returns the id of the encapsulated model
+
+        Returns
+        -------
+        str
+            the id of the encapsulated model
+        """
         return self.main_model.get_id
 
     def get_conductivity(self, **kwargs):
+        """
+        returns the cached conductivity of the encapsulated model with Cw set to 0. 
+
+        Not all parameters are required by all models. To see which parameters are required by the encapsulated model, 
+        use the model ``.print_required_parameters()`` 
+
+        Parameters
+        ----------
+        ignore_cache : bool, optional
+            If True, the cache is ignored and the conductivity is recalculated.
+        crystal_direction : str or float, optional
+            The crystallographic direction to query for specific conductivity. Only active if the encapsulated model is an IsotropicMixture.
+            If a float is provided, it is used to calculate an anisotropic factor between 0 and 1.
+        
+        averaging : str, optional
+            The method to average conductivity. Default is 'geometric'. Only active if the encapsulated model is an IsotropicMixture.
+            Options include:
+            - 'geometric': Geometric mean of the available crystallographic directions.
+            - 'max_aniso': Maximum anisotropic factor (conductivity in the most conductive direction).
+            - 'min_aniso': Minimum anisotropic factor (conductivity in the least conductive direction).
+        T : float or np.ndarray , optional
+            The temperature value (default is None)
+        P : float or np.ndarray , optional
+            The pressure value in GPa (default is None)
+        co2 : float or np.ndarray , optional
+            The CO2 value (default is None)
+        Cw : float or np.ndarray , optional
+            The water value (default is None)
+        nacl : float or np.ndarray , optional
+            The NaCl concentration in wt% (default is None)
+        sio2 : float or np.ndarray , optional
+            The SiO2 concentration in wt% (default is None)
+        na2o : float or np.ndarray , optional
+            The na2o fraction (default is None)
+        logfo2 : float or np.ndarray , optional
+            The log oxygen fugacity value (default is None)
+        Xfe : float or np.ndarray , optional
+            The iron fraction value (default is None)
+        **kwargs : dict
+            Additional keyword arguments
+
+        Returns
+        -------
+        np.ndarray or float
+            The calculated conductivity
+         Raises
+        ------
+        AssertionError
+            error is raised if one or more keywords are not provided which are required by the mechanism
+        
+        """
         new_kwargs = {**kwargs}
         new_kwargs['Cw']=self.c_factor(**kwargs)
         return self.main_model.get_conductivity(**new_kwargs)
@@ -967,8 +1378,37 @@ class WaterPTCorrection(ModelInterface):
 
 
 class IsotropicMixture(ModelInterface):
+    """
+    A model that encapsulates several anisotropic models corresponding to a single phase. 
+     
+    this is useful for flexible exploration of isotropic and anisotorpic models
+
+    Parameters
+    ----------
+    models : list of ModelInterface
+        The models to be averaged.
+
+    Examples
+    --------
+    >>> import pyrrhenius.database as db
+    >>> database = db.Database()
+    >>> database.create_isotropic_models()
+    >>> isotropic_model = database.get_model('IsotropicMixture:model_id')
+    >>> T = np.linspace(1000,2000,10)
+    >>> P = np.linspace(1,2,10)
+    >>> Cw = np.linspace(1,2,10)
+    >>> isotropic_model_conductivity = isotropic_model.get_conductivity(T=T,P=P,Cw=Cw)
+    >>> assert not np.array_equal(isotropic_model_conductivity, model.get_conductivity(T=T,P=P,Cw=Cw))
+    
+    """
 
     def __init__(self, models):
+        """
+        Parameters
+        ----------
+        models : list of ModelInterface
+            The models to be considered in the isotropic mixture.
+        """
         super().__init__(sum([m.metadata for m in models[1:]], models[0].metadata))
         self.metadata.entry_id='isotropic_model:' +  self.metadata.entry_id
         self.metadata.crystal_direction='isotropic'
@@ -977,13 +1417,16 @@ class IsotropicMixture(ModelInterface):
 
     def get_conductivity(self, crystal_direction=None, averaging='geometric', **kwargs):
         """
-        Calculate and return the conductivity based on the specified crystal direction or averaging method.
-    
-        Parameters:
+        returns the conductivity of the isotropic model 
+
+        Not all parameters are required by all models. To see which parameters are required by the encapsulated model, 
+        use the model ``.print_required_parameters()`` 
+
+        Parameters
         ----------
         crystal_direction : str or float, optional
-        The crystallographic direction to query for specific conductivity.
-        If a float is provided, it is used to calculate an anisotropic factor between 0 and 1.
+            The crystallographic direction to query for specific conductivity.
+            If a float is provided, it is used to calculate an anisotropic factor between 0 and 1.
         
         averaging : str, optional
             The method to average conductivity. Default is 'geometric'. 
@@ -991,19 +1434,36 @@ class IsotropicMixture(ModelInterface):
             - 'geometric': Geometric mean of the available crystallographic directions.
             - 'max_aniso': Maximum anisotropic factor (conductivity in the most conductive direction).
             - 'min_aniso': Minimum anisotropic factor (conductivity in the least conductive direction).
-
+        T : float or np.ndarray , optional
+            The temperature value (default is None)
+        P : float or np.ndarray , optional
+            The pressure value in GPa (default is None)
+        co2 : float or np.ndarray , optional
+            The CO2 value (default is None)
+        Cw : float or np.ndarray , optional
+            The water value (default is None)
+        nacl : float or np.ndarray , optional
+            The NaCl concentration in wt% (default is None)
+        sio2 : float or np.ndarray , optional
+            The SiO2 concentration in wt% (default is None)
+        na2o : float or np.ndarray , optional
+            The na2o fraction (default is None)
+        logfo2 : float or np.ndarray , optional
+            The log oxygen fugacity value (default is None)
+        Xfe : float or np.ndarray , optional
+            The iron fraction value (default is None)
         **kwargs : dict
-            Additional keyword arguments passed to internal methods.
-    
-        Returns:
+            Additional keyword arguments
+
+        Returns
         -------
-        float or np.ndarray 
-            The computed conductivity based on the specified method or direction.
-    
-        Raises:
-        -------
-        NotImplementedError:
-            If an unsupported averaging method is provided.
+        np.ndarray or float
+            The calculated conductivity
+         Raises
+        ------
+        AssertionError
+            error is raised if one or more keywords are not provided which are required by the mechanism
+        
         """
         if  crystal_direction is not None:
             if isinstance(crystal_direction,float) or isinstance(crystal_direction,np.ndarray) or isinstance(crystal_direction,int):
@@ -1022,13 +1482,45 @@ class IsotropicMixture(ModelInterface):
             raise NotImplementedError("current option is not implemented. Choose from \'geometric\',  \'max_aniso\', \'min_aniso\', or specify a crystal direction")
 
     def _get_xstal_direction(self, xstal_direction,**kwargs):
+        """
+        returns the conductivity of the anisotropic model that matches the provided crystal direction
+        
+        Parameters
+        ----------
+        xstal_direction : str
+            The crystallographic direction to query for specific conductivity.
+        **kwargs : dict
+            Additional keyword arguments
+
+        Returns
+        -------
+        np.ndarray or float
+            The calculated conductivity
+        Raises
+        ------
+        NotImplementedError
+            error is raised if the crystal direction does not exist
+        """
         for id, model in self.models.items():
             if xstal_direction == model.get_crystal_direction():
                 return model.get_conductivity(**kwargs)
         raise NotImplementedError("crystal direction does not exist")
 
     def _get_geometric_mean(self,**kwargs):
-        c = self.determine_starting_c_type(starting_value=1,**kwargs)
+        """
+        returns the geometric mean of the encapsulated models
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Additional keyword arguments
+
+        Returns     
+        -------
+        np.ndarray or float
+            The calculated geometric meanconductivity
+        """
+        c = utils.create_starting_variable(starting_value=1,**kwargs)
         for m in self.models.values():
             new_conductivity = m.get_conductivity(**kwargs)
             new_conductivity = new_conductivity**(1/len(self.models))
@@ -1036,6 +1528,21 @@ class IsotropicMixture(ModelInterface):
         return c
 
     def _get_anisotropic_factor(self,factor,**kwargs):
+        """ 
+        returns the anisotropic factor of the encapsulated models
+
+        Parameters
+        ----------
+        factor : float
+            The anisotropic factor to query for specific conductivity.
+        **kwargs : dict
+            Additional keyword arguments
+
+        Returns
+        -------
+        np.ndarray or float
+            The calculated anisotropic factor
+        """
         conductivities = [ m.get_conductivity(**kwargs) for m in self.models.values()]
         if isinstance(conductivities[0],np.ndarray):
             min_array = np.min(np.stack(conductivities,axis=-1),axis=-1)
@@ -1049,7 +1556,6 @@ class IsotropicMixture(ModelInterface):
     def uses_water(self):
         return any([model.uses_water for model in self.models.values()])
     
-
     @property
     def uses_nacl(self):
         return any([model.uses_nacl for model in self.models.values()])
