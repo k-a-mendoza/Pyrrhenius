@@ -13,6 +13,7 @@ extensions = ['numpydoc',
     'sphinx_copybutton',
     "jupyter_sphinx",
     'sphinx.ext.todo',
+    'sphinx.ext.mathjax'
 ]
 
 templates_path = ['_templates']

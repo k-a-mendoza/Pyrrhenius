@@ -115,16 +115,17 @@ plag_id = 'isotropic_model:yang_12b_plag[100]+yang_12b_plag[010]+yang_12b_plag[0
 
 brine_model = ecdatabase.get_model(brine_id)
 plag_model  = ecdatabase.get_model(plag_id)
+phase_fractions=[0.05,0.95]
 
 # The HashinStrikman mixing model needs to be initialized with a matrix and inclusion ecmodel
-hashinshtrikman_matrix = pyhmix.HashinShtrikmanUpper(plag_model,brine_model)
+hashinshtrikman_matrix = pyhmix.HashinStrickmanBound([brine_model,plag_model])
+
 # The Geometric Average model requires intitialization with a phase and phase fraction list.
-geometric_mixed_matrix = pyhmix.GeomAverage(phases=[brine_model,plag_model],
-                                            phase_fractions=[0.05,0.95])
+geometric_mixed_matrix = pyhmix.GeomAverage([brine_model,plag_model])
 
 # Only the HS model in this example requires a provided phase fraction (0.05), positional argument.
-hs_conductivity = hashinshtrikman_matrix.get_conductivity(0.05,T=1000)
-gm_conductivity = geometric_mixed_matrix.get_conductivity(T=1000)
+hs_conductivity = hashinshtrikman_matrix.get_conductivity(phase_fractions,T=1000)
+gm_conductivity = geometric_mixed_matrix.get_conductivity(phase_fractions,T=1000)
 
 # Also calculate endmember phase conductivities for comparison
 plagioclase_conductivity = plag_model.get_conductivity(T=1000)
@@ -172,7 +173,7 @@ brine_model = ecdatabase.get_model(brine_id)
 plag_model  = ecdatabase.get_model(plag_id)
 
 # The HashinStrikman mixing model needs to be initialized with a matrix and inclusion ecmodel
-hashinshtrikman_matrix = pyhmix.HashinShtrikmanUpper(plag_model,brine_model)
+hashinshtrikman_matrix = pyhmix.HashinStrickmanBound([brine_model,plag_model])
 
 # provide a range of temperature conditions at which to evaluate the models
 T = np.linspace(400,1200,num=120)

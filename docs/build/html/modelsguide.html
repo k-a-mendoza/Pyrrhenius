@@ -77,10 +77,9 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="api.html">Pyrrhenius API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="fordevelopers.html">test title</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Pyrrhenius API</a></li>
 </ul>
 
         </div>
@@ -116,10 +115,10 @@
 </div>
 <section id="models">
 <h2>Models<a class="headerlink" href="#models" title="Link to this heading"></a></h2>
-<p>The core functionality of pyrrhenius is used via <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> objects. While you can certainty instantiate your own, <a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a>’s are more easily obtained through interaction with a
-<code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.database.Database</span></code> object as described in the quickstart and database sections.</p>
-<p><a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> objects have a number of useful methods and attributes. One of these is the <code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model.metadata</span></code> attribute, which is integrated into the model to allow automatic error-checking when using the model to calculate electric conductivity.</p>
-<p><a class="reference internal" href="api.html#pyrrhenius.model.Model" title="pyrrhenius.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.Model</span></code></a> objects can also be combined with the <cite>+</cite> operator, resulting in a linear combination of the two models. This is useful when integtrating say, a proton diffusion model with an electronic conduction model:</p>
+<p>The core functionality of pyrrhenius is used via <a class="reference internal" href="api.html#pyrrhenius.model.ModelInterface" title="pyrrhenius.model.ModelInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.ModelInterface</span></code></a> objects. While you can certainty instantiate your own, <a class="reference internal" href="api.html#pyrrhenius.model.ModelInterface" title="pyrrhenius.model.ModelInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.ModelInterface</span></code></a>’s are more easily obtained through interaction with a
+<a class="reference internal" href="api.html#pyrrhenius.database.Database" title="pyrrhenius.database.Database"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.database.Database</span></code></a> object as described in the quickstart and database sections.</p>
+<p><a class="reference internal" href="api.html#pyrrhenius.model.ModelInterface" title="pyrrhenius.model.ModelInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.ModelInterface</span></code></a> objects have a number of useful methods and attributes. One of these is the <code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.ModelInterface.metadata</span></code> attribute, which is integrated into the model to allow automatic error-checking when using the model to calculate electric conductivity.</p>
+<p><a class="reference internal" href="api.html#pyrrhenius.model.ModelInterface" title="pyrrhenius.model.ModelInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyrrhenius.model.ModelInterface</span></code></a> objects can also be combined with the <cite>+</cite> operator, resulting in a linear combination of the two models. This is useful when integtrating say, a proton diffusion model with an electronic conduction model:</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nv17HD</span>  <span class="o">=</span> <span class="n">ecdatabase</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;nv_17_ol[010]&#39;</span><span class="p">)</span> <span class="c1"># Novella et al. 2017&#39;s hydrogen diffusion equation</span>
@@ -134,9 +133,18 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>nv_17_ol[010]:{NerstEinstein2 1.8e+42(nan) 10^-5.0(0.9) 1.782654381(0.196921123) }
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>nv_17_ol[010]:{1.8e+42(nan) Cw * 10^-5.0(0.9) * exp(1.782654381(0.196921123)/kT)/kT}
 SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}
-nv_17_ol[010]+SEO3_ol:{nv_17_ol[010]:{NerstEinstein2 1.8e+42(nan) 10^-5.0(0.9) 1.782654381(0.196921123) }+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+nan bell (2003)
+nan ppm
+nan nan
+nan bell (2003)
+nan ppm
+nan nan
+nan bell (2003)
+nan ppm
+nan nan
+{nv_17_ol[010]+SEO3_ol}
 </pre></div>
 </div>
 </div>
@@ -153,7 +161,7 @@ nv_17_ol[010]+SEO3_ol:{nv_17_ol[010]:{NerstEinstein2 1.8e+42(nan) 10^-5.0(0.9) 1
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([2.73808615e-05])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>2.7380861532827377e-05
 </pre></div>
 </div>
 </div>
@@ -209,7 +217,7 @@ If we tried to run the SEO3 model without these keywords pyrrhenius will inform 
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Did not provide an oxygen fugacity value!
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>logfo2 not provided. Pass logfo2 as a keyword-argument
 </pre></div>
 </div>
 </div>
@@ -407,6 +415,278 @@ the pyrrhenius database object will internally create its own isotropic represen
 </div>
 </div>
 <div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+ppm ppm
+nan nan
+paterson (1982) paterson (1982)
+ppm ppm
+nan nan
+paterson (1982) paterson (1982)
+ppm ppm
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+</pre></div>
+</div>
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;fei_20_ol_ionic[010]&#39;,
  &#39;fei_20_ol_ionic[001]&#39;,
  &#39;isotropic_model:dF_05_ol[100]+dF_05_ol[010]+dF_05_ol[001]&#39;,
@@ -468,8 +748,8 @@ Example usage:</p></li>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([9.54130942e-06, 2.32192032e-05, 5.17207779e-05, ...,
-       1.21434671e-03, 2.18061386e-03, 4.07700586e-03])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([9.54131586e-06, 2.32192181e-05, 5.17208096e-05, ...,
+       1.21434816e-03, 2.18061769e-03, 4.07701613e-03])
 </pre></div>
 </div>
 </div>
@@ -486,8 +766,8 @@ By setting <code class="docutils literal notranslate"><span class="pre">averagin
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([2.40550006e-05, 5.85446664e-05, 1.30385472e-04, ...,
-       2.92689115e-03, 5.07131923e-03, 9.06023794e-03])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([2.40550310e-05, 5.85447366e-05, 1.30385620e-04, ...,
+       2.92689511e-03, 5.07132817e-03, 9.06025978e-03])
 </pre></div>
 </div>
 </div>
@@ -504,8 +784,8 @@ When <code class="docutils literal notranslate"><span class="pre">averaging</spa
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.85038640e-06, 5.17376148e-06, 1.30593266e-05, ...,
-       5.02547031e-04, 9.90019245e-04, 2.03825870e-03])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.85038547e-06, 5.17375901e-06, 1.30593207e-05, ...,
+       5.02547241e-04, 9.90020304e-04, 2.03826257e-03])
 </pre></div>
 </div>
 </div>
@@ -519,8 +799,8 @@ When <code class="docutils literal notranslate"><span class="pre">averaging</spa
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.95144420e-05, 4.13283627e-05, 8.12540766e-05, ...,
-       1.21743230e-03, 2.06524565e-03, 3.66965383e-03])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.95144667e-05, 4.13284124e-05, 8.12541700e-05, ...,
+       1.21743450e-03, 2.06525070e-03, 3.66966574e-03])
 </pre></div>
 </div>
 </div>
@@ -543,8 +823,8 @@ When <code class="docutils literal notranslate"><span class="pre">averaging</spa
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.29526935e-05, 3.18592139e-05, 7.17223991e-05, ...,
-       1.71471909e-03, 3.03066924e-03, 5.54924832e-03])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.29527083e-05, 3.18592478e-05, 7.17224706e-05, ...,
+       1.71472118e-03, 3.03067424e-03, 5.54926118e-03])
 </pre></div>
 </div>
 </div>
@@ -563,11 +843,11 @@ When <code class="docutils literal notranslate"><span class="pre">averaging</spa
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Anisotropic Factors: [0.50016605 0.55725348 0.59719412 ... 0.70878825 0.36941659 0.177983  ]
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Anisotropic Factors: [0.41393503 0.11618761 0.50551    ... 0.20663594 0.74778231 0.3740369 ]
 </pre></div>
 </div>
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.29563807e-05, 3.49148839e-05, 8.31258099e-05, ...,
-       2.22089366e-03, 2.49771918e-03, 3.28805161e-03])
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>array([1.10416660e-05, 1.13748054e-05, 7.23689379e-05, ...,
+       1.00350464e-03, 4.04195014e-03, 4.66474865e-03])
 </pre></div>
 </div>
 </div>
@@ -605,16 +885,16 @@ When <code class="docutils literal notranslate"><span class="pre">averaging</spa
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[1.85038640e-06 5.17376148e-06 1.30593266e-05 ... 5.02547031e-04
- 9.90019245e-04 2.03825870e-03]
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[1.85038547e-06 5.17375901e-06 1.30593207e-05 ... 5.02547241e-04
+ 9.90020304e-04 2.03826257e-03]
 [10.          9.47368421  9.         ...  7.2         6.92307692
   6.66666667]
-[2.40550006e-05 5.85446664e-05 1.30385472e-04 ... 2.92689115e-03
- 5.07131923e-03 9.06023794e-03]
+[2.40550310e-05 5.85447366e-05 1.30385620e-04 ... 2.92689511e-03
+ 5.07132817e-03 9.06025978e-03]
 [10.          9.47368421  9.         ...  7.2         6.92307692
   6.66666667]
-[9.54130942e-06 2.32192032e-05 5.17207779e-05 ... 1.21434671e-03
- 2.18061386e-03 4.07700586e-03]
+[9.54131586e-06 2.32192181e-05 5.17208096e-05 ... 1.21434816e-03
+ 2.18061769e-03 4.07701613e-03]
 [10.          9.47368421  9.         ...  7.2         6.92307692
   6.66666667]
 </pre></div>
@@ -681,52 +961,106 @@ When <code class="docutils literal notranslate"><span class="pre">averaging</spa
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>********************
 nv_17_ol[100]
-[3.50705561e-05 9.90949892e-04 1.30542766e-02 ... 1.80010942e+01
- 4.20468450e+01 8.79148178e+01]
-[3.62561002e-05 1.00357394e-03 1.31427481e-02 ... 1.83972519e+01
- 4.37197216e+01 9.39204356e+01]
-old ec model representation:nv_17_ol[100]:{NerstEinstein2 1.8e+42(nan) 10^-0.7(0.9) 2.373417751(0.186556854) }
-new ec model representation:nv_17_ol[100]+SEO3_ol:{nv_17_ol[100]:{NerstEinstein2 1.8e+42(nan) 10^-0.7(0.9) 2.373417751(0.186556854) }+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+[3.50705631e-05 9.90950092e-04 1.30542793e-02 ... 1.80010978e+01
+ 4.20468535e+01 8.79148355e+01]
+nan bell (2003)
+nan ppm
+nan nan
+nan bell (2003)
+nan ppm
+nan nan
+nan bell (2003)
+nan ppm
+nan nan
+[3.62561072e-05 1.00357414e-03 1.31427507e-02 ... 1.83972555e+01
+ 4.37197301e+01 9.39204533e+01]
+old ec model representation:nv_17_ol[100]:{1.8e+42(nan) Cw * 10^-0.7(0.9) * exp(2.373417751(0.186556854)/kT)/kT}
+new ec model representation:{nv_17_ol[100]+SEO3_ol}
 ********************
 nv_17_ol[010]
-[1.66824179e-06 1.98422195e-05 1.33579444e-04 ... 2.72729707e-02
- 5.06947104e-02 8.68055409e-02]
-[2.85378588e-06 3.24662662e-05 2.22050934e-04 ... 4.23430669e-01
- 1.72357131e+00 6.09242335e+00]
-old ec model representation:nv_17_ol[010]:{NerstEinstein2 1.8e+42(nan) 10^-5.0(0.9) 1.782654381(0.196921123) }
-new ec model representation:nv_17_ol[010]+SEO3_ol:{nv_17_ol[010]:{NerstEinstein2 1.8e+42(nan) 10^-5.0(0.9) 1.782654381(0.196921123) }+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+[1.66824213e-06 1.98422234e-05 1.33579471e-04 ... 2.72729762e-02
+ 5.06947206e-02 8.68055584e-02]
+nan bell (2003)
+nan ppm
+nan nan
+nan bell (2003)
+nan ppm
+nan nan
+nan bell (2003)
+nan ppm
+nan nan
+[2.85378621e-06 3.24662702e-05 2.22050961e-04 ... 4.23430675e-01
+ 1.72357132e+00 6.09242337e+00]
+old ec model representation:nv_17_ol[010]:{1.8e+42(nan) Cw * 10^-5.0(0.9) * exp(1.782654381(0.196921123)/kT)/kT}
+new ec model representation:{nv_17_ol[010]+SEO3_ol}
 ********************
 nv_17_ol[001]
-[7.70053816e-06 1.16770681e-04 9.49122523e-04 ... 3.31262408e-01
- 6.56521841e-01 1.18900351e+00]
-[8.88608225e-06 1.29394728e-04 1.03759401e-03 ... 7.27420107e-01
- 2.32939844e+00 7.19462132e+00]
-old ec model representation:nv_17_ol[001]:{NerstEinstein2 1.8e+42(nan) 10^-3.5(0.4) 1.948482695(0.082914157) }
-new ec model representation:nv_17_ol[001]+SEO3_ol:{nv_17_ol[001]:{NerstEinstein2 1.8e+42(nan) 10^-3.5(0.4) 1.948482695(0.082914157) }+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+[7.70053971e-06 1.16770705e-04 9.49122714e-04 ... 3.31262475e-01
+ 6.56521973e-01 1.18900374e+00]
+nan bell (2003)
+nan ppm
+nan nan
+nan bell (2003)
+nan ppm
+nan nan
+nan bell (2003)
+nan ppm
+nan nan
+[8.88608380e-06 1.29394752e-04 1.03759420e-03 ... 7.27420174e-01
+ 2.32939857e+00 7.19462156e+00]
+old ec model representation:nv_17_ol[001]:{1.8e+42(nan) Cw * 10^-3.5(0.4) * exp(1.948482695(0.082914157)/kT)/kT}
+new ec model representation:{nv_17_ol[001]+SEO3_ol}
 ********************
 fei_20_ol_ionic[100]
-[7.23462253e-09 9.04692076e-07 3.77911472e-05 ... 1.38985283e+00
- 4.80772024e+00 1.41704536e+01]
-[1.19277871e-06 1.35287388e-05 1.26262638e-04 ... 1.78601053e+00
- 6.48059684e+00 2.01760715e+01]
+[7.23469940e-09 9.04702653e-07 3.77916203e-05 ... 1.38987350e+00
+ 4.80779309e+00 1.41706718e+01]
+nan withers (2012)
+nan ppm
+nan nan
+nan withers (2012)
+nan ppm
+nan nan
+nan withers (2012)
+nan ppm
+nan nan
+[1.19277878e-06 1.35287494e-05 1.26263111e-04 ... 1.78603120e+00
+ 6.48066969e+00 2.01762897e+01]
 old ec model representation:fei_20_ol_ionic[100]:{Cw^1.3(0.2) 10^9.9(5.00E-01) exp(-(3.492758874(0.155464045) + P4.2(0.4))/kT)/T}
-new ec model representation:fei_20_ol_ionic[100]+SEO3_ol:{fei_20_ol_ionic[100]:{Cw^1.3(0.2) 10^9.9(5.00E-01) exp(-(3.492758874(0.155464045) + P4.2(0.4))/kT)/T}+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+new ec model representation:{fei_20_ol_ionic[100]+SEO3_ol}
 ********************
 fei_20_ol_ionic[010]
-[4.30849474e-10 1.36802329e-07 1.17750018e-05 ... 3.38768572e+00
- 1.49867925e+01 5.47733817e+01]
-[1.18597493e-06 1.27608490e-05 1.00246492e-04 ... 3.78384342e+00
- 1.66596691e+01 6.07789995e+01]
+[4.30852962e-10 1.36803548e-07 1.17751141e-05 ... 3.38772410e+00
+ 1.49869656e+01 5.47740243e+01]
+nan withers (2012)
+nan ppm
+nan nan
+nan withers (2012)
+nan ppm
+nan nan
+nan withers (2012)
+nan ppm
+nan nan
+[1.18597494e-06 1.27608503e-05 1.00246605e-04 ... 3.78388180e+00
+ 1.66598422e+01 6.07796421e+01]
 old ec model representation:fei_20_ol_ionic[010]:{Cw^1.3(0.2) 10^11.6(4.00E-01) exp(-(4.104250784(0.259106741) + P3.2(0.2))/kT)/T}
-new ec model representation:fei_20_ol_ionic[010]+SEO3_ol:{fei_20_ol_ionic[010]:{Cw^1.3(0.2) 10^11.6(4.00E-01) exp(-(4.104250784(0.259106741) + P3.2(0.2))/kT)/T}+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+new ec model representation:{fei_20_ol_ionic[010]+SEO3_ol}
 ********************
 fei_20_ol_ionic[001]
-[1.76958503e-09 4.60227755e-07 3.39311832e-05 ... 6.28375471e+00
- 2.63721218e+01 9.20449533e+01]
-[1.18731367e-06 1.30842745e-05 1.22402674e-04 ... 6.67991241e+00
- 2.80449984e+01 9.80505711e+01]
+[1.76960339e-09 4.60233007e-07 3.39315979e-05 ... 6.28384594e+00
+ 2.63725119e+01 9.20463369e+01]
+nan withers (2012)
+nan ppm
+nan nan
+nan withers (2012)
+nan ppm
+nan nan
+nan withers (2012)
+nan ppm
+nan nan
+[1.18731369e-06 1.30842797e-05 1.22403088e-04 ... 6.68000363e+00
+ 2.80453885e+01 9.80519547e+01]
 old ec model representation:fei_20_ol_ionic[001]:{Cw^1.3(0.2) 10^11.78(4.00E-01) exp(-(3.990243818(0.155464045) + P4.1(0.4))/kT)/T}
-new ec model representation:fei_20_ol_ionic[001]+SEO3_ol:{fei_20_ol_ionic[001]:{Cw^1.3(0.2) 10^11.78(4.00E-01) exp(-(3.990243818(0.155464045) + P4.1(0.4))/kT)/T}+SEO3_ol:{e*(5.06e+24(nan) exp( -0.357(nan)/kT) 3.33e+24(nan) exp( -0.02(nan)/kT) fO2^0.166667(nan))*1.22e-05(nan) exp( -1.05(nan)/kT) + e*(4.58e+26(nan) exp( -0.752(nan)/kT) 6.209999999999999e+30(nan) exp( -1.83(nan)/kT) fO2^0.166666667(nan))*5.44e-06(nan) exp( -1.09(nan)/kT)}}
+new ec model representation:{fei_20_ol_ionic[001]+SEO3_ol}
 </pre></div>
 </div>
 </div>
@@ -742,6 +1076,314 @@ new ec model representation:fei_20_ol_ionic[001]+SEO3_ol:{fei_20_ol_ionic[001]:{
 </div>
 </div>
 <div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+ppm ppm
+nan nan
+paterson (1982) paterson (1982)
+ppm ppm
+nan nan
+paterson (1982) paterson (1982)
+ppm ppm
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+</pre></div>
+</div>
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;fei_20_ol_ionic[010]&#39;,
  &#39;fei_20_ol_ionic[001]&#39;,
  &#39;nv_17_ol[100]+SEO3_ol&#39;,
@@ -857,7 +1499,277 @@ new ec model representation:fei_20_ol_ionic[001]+SEO3_ol:{fei_20_ol_ionic[001]:{
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Original Conductivity: [0.0039755] S/m
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+withers (2012) withers (2012)
+ppm ppm
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+wtpct wtpct
+nan nan
+paterson (1982) paterson (1982)
+ppm ppm
+nan nan
+paterson (1982) paterson (1982)
+ppm ppm
+nan nan
+paterson (1982) paterson (1982)
+ppm ppm
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+Libowitzky and rossman (1996) Libowitzky and rossman (1996)
+wtpct wtpct
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (1995) bell (1995)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+bell (2003) bell (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Johnson and Rossman (2003) Johnson and Rossman (2003)
+ppm ppm
+nan nan
+Original Conductivity: [0.0039755] S/m
 Water-Corrected Conductivity: [0.00104387] S/m
 </pre></div>
 </div>
@@ -912,16 +1824,16 @@ Water-Corrected Conductivity: [0.00104387] S/m
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Base Model Time (1000 iterations): 2.475551 seconds
-Cached Model Time (First Run): 0.002820 seconds
-Cached Model Time (1000 iterations, using cache): 0.000314 seconds
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Base Model Time (1000 iterations): 2.375855 seconds
+Cached Model Time (First Run): 0.002381 seconds
+Cached Model Time (1000 iterations, using cache): 0.000295 seconds
 
 Base Model Conductivity: [12.51336529 13.3152351  14.09626467 ... 39.31318444 39.32998146
  39.34456567]
 Cached Model Conductivity: [12.51336529 13.3152351  14.09626467 ... 39.31318444 39.32998146
  39.34456567]
 
-Speedup factor (cached vs base): 7874.52x
+Speedup factor (cached vs base): 8048.07x
 </pre></div>
 </div>
 </div>

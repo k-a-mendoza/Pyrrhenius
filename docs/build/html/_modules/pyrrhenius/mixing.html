@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyrrhenius.mixing &mdash; Pyrrhenius 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css?v=572af1d6" />
+      <link rel="stylesheet" type="text/css" href="../../_static/thebelab.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
+        <script src="../../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Pyrrhenius
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Sections</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Pyrrhenius API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Pyrrhenius</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyrrhenius.mixing</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyrrhenius.mixing</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">.model</span> <span class="kn">import</span> <span class="n">WaterPTCorrection</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span><span class="p">,</span> <span class="n">root_scalar</span><span class="p">,</span> <span class="n">root</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">model</span> 
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span> <span class="k">as</span> <span class="n">pyutils</span>
+
+
+
+<div class="viewcode-block" id="AbstractMixingModel">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.AbstractMixingModel">[docs]</a>
+<span class="k">class</span> <span class="nc">AbstractMixingModel</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class for all mixing models</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">phases</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">ModelInterface</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the AbstractMixingModel class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phases : List[model.ModelInterface]</span>
+<span class="sd">            the phases to mix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span><span class="nb">tuple</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="o">=</span> <span class="n">phases</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="o">=</span> <span class="p">[</span><span class="n">phases</span><span class="p">]</span>
+
+<div class="viewcode-block" id="AbstractMixingModel.prep_phase_fractions">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.AbstractMixingModel.prep_phase_fractions">[docs]</a>
+    <span class="k">def</span> <span class="nf">prep_phase_fractions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fractions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepares the phase fractions for the mixture</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phase_fractions : Union[np.ndarray,float, List[float]]</span>
+<span class="sd">            the volume fractions of the conductive phase</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            if the phase fractions do not sum to 1</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            the volume fractions of each phase </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fractions</span><span class="p">,</span><span class="nb">float</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;not enough phase_fractions provided&quot;</span>
+            <span class="n">phase_fractions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">phase_fractions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">fractions</span>
+            <span class="n">phase_fractions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span><span class="o">-</span><span class="n">fractions</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fractions</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fractions</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">fractions</span><span class="p">),</span><span class="s2">&quot;passed fraction and phase list length mismatch.&quot;</span>
+            <span class="n">phase_fractions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fractions</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="nb">sum</span><span class="p">(</span><span class="n">phase_fractions</span><span class="p">)</span><span class="o">==</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;phase_fractions don&#39;t add up to one&quot;</span>
+        <span class="k">return</span> <span class="n">phase_fractions</span></div>
+
+    
+    <span class="nd">@abstractmethod</span> 
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BruggemanSolver">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.BruggemanSolver">[docs]</a>
+<span class="k">class</span> <span class="nc">BruggemanSolver</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Bruggeman solver for the effective medium theory</span>
+
+<span class="sd">    The Bruggeman symmetrical equation is the most widely used EMT equation. It is sometimes known as the Bruggemane Landauer equation. </span>
+<span class="sd">    The system is considered to be an aggregate of unconnected units</span>
+
+<span class="sd">    The bulk conductivity of the system is parameterized as:</span>
+
+<span class="sd">    sum_i f_i * (sigma_i - sigma_bulk) / (sigma_i + (1/p_i - 1) * sigma_bulk) = 0 </span>
+
+<span class="sd">    and thus, sigma_bulk must be solved for. To generalize over N-phases, sigma_bulk is solved for iteratively using the binary search algorithm. </span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span><span class="n">polarizations</span><span class="p">,</span><span class="n">phase_fractions</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the BruggemanSolver class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        models : List[model.ModelInterface]</span>
+<span class="sd">            the models to mix</span>
+<span class="sd">        polarizations : List[float]</span>
+<span class="sd">            the polarizations of the models</span>
+<span class="sd">        phase_fractions : List[float]</span>
+<span class="sd">            the volume fractions of the models</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            the keyword arguments to pass to the conductivity function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_fractions</span> <span class="o">=</span> <span class="n">phase_fractions</span>
+        <span class="n">starting_var</span>    <span class="o">=</span> <span class="n">pyutils</span><span class="o">.</span><span class="n">create_starting_variable</span><span class="p">(</span><span class="n">starting_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constituent_conductivities</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">*</span><span class="n">starting_var</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">models</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constituent_polarizations</span>  <span class="o">=</span> <span class="n">polarizations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseline_img</span> <span class="o">=</span>  <span class="n">pyutils</span><span class="o">.</span><span class="n">create_starting_variable</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bulk</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluates the residual of the Bruggeman equation given an estimated bulk conductivity. </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bulk : float or np.ndarray</span>
+<span class="sd">            the bulk conductivity to evaluate the residual at</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or np.ndarray</span>
+<span class="sd">            the residual of the Bruggeman equation</span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            if the bulk conductivity is less than the minimum constituent conductivity or greater than the maximum constituent conductivity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">bulk</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constituent_conductivities</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)),</span> <span class="s2">&quot;Bulk conductivity is less than the minimum constituent conductivity. Cannot solve for bulk conductivity.&quot;</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">bulk</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constituent_conductivities</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)),</span> <span class="s2">&quot;Bulk conductivity is greater than the maximum constituent conductivity. Cannot solve for bulk conductivity.&quot;</span>
+        <span class="n">baseline_img</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baseline_img</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">conductivity</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">volume_fraction</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constituent_conductivities</span><span class="p">,</span>
+                                                                <span class="bp">self</span><span class="o">.</span><span class="n">constituent_polarizations</span><span class="p">,</span>
+                                                                <span class="bp">self</span><span class="o">.</span><span class="n">phase_fractions</span><span class="p">):</span>
+
+            <span class="n">numerator</span> <span class="o">=</span> <span class="n">conductivity</span> <span class="o">-</span> <span class="n">bulk</span>
+            <span class="n">denominator</span> <span class="o">=</span> <span class="n">conductivity</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">P</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">bulk</span>
+            <span class="n">new_value</span> <span class="o">=</span> <span class="n">volume_fraction</span> <span class="o">*</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span>
+            <span class="n">baseline_img</span> <span class="o">+=</span> <span class="n">new_value</span>
+
+        <span class="k">return</span> <span class="n">baseline_img</span></div>
+
+
+
+
+<div class="viewcode-block" id="EffectiveMediumTheoryMixture">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.EffectiveMediumTheoryMixture">[docs]</a>
+<span class="k">class</span> <span class="nc">EffectiveMediumTheoryMixture</span><span class="p">(</span><span class="n">AbstractMixingModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixing model based on the effective medium theory</span>
+
+<span class="sd">    The effective medium theory is a method to predict the macroscopic conductivity of a mixture of materials. </span>
+<span class="sd">    It is based on the assumption that the mixture is a random distribution of the individual phases.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">phases</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;Bruggeman&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the EffectiveMediumTheoryMixture class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phase_list : list</span>
+<span class="sd">            the list of phases to mix</span>
+<span class="sd">        type : str</span>
+<span class="sd">            the type of the effective medium theory to use. Options are currently limited to &#39;Bruggeman&#39;, but may extend to others once</span>
+<span class="sd">            the relevant literature is evaluated. </span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            the keyword arguments to pass to the conductivity function</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            if the type is not supported</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="o">==</span><span class="s1">&#39;Bruggeman&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">BruggemanSolver</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Type </span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s2"> is not supported for the effective medium theory. Please choose &#39;Bruggeman&#39;.&quot;</span><span class="p">)</span>
+        
+
+<div class="viewcode-block" id="EffectiveMediumTheoryMixture.set_polarization_factors">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.EffectiveMediumTheoryMixture.set_polarization_factors">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_polarization_factors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">polarization_factors</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the polarization factors for the phases</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phase_list : list</span>
+<span class="sd">            the list of phases</span>
+<span class="sd">        polarization_factors : list</span>
+<span class="sd">            the polarization factors of the phases</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            the polarization factors of the phases</span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            if the polarization factors are not between 0 and 1/3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">polarization_factors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pol_fac</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pol_fac</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">polarization_factors</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;Polarization factors must be between 0 and 1/3. Current factors: </span><span class="si">{x}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">pol_fac</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pol_fac</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pol_fac</span></div>
+
+
+<div class="viewcode-block" id="EffectiveMediumTheoryMixture.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.EffectiveMediumTheoryMixture.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">phase_fractions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">polarization_factors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the conductivity of the mixture</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phase_fractions : list</span>
+<span class="sd">            the fractions of the phases</span>
+<span class="sd">        polarization_factors : list</span>
+<span class="sd">            the polarization factors of the phases. Defaults to 1/3 for all phases. </span>
+<span class="sd">            For reference, 1/3 is the polarization factor for a sphere and 0 is the polarization factor for a rod. </span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            the keyword arguments to pass to the conductivity function for the mixture</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or np.ndarray</span>
+<span class="sd">            the conductivity of the mixture</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">phase_fractions</span>            <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prep_phase_fractions</span><span class="p">(</span><span class="n">phase_fractions</span><span class="p">)</span>
+        <span class="n">polarization_factors</span>       <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_polarization_factors</span><span class="p">(</span><span class="n">polarization_factors</span><span class="p">)</span>
+        <span class="n">starting_var</span>    <span class="o">=</span> <span class="n">pyutils</span><span class="o">.</span><span class="n">create_starting_variable</span><span class="p">(</span><span class="n">starting_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">constituent_conductivities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">*</span><span class="n">starting_var</span> \
+                                                   <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">bounds_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">constituent_conductivities</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">bounds_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">constituent_conductivities</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">solver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">,</span><span class="n">polarization_factors</span><span class="p">,</span><span class="n">phase_fractions</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">constituent_conductivities</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">root_scalar</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span><span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">bounds_max</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                                 <span class="n">bracket</span><span class="o">=</span><span class="p">(</span><span class="n">bounds_min</span><span class="p">,</span><span class="n">bounds_max</span><span class="p">))</span><span class="o">.</span><span class="n">root</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">pyutils</span><span class="o">.</span><span class="n">binary_search</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">bounds_max</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                      <span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="n">bounds_min</span><span class="p">,</span> <span class="n">bounds_max</span><span class="p">),</span>
+                      <span class="n">kwargs</span><span class="o">=</span><span class="p">{},</span>
+                      <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+</div>
+
+
+
+
+<div class="viewcode-block" id="HashinStrickmanBound">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.HashinStrickmanBound">[docs]</a>
+<span class="k">class</span> <span class="nc">HashinStrickmanBound</span><span class="p">(</span><span class="n">AbstractMixingModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the Hashin-Shtrikman bound for the conductivity of a mixture</span>
+
+<span class="sd">    The Hashin-Shtrikman bound simulates the conductivity of spheres embedded in a matrix. </span>
+
+
+<span class="sd">    summation_term = sum phase_fractions / (sigma_i +2*sigma_{min/max})</span>
+<span class="sd">    sigma_total    =  summation_term^-1 - 2*sigma_{min/max}</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">phases</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">ModelInterface</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the HashinShtrikmanLower class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sigma_0 : model.ModelInterface</span>
+<span class="sd">            the conductivity model of the matrix</span>
+<span class="sd">        sigma_1 : model.ModelInterface</span>
+<span class="sd">            the conductivity model of the inclusion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HashinStrickmanBound.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.HashinStrickmanBound.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fractions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;max&#39;</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the conductivity of the mixture</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fractions : Union[np.ndarray,float, List[float]]</span>
+<span class="sd">            the volume fractions of the conductive phase</span>
+<span class="sd">        type : str</span>
+<span class="sd">            the type of the Hashin-Shtrikman bound to use. Options are &#39;max&#39; or &#39;min&#39;.</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            the keyword arguments to pass to the conductivity function</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or np.ndarray</span>
+<span class="sd">            the conductivity of the mixture</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">phase_fractions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prep_phase_fractions</span><span class="p">(</span><span class="n">fractions</span><span class="p">)</span>
+        <span class="n">starting_var</span>    <span class="o">=</span> <span class="n">pyutils</span><span class="o">.</span><span class="n">create_starting_variable</span><span class="p">(</span><span class="n">starting_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">conductivities</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">*</span><span class="n">starting_var</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="o">==</span><span class="s1">&#39;max&#39;</span><span class="p">:</span>
+            <span class="n">sigma_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">conductivities</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="o">==</span><span class="s1">&#39;min&#39;</span><span class="p">:</span>
+            <span class="n">sigma_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">conductivities</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">summation_term</span> <span class="o">=</span> <span class="n">pyutils</span><span class="o">.</span><span class="n">create_starting_variable</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">phase</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">phase_fractions</span><span class="p">,</span><span class="n">conductivities</span><span class="p">):</span>
+            <span class="n">summation_term</span><span class="o">+=</span> <span class="n">phase</span> <span class="o">/</span> <span class="p">(</span><span class="n">c</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">sigma_1</span><span class="p">)</span>
+        <span class="n">sigma_total</span> <span class="o">=</span>  <span class="mi">1</span><span class="o">/</span><span class="n">summation_term</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">sigma_1</span>
+        <span class="k">return</span> <span class="n">sigma_total</span></div>
+</div>
+
+    
+
+<div class="viewcode-block" id="ParallelModel">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.ParallelModel">[docs]</a>
+<span class="k">class</span> <span class="nc">ParallelModel</span><span class="p">(</span><span class="n">AbstractMixingModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the conductivity of two phases connected in parallel.</span>
+<span class="sd">    The parameterization looks like:</span>
+<span class="sd">    </span>
+<span class="sd">    sigma_total = sum  phase_fraction_i * conductivity_i</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">phases</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">ModelInterface</span><span class="p">]):</span>
+<span class="w">       </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">       Initializes the ParallelModel class</span>
+
+<span class="sd">       Parameters</span>
+<span class="sd">       ----------</span>
+<span class="sd">       phases : List[model.ModelInterface]</span>
+<span class="sd">           the phases to connect in parallel</span>
+<span class="sd">       &quot;&quot;&quot;</span>
+       <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ParallelModel.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.ParallelModel.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fractions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the conductivity of the mixture</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fractions : Union[np.ndarray,float, List[float]]</span>
+<span class="sd">            the volume fractions of the conductive phase</span>
+<span class="sd">      </span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            the keyword arguments to pass to the conductivity function</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or np.ndarray</span>
+<span class="sd">            the conductivity of the mixture</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">phase_fractions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prep_phase_fractions</span><span class="p">(</span><span class="n">fractions</span><span class="p">)</span>
+        <span class="n">summation_term</span> <span class="o">=</span> <span class="n">pyutils</span><span class="o">.</span><span class="n">create_starting_variable</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fraction</span><span class="p">,</span> <span class="n">phase</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">phase_fractions</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">):</span>
+            <span class="n">summation_term</span><span class="o">+=</span><span class="n">fraction</span><span class="o">*</span><span class="n">phase</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">summation_term</span></div>
+</div>
+
+    
+
+<div class="viewcode-block" id="SeriesModel">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.SeriesModel">[docs]</a>
+<span class="k">class</span> <span class="nc">SeriesModel</span><span class="p">(</span><span class="n">AbstractMixingModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the conductivity of several phases connected in series. </span>
+<span class="sd">    The parameterization looks like:</span>
+<span class="sd">    1/sigma_total = sum phase_fraction_i / conductivity_i</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the SeriesModel class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phases : List[model.ModelInterface]</span>
+<span class="sd">            the phases to connect in series</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SeriesModel.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.SeriesModel.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fractions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the conductivity of the mixture</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fractions : float or np.ndarray</span>
+<span class="sd">            the porosity of the mixture/ the volume fraction of the inclusion</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            the keyword arguments to pass to the conductivity function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">phase_fractions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prep_phase_fractions</span><span class="p">(</span><span class="n">fractions</span><span class="p">)</span>
+        <span class="n">summation_term</span> <span class="o">=</span> <span class="n">pyutils</span><span class="o">.</span><span class="n">create_starting_variable</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fraction</span><span class="p">,</span> <span class="n">phase</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">phase_fractions</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">):</span>
+            <span class="n">summation_term</span><span class="o">+=</span><span class="n">fraction</span><span class="o">/</span><span class="n">phase</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="o">/</span><span class="n">summation_term</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CubeModel">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.CubeModel">[docs]</a>
+<span class="k">class</span> <span class="nc">CubeModel</span><span class="p">(</span><span class="n">AbstractMixingModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the conductivity of a lattice of cubes separated by thin sheets. Also known as the thin film model.</span>
+
+<span class="sd">    Two variants are implemented:</span>
+<span class="sd">    waff74-1:</span>
+<span class="sd">    sigma_total = (1 -(1-phi)^(2/3) ) * sigma_melt</span>
+
+<span class="sd">    waff74-2:</span>
+<span class="sd">    sigma_total = solid * melt * ( 1 - phi)^(2/3) / ( melt * (1 - phi)^(1/3) + solid * (1 - (1-phi)^(1/3)) )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mixing_model</span> <span class="o">=</span> <span class="s1">&#39;Cube&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span><span class="p">,</span><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;waff74-1&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the CubeModel class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phases : List[model.ModelInterface]</span>
+<span class="sd">            a list of models corresponding to the consitutent phases. The model assuems the first phase </span>
+<span class="sd">            is the matrix phase, and the second is the inclusion. Alternatively a single phase passed will be interpreted to </span>
+<span class="sd">            represent that of the fluid, but will fail if the variant selected requires two phases</span>
+<span class="sd">       </span>
+<span class="sd">        variant : str</span>
+<span class="sd">            the variant of the cube model to use</span>
+<span class="sd">            Two variants are implemented:</span>
+<span class="sd">            -waff74-1:</span>
+<span class="sd">             sigma_total = (1 -(1-phi)^(2/3) ) * sigma_melt</span>
+
+<span class="sd">            -waff74-2:</span>
+<span class="sd">             sigma_total = solid * melt * ( 1 - phi)^(2/3) / ( melt * (1 - phi)^(1/3) + solid * (1 - (1-phi)^(1/3)) )</span>
+
+<span class="sd">            -P00:</span>
+<span class="sd">             sigma_total = 1/( (1 - phi) / sigma_solid + phi / sigma_fluid )</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variant</span> <span class="o">=</span> <span class="n">variant</span>
+
+<div class="viewcode-block" id="CubeModel.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.CubeModel.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fractions</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the conductivity of the mixture</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fractions : float or np.ndarray</span>
+<span class="sd">            the volume fractions of the conductive phase</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            the keyword arguments to pass to the conductivity function</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or np.ndarray</span>
+<span class="sd">            the conductivity of the mixture</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">phase_fractions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prep_phase_fractions</span><span class="p">(</span><span class="n">fractions</span><span class="p">)</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">phase_fractions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">c_inclusion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variant</span><span class="o">==</span><span class="s1">&#39;waff74-1&#39;</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span> <span class="p">)</span><span class="o">*</span><span class="n">c_inclusion</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">variant</span><span class="o">==</span><span class="s1">&#39;waff74-2&#39;</span><span class="p">:</span>
+            <span class="n">c_matrix</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">numerator</span>   <span class="o">=</span> <span class="n">c_matrix</span> <span class="o">*</span> <span class="n">c_inclusion</span> <span class="o">*</span> <span class="p">(</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">denominator</span> <span class="o">=</span> <span class="n">c_inclusion</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">c_matrix</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">numerator</span><span class="o">/</span><span class="n">denominator</span>
+            <span class="n">value</span> <span class="o">+=</span> <span class="n">c_inclusion</span><span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">variant</span><span class="o">==</span><span class="s1">&#39;P00&#39;</span><span class="p">:</span>
+            <span class="n">c_matrix</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">cube_side_length</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">value1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">cube_side_length</span><span class="p">)</span><span class="o">/</span><span class="n">c_inclusion</span>
+            <span class="n">value2</span> <span class="o">=</span> <span class="n">cube_side_length</span><span class="o">/</span><span class="p">(</span><span class="n">c_inclusion</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">cube_side_length</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> \
+                                       <span class="n">c_matrix</span><span class="o">*</span><span class="n">cube_side_length</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">value1</span><span class="o">+</span><span class="n">value2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">value</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ArchiesLaw">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.ArchiesLaw">[docs]</a>
+<span class="k">class</span> <span class="nc">ArchiesLaw</span><span class="p">(</span><span class="n">AbstractMixingModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the conductivity of a mixture using Archie&#39;s law</span>
+
+<span class="sd">    The parameterization looks like:</span>
+<span class="sd">    sigma_total = c*phi^n * sigma_fluid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the ArchiesLaw class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        matrix_conductivity_model : model.ModelInterface</span>
+<span class="sd">            the conductivity model of the matrix</span>
+<span class="sd">        fluid_conduction_model : model.ModelInterface</span>
+<span class="sd">            the conductivity model of the fluid</span>
+<span class="sd">        c : float</span>
+<span class="sd">            the coefficient of the parameterization. Defaults to 1</span>
+<span class="sd">        n : float</span>
+<span class="sd">            the exponent of the parameterization. Defaults to 1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
+
+<div class="viewcode-block" id="ArchiesLaw.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.ArchiesLaw.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fraction</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the conductivity of the mixture</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fraction : float or np.ndarray</span>
+<span class="sd">            the porosity of the mixture</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            the keyword arguments to pass to the conductivity function</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or np.ndarray</span>
+<span class="sd">            the conductivity of the mixture</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">phase_fraction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prep_phase_fractions</span><span class="p">(</span><span class="n">fraction</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">c_inclusion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="o">*</span><span class="n">phase_fraction</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">c_inclusion</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ArchiesLawGlover">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.ArchiesLawGlover">[docs]</a>
+<span class="k">class</span> <span class="nc">ArchiesLawGlover</span><span class="p">(</span><span class="n">AbstractMixingModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    a reparameterization of archies law to reduce the number of unknown coefficients first described by Glover et al., (2000)</span>
+
+<span class="sd">    the parameterization looks like:</span>
+<span class="sd">    sigma_total = C_m * (1 - phi)^p + C_f * phi^m</span>
+
+<span class="sd">    where p: </span>
+<span class="sd">    p = log(1 - phi^m)/log(1 - phi)</span>
+
+<span class="sd">    suggested values for m are:</span>
+<span class="sd">    m: 1.9 for brine in peridotite: Huang et al., (2021)</span>
+<span class="sd">    m: 1.05 for silicic melts Gaillard et al., (2005)</span>
+<span class="sd">    m: 1.2 to match basalt vs peridotite Yoshino et al., (2010)</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mf">1.9</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the ArchiesLawGlover class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phases: model.ModelInterface</span>
+<span class="sd">            the list of phases for the model. Assumes the first phase is the inclusion and the second is the matrix</span>
+<span class="sd">        m : float</span>
+<span class="sd">            the exponent of the parameterization</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">m</span>
+
+<div class="viewcode-block" id="ArchiesLawGlover.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.ArchiesLawGlover.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fractions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the conductivity of the mixture</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fractions : float or np.ndarray</span>
+<span class="sd">            the volume fractions of the mixture</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            the keyword arguments to pass to the conductivity function</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or np.ndarray</span>
+<span class="sd">            the conductivity of the mixture</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">phase_fraction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prep_phase_fractions</span><span class="p">(</span><span class="n">fractions</span><span class="p">)</span>
+        <span class="n">c_inclusion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">c_matrix</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">phase_fraction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">phase_fraction</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">term1</span> <span class="o">=</span> <span class="n">c_matrix</span><span class="o">*</span><span class="n">phase_fraction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="n">p</span>
+        <span class="n">term2</span> <span class="o">=</span> <span class="n">c_inclusion</span><span class="o">*</span><span class="n">phase_fraction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span>
+        <span class="k">return</span> <span class="n">term1</span> <span class="o">+</span> <span class="n">term2</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TubesModel">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.TubesModel">[docs]</a>
+<span class="k">class</span> <span class="nc">TubesModel</span><span class="p">(</span><span class="n">AbstractMixingModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the conductivity of a tube-like lattice embedded in a matrix</span>
+
+<span class="sd">    The parameterization looks like:</span>
+<span class="sd">    sigma_total = C_m * (1 - phi) + C_f * phi</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span> <span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">ModelInterface</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the TubesModel class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phases: model.ModelInterface</span>
+<span class="sd">            the list of phases for the model. Assumes the first phase is the inclusion and the second is the matrix</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
+ 
+
+<div class="viewcode-block" id="TubesModel.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.TubesModel.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fractions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the conductivity of the mixture</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fractions : float or np.ndarray</span>
+<span class="sd">            the phase fractions of the mixture</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            the keyword arguments to pass to the conductivity function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">phase_fraction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prep_phase_fractions</span><span class="p">(</span><span class="n">fractions</span><span class="p">)</span>
+        <span class="n">c_inclusion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">c_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">first</span>  <span class="o">=</span> <span class="n">phase_fraction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">c_inclusion</span><span class="o">/</span><span class="mi">3</span>
+        <span class="n">second</span> <span class="o">=</span> <span class="n">phase_fraction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">c_matrix</span>
+
+        <span class="k">return</span> <span class="n">first</span><span class="o">+</span><span class="n">second</span></div>
+</div>
+
+
+<div class="viewcode-block" id="GeomAverage">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.GeomAverage">[docs]</a>
+<span class="k">class</span> <span class="nc">GeomAverage</span><span class="p">(</span><span class="n">AbstractMixingModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the geometric average of the conductivities of the phases</span>
+
+<span class="sd">    The geometric average is defined as:</span>
+<span class="sd">    sigma_total = exp(1/N * sum(log(C_i)))</span>
+<span class="sd">    or alternatively as</span>
+<span class="sd">    sigma_total = (prod(C_i^(f_i)))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">ModelInterface</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the GeometricAverage class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phases : List[model.ModelInterface]</span>
+<span class="sd">            the phases to average</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GeomAverage.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.GeomAverage.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fractions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the conductivity of the mixture</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fractions : dict</span>
+<span class="sd">            the volume fractions of each phase</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            the keyword arguments to pass to the conductivity function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">starting_var</span> <span class="o">=</span> <span class="n">pyutils</span><span class="o">.</span><span class="n">create_starting_variable</span><span class="p">(</span><span class="n">starting_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">phase_fractions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prep_phase_fractions</span><span class="p">(</span><span class="n">fractions</span><span class="p">)</span>
+        <span class="n">conductivities</span> <span class="o">=</span> <span class="p">[</span><span class="n">starting_var</span><span class="o">*</span><span class="n">phase</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">fraction</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">conductivities</span><span class="p">,</span><span class="n">phase_fractions</span><span class="p">):</span>
+            <span class="n">starting_var</span><span class="o">*=</span> <span class="n">c</span><span class="o">**</span><span class="n">fraction</span>
+
+        <span class="k">return</span> <span class="n">starting_var</span></div>
+</div>
+
+
+<div class="viewcode-block" id="ArithmeticAverage">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.ArithmeticAverage">[docs]</a>
+<span class="k">class</span> <span class="nc">ArithmeticAverage</span><span class="p">(</span><span class="n">AbstractMixingModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the arithmetic average of the conductivities of the phases</span>
+
+<span class="sd">    The arithmetic average is defined as:</span>
+<span class="sd">    sigma_total = sum(f_i * C_i)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phases</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the ArithmeticAverage class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phases : list</span>
+<span class="sd">            the phases to average</span>
+<span class="sd">        phase_fractions : list</span>
+<span class="sd">            the fractions of the phases</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
+        
+
+<div class="viewcode-block" id="ArithmeticAverage.get_conductivity">
+<a class="viewcode-back" href="../../api.html#pyrrhenius.mixing.ArithmeticAverage.get_conductivity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fractions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the conductivity of the mixture</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            the keyword arguments to pass to the conductivity function</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or np.ndarray</span>
+<span class="sd">            the conductivity of the mixture</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">starting_var</span> <span class="o">=</span> <span class="n">pyutils</span><span class="o">.</span><span class="n">create_starting_variable</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">phase_fractions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prep_phase_fractions</span><span class="p">(</span><span class="n">fractions</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">phase</span><span class="p">,</span> <span class="n">fraction</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">,</span><span class="n">phase_fractions</span><span class="p">):</span>
+            <span class="n">starting_var</span><span class="o">+=</span><span class="n">fraction</span><span class="o">*</span><span class="n">phase</span><span class="o">.</span><span class="n">get_conductivity</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">starting_var</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Kevin A. Mendoza.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
